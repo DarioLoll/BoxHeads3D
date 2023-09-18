@@ -8,7 +8,7 @@ public class Kicker : MonoBehaviour
     PlayerController playerController;
 
     [SerializeField]
-    float kickStrength = 100f;
+    float kickStrength = 50f;
 
     // Start is called before the first frame update
     void Start()

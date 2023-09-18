@@ -30,7 +30,7 @@ public class PlayerController : MonoBehaviour
     private float moveSpeed = 200f;
 
     [SerializeField]
-    private float kickStrength = 2f;
+    private float kickStrength = 750f;
 
     private Rigidbody2D rigidBody;
     private InputActions inputActions;

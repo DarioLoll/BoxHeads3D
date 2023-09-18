@@ -113,17 +113,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""3862cc36-b481-430c-a6b3-d32c51e4db3e"",
-                    ""path"": ""<Keyboard>/space"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Kick"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""cd6eda7d-d55e-4fc6-b7f2-c106c7e84d5e"",
                     ""path"": ""<Keyboard>/r"",
                     ""interactions"": """",

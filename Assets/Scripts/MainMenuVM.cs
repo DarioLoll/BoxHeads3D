@@ -5,23 +5,10 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuVM : MonoBehaviour
 {
-    [SerializeField]
-    public GameObject canvasMenu;
 
     [SerializeField]
-    public GameObject canvasOnline;
+    private GameObject canvasOnline;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     public void StartOfflineGame()
     {
@@ -30,13 +17,11 @@ public class MainMenuVM : MonoBehaviour
 
     public void StartOnlineGame()
     {
-        canvasMenu.SetActive(false);
         canvasOnline.SetActive(true);
     }
 
     public void Back()
     {
-        canvasMenu.SetActive(true);
         canvasOnline.SetActive(false);
     }
 

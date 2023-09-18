@@ -27,7 +27,7 @@ public class PlayerController : MonoBehaviour
     private float jumpForce = 7f;
 
     [SerializeField]
-    private float moveSpeed = 4f;
+    private float moveSpeed = 200f;
 
     [SerializeField]
     private float kickStrength = 2f;
@@ -57,7 +57,7 @@ public class PlayerController : MonoBehaviour
     {
         if (isGrounded)
         {
-            rigidBody.AddForce(new Vector2(0, jumpForce * rigidBody.mass), ForceMode2D.Impulse);
+            rigidBody.AddForce(new Vector2(0, jumpForce * rigidBody.mass ), ForceMode2D.Impulse);
             isGrounded = false;
         }
     }
@@ -70,7 +70,7 @@ public class PlayerController : MonoBehaviour
         else
             input = inputActions.MovementRight.Move.ReadValue<float>();
 
-        rigidBody.velocity = new Vector2(input * moveSpeed, rigidBody.velocity.y);
+        rigidBody.velocity = new Vector2(input * moveSpeed * Time.deltaTime, rigidBody.velocity.y);
     }
 
     private void Update()

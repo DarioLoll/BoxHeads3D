@@ -117,7 +117,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isLeft: 0
   jumpForce: 7
-  moveSpeed: 4
+  moveSpeed: 200
   kickStrength: 750
 --- !u!50 &483178963421654668
 Rigidbody2D:

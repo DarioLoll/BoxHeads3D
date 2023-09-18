@@ -6,22 +6,9 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    #region instancevariables
     [SerializeField]
     private bool isLeft = false;
-
-    bool isGrounded = false;
-
-    public bool IsLeft
-    {
-        get { return isLeft; }
-        set { isLeft = value; }
-    }
-
-    public bool IsKicking
-    {
-        get => (IsLeft && inputActions.MovementLeft.Kick.IsInProgress()) ||
-                !IsLeft && inputActions.MovementRight.Kick.IsInProgress();
-    }
 
     [SerializeField]
     private float jumpForce = 7f;
@@ -32,10 +19,35 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float kickStrength = 750f;
 
-    private Rigidbody2D rigidBody;
-    private InputActions inputActions;
+    bool isGrounded = false;
 
-    // Start is called before the first frame update
+    private Rigidbody2D rigidBody;
+
+    private InputActions inputActions;
+    #endregion
+
+    #region properties
+    public bool IsLeft
+    {
+        get 
+        { 
+            return isLeft; 
+        }
+        set 
+        { 
+            isLeft = value; 
+        }
+    }
+
+    public bool IsKicking
+    {
+        get => (IsLeft && inputActions.MovementLeft.Kick.IsInProgress()) ||
+                !IsLeft && inputActions.MovementRight.Kick.IsInProgress();
+    }
+    #endregion
+
+    #region methods
+    //Start is called before the first frame update
     void Start()
     {
         rigidBody = GetComponent<Rigidbody2D>();
@@ -66,9 +78,13 @@ public class PlayerController : MonoBehaviour
     {
         float input;
         if (inputActions.MovementLeft.enabled)
+        {
             input = inputActions.MovementLeft.Move.ReadValue<float>();
+        }
         else
+        {
             input = inputActions.MovementRight.Move.ReadValue<float>();
+        }
 
         rigidBody.velocity = new Vector2(input * moveSpeed * Time.deltaTime, rigidBody.velocity.y);
     }
@@ -86,19 +102,22 @@ public class PlayerController : MonoBehaviour
         else if (boot.localRotation.eulerAngles.z > 0)
         {
             if (boot.localRotation.eulerAngles.z > 180)
-                boot.Rotate(0,0, 360 - boot.localRotation.eulerAngles.z);
+            {
+                boot.Rotate(0, 0, 360 - boot.localRotation.eulerAngles.z);
+            }
             else
-                boot.Rotate(0,0, -Time.deltaTime * kickStrength);
+            {
+                boot.Rotate(0, 0, -Time.deltaTime * kickStrength);
+            }
         }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collision.gameObject.layer == 3 /*Ground*/)
+        if (collision.gameObject.layer == 3 /*Ground*/)
         {
             isGrounded = true;
         }
     }
-
-
+    #endregion
 }

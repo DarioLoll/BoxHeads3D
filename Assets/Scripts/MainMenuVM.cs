@@ -5,11 +5,12 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuVM : MonoBehaviour
 {
-
+    #region instancevariable
     [SerializeField]
     private GameObject canvasOnline;
+    #endregion
 
-
+    #region methods
     public void StartOfflineGame()
     {
         SceneManager.LoadScene("Match");
@@ -29,4 +30,5 @@ public class MainMenuVM : MonoBehaviour
     {
         Application.Quit();
     }
+    #endregion
 }

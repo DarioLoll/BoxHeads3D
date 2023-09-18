@@ -2994,6 +2994,10 @@ PrefabInstance:
       propertyPath: isLeft
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 196302910698520107, guid: 1df99e8891b68154d8606a83c2039eff, type: 3}
+      propertyPath: jumpForce
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 1398551609251858967, guid: 1df99e8891b68154d8606a83c2039eff, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0.1

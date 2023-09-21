@@ -5,8 +5,10 @@ using UnityEngine;
 
 public class ClientNetworkTransform : NetworkTransform
 {
+    #region method
     protected override bool OnIsServerAuthoritative()
     {
         return false;
     }
+    #endregion
 }

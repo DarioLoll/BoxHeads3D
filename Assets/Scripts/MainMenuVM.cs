@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuVM : MonoBehaviour
 {
-    #region instancevariable
+    #region field
     [SerializeField]
     private GameObject canvasOnline;
     #endregion

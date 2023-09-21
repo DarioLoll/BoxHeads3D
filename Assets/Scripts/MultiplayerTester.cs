@@ -5,16 +5,20 @@ using UnityEngine;
 
 public class MultiplayerTester : MonoBehaviour
 {
+    #region methods
     public void StartHost()
     {
         NetworkManager.Singleton.StartHost();
     }
+
     public void StartServer()
     {
         NetworkManager.Singleton.StartServer();
     }
+
     public void StartClient()
     {
         NetworkManager.Singleton.StartClient();
     }
+    #endregion
 }

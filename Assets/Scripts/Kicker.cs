@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class Kicker : MonoBehaviour
+public class Kicker : NetworkBehaviour
 {
-    #region instancevariables
+    #region fields
     [SerializeField]
     float kickStrength = 50f;
 

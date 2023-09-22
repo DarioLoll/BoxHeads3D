@@ -66,7 +66,7 @@ public class PlayerController : NetworkBehaviour
 
     private void Jump(InputAction.CallbackContext obj)
     {
-        if (isGrounded)
+        if (isGrounded && IsOwner)
         {
             rigidBody.AddForce(new Vector2(0, jumpForce * rigidBody.mass ), ForceMode2D.Impulse);
             isGrounded = false;
@@ -75,6 +75,8 @@ public class PlayerController : NetworkBehaviour
 
     private void FixedUpdate()
     {
+        if (!IsOwner) return;
+
         float input;
         if (inputActions.MovementLeft.enabled)
         {
@@ -90,6 +92,8 @@ public class PlayerController : NetworkBehaviour
 
     private void Update()
     {
+        if (!IsOwner) return;
+
         Transform boot = transform.GetChild(0);
         if ((inputActions.MovementLeft.Kick.inProgress && IsLeft) || (inputActions.MovementRight.Kick.inProgress && !IsLeft))
         {

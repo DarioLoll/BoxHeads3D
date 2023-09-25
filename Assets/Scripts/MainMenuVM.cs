@@ -5,9 +5,12 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuVM : MonoBehaviour
 {
-    #region field
+    #region fields
     [SerializeField]
     private GameObject canvasOnline;
+
+    [SerializeField]
+    private GameObject canvasLobby;
     #endregion
 
     #region methods
@@ -19,6 +22,18 @@ public class MainMenuVM : MonoBehaviour
     public void StartOnlineGame()
     {
         canvasOnline.SetActive(true);
+    }
+
+    public void CreateLobby()
+    {
+        canvasOnline.SetActive(false);
+        canvasLobby.SetActive(true);
+    }
+
+    public void BackToCanvasOnline()
+    {
+        canvasOnline.SetActive(true);
+        canvasLobby.SetActive(false);
     }
 
     public void Back()

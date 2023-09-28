@@ -24,7 +24,7 @@ public class Kicker : NetworkBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.tag == "Ball" && playerController.IsKicking)
+        if (collision.gameObject.CompareTag("Ball") && playerController.IsKicking)
         {
             Vector2 kickDirection = (transform.position - collision.gameObject.transform.position).normalized;
             collision.rigidbody.AddForce(-kickDirection * kickStrength, ForceMode2D.Impulse);

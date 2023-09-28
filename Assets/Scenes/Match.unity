@@ -3061,10 +3061,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: -756071133363877502, guid: e5134a49ce3d0a64581c3ad3e4ecff27, type: 3}
-      propertyPath: Interpolate
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8040817854946374898, guid: e5134a49ce3d0a64581c3ad3e4ecff27, type: 3}
       propertyPath: m_Name
       value: Ball

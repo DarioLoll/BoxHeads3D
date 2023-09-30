@@ -28,7 +28,11 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private const float MoveSpeedToUnitsPerSecondConversionRate = 50f;
 
-    [FormerlySerializedAs("kickStrength")] [SerializeField] private float kickSpeed = 750f;
+    /// <summary>
+    /// How fast the player's boot moves when it is kicking
+    /// <para></para>!FIGURE OUT WHAT 750 MEANS!
+    /// </summary>
+    [SerializeField] private float kickSpeed = 750f;
 
     /// <summary>
     /// If the player is currently touching the ground.

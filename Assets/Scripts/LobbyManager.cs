@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using TMPro;
+using Unity.Services.Core;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
@@ -13,7 +15,7 @@ public class LobbyManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI lobbyNameField;
 
     ConcurrentQueue<string> createdLobbyIds = new();
-    
+
     public async void CreateLobby(bool isPrivate)
     {
         string lobbyName = lobbyNameField.text;
@@ -49,7 +51,7 @@ public class LobbyManager : MonoBehaviour
         }
     }
     
-    //Deletes all creates lobbies by a player when they quit
+    //Deletes all created lobbies by a player when they quit
     void OnApplicationQuit()
     {
         while (createdLobbyIds.TryDequeue(out string lobbyId))

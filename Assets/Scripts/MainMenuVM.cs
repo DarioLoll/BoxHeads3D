@@ -1,5 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Services.Authentication;
+using Unity.Services.Core;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -20,9 +23,17 @@ public class MainMenuVM : MonoBehaviour
         SceneManager.LoadScene("Match");
     }
 
-    public void StartOnlineGame()
+    public async void StartOnlineGame()
     {
-        canvasOnline.SetActive(true);
+        try
+        {
+            await UnityServices.InitializeAsync();
+            canvasOnline.SetActive(true);
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+        }
     }
 
     public void CreateLobby()

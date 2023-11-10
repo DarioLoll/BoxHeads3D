@@ -1,0 +1,1 @@
+This is just a placeholder that will allow the directory it is in to continue to exist when all files in it are deleted.

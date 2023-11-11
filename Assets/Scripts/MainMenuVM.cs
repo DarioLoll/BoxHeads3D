@@ -6,7 +6,7 @@ using Unity.Services.Core;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class MainMenuVM : MonoBehaviour
+public class MainMenuVm : MonoBehaviour
 {
     #region fields
 
@@ -23,17 +23,9 @@ public class MainMenuVM : MonoBehaviour
         SceneManager.LoadScene("Match");
     }
 
-    public async void StartOnlineGame()
+    public void StartOnlineGame()
     {
-        try
-        {
-            await UnityServices.InitializeAsync();
-            canvasOnline.SetActive(true);
-        }
-        catch (Exception e)
-        {
-            Debug.LogException(e);
-        }
+        canvasOnline.SetActive(true);
     }
 
     public void CreateLobby()

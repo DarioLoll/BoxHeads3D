@@ -42,7 +42,7 @@ public class AuthenticationVm : MonoBehaviour
         {
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
             await AuthenticationService.Instance.UpdatePlayerNameAsync(playerName);
-
+            Debug.Log(AuthenticationService.Instance.PlayerId + " " + AuthenticationService.Instance.PlayerName);
             //Loading the next scene (main menu)
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }

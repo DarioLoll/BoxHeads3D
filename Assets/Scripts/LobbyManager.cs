@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using TMPro;
+using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
@@ -13,6 +14,7 @@ using UnityEngine.Serialization;
 public class LobbyManager : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI lobbyNameField;
+    [SerializeField] private TextMeshProUGUI lobbyCodeField;
 
     ConcurrentQueue<string> createdLobbyIds = new();
 
@@ -22,6 +24,7 @@ public class LobbyManager : MonoBehaviour
         int maxPlayers = 2;
         CreateLobbyOptions options = new CreateLobbyOptions();
         options.IsPrivate = isPrivate;
+        options.Player = GetPlayer();
 
         try
         {
@@ -31,8 +34,39 @@ public class LobbyManager : MonoBehaviour
             //Calls the HeartbeatLobby method every 15s to keep the lobby active
             StartCoroutine(HeartbeatLobbyCoroutine(lobby.Id, 15));
             SceneManager.LoadScene("Lobby");
+            Debug.Log(lobby.LobbyCode + " " + lobby.IsPrivate);
         }
         catch(LobbyServiceException e) { Debug.LogException(e); }
+    }
+    
+    public async void JoinLobbyByCode()
+    {
+        try
+        {
+            string lobbyCode = lobbyCodeField.text.Trim('\u200b');
+            await LobbyService.Instance.JoinLobbyByCodeAsync(lobbyCode, 
+                new JoinLobbyByCodeOptions(){Player = GetPlayer()});
+            SceneManager.LoadScene("Lobby");
+        }
+        catch(LobbyServiceException e) { Debug.LogException(e); }
+    }
+
+    public async void QuickJoinLobby()
+    {
+        try
+        {
+            await LobbyService.Instance.QuickJoinLobbyAsync(new QuickJoinLobbyOptions(){Player = GetPlayer()});
+            SceneManager.LoadScene("Lobby");
+        }
+        catch(LobbyServiceException e) { Debug.LogException(e); }
+    }
+
+    private Player GetPlayer()
+    {
+        return new Player(
+            id: AuthenticationService.Instance.PlayerId,
+            profile: new PlayerProfile(name: AuthenticationService.Instance.PlayerName)
+        );
     }
 
     //Resets the 30s timer for the lobby with the given id to keep it in the active state

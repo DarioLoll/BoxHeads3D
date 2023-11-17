@@ -16,19 +16,6 @@ public class AuthenticationVm : MonoBehaviour
     private const string NotAlphaNumerical = "The name may only contain numbers and letters";
     public TextMeshProUGUI ErrorDisplay => errorDisplay;
     
-    // Start is called before the first frame update
-    async void Start()
-    {
-        try
-        {
-            await UnityServices.InitializeAsync();
-        }
-        catch (Exception e)
-        {
-            Debug.LogException(e);
-        }
-    }
-
     public void Login(TMPro.TextMeshProUGUI playerNameField) => Login(playerNameField.text.Trim('\u200b'));
 
     private async void Login(string playerName)
@@ -40,6 +27,9 @@ public class AuthenticationVm : MonoBehaviour
         
         try
         {
+            InitializationOptions initializationOptions = new InitializationOptions();
+            initializationOptions.SetProfile(playerName);
+            await UnityServices.InitializeAsync(initializationOptions);
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
             await AuthenticationService.Instance.UpdatePlayerNameAsync(playerName);
             Debug.Log(AuthenticationService.Instance.PlayerId + " " + AuthenticationService.Instance.PlayerName);
@@ -48,6 +38,7 @@ public class AuthenticationVm : MonoBehaviour
         }
         catch (Exception e)
         {
+            ErrorDisplay.text = e.Message;
             Debug.LogException(e);
         }
     }

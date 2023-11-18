@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/MainMenu.unity
     guid: 72021ad81f589824fac57ff0ffd20b43
   - enabled: 1
+    path: Assets/Scenes/MatchOffline.unity
+    guid: 8a01e1f1bf142764789f57fb175d2ce1
+  - enabled: 1
     path: Assets/Scenes/Match.unity
     guid: 53be224656e731c41ac5913b409fe7a6
   - enabled: 1

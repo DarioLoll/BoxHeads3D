@@ -55,6 +55,8 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private Transform _bootPivot;
 
+    private bool _isOnNetwork;
+
     #endregion
 
     #region properties
@@ -96,6 +98,7 @@ public class PlayerController : NetworkBehaviour
             _inputActions.MovementRight.Enable();
             _inputActions.MovementRight.Jump.performed += Jump;
         }
+        _isOnNetwork = NetworkManager.Singleton != null;
     }
     
     //Physics need to be done in FixedUpdate instead of Update
@@ -103,7 +106,7 @@ public class PlayerController : NetworkBehaviour
     {
         /*Since this script will be run on all player objects by every client,
          we need to check if the client is the owner to make sure that does not happen.*/
-        if (!IsOwner) return;
+        if (!IsOwner && _isOnNetwork) return;
         
         HandleMovement();
     }
@@ -113,7 +116,7 @@ public class PlayerController : NetworkBehaviour
     {
         /*Since this script will be run on all player objects by every client,
          we need to check if the client is the owner to make sure that does not happen.*/
-        if (!IsOwner) return;
+        if (!IsOwner && _isOnNetwork) return;
 
         HandleKicking();
     }
@@ -124,7 +127,7 @@ public class PlayerController : NetworkBehaviour
         /*Since this script will be run on all player objects when a client 
         presses the jump key, we need to check if the client is the owner
         of this player object so that only that player jumps.*/
-        if (_isGrounded && IsOwner)
+        if (_isGrounded && (IsOwner || !_isOnNetwork))
         {
             //Makes the player jump. Ignores the mass.
             _rigidBody.AddForce(new Vector2(0, jumpForce * _rigidBody.mass), ForceMode2D.Impulse);

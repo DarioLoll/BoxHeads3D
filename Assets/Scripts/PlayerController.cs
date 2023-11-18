@@ -6,22 +6,24 @@ using UnityEngine.Serialization;
 public class PlayerController : NetworkBehaviour
 {
     #region fields
-
     /// <summary>
     /// If the player's goal is the left one
     /// </summary>
-    [SerializeField] private bool isLeft = false;
+    [SerializeField] 
+    private bool isLeft = false;
 
     /// <summary>
     /// The force that will be applied to the player on the Y-axis upon jumping.
     /// <para>Note: The mass of the player is ignored.</para>
     /// </summary>
-    [SerializeField] private float jumpForce = 7f;
+    [SerializeField] 
+    private float jumpForce = 7f;
 
     /// <summary>
     /// The movement speed of the player on the X-Axis in units per second
     /// </summary>
-    [SerializeField] private float moveSpeed = 4f;
+    [SerializeField] 
+    private float moveSpeed = 4f;
 
     /// <summary>
     /// <see cref="moveSpeed"/> has to be multiplied by this number in order to convert it into units/s
@@ -32,7 +34,8 @@ public class PlayerController : NetworkBehaviour
     /// How fast the player's boot moves when it is kicking
     /// <para></para>!FIGURE OUT WHAT 750 MEANS!
     /// </summary>
-    [SerializeField] private float kickSpeed = 750f;
+    [SerializeField] 
+    private float kickSpeed = 750f;
 
     /// <summary>
     /// If the player is currently touching the ground.
@@ -56,11 +59,9 @@ public class PlayerController : NetworkBehaviour
     private Transform _bootPivot;
 
     private bool _isOnNetwork;
-
     #endregion
 
     #region properties
-
     public bool IsLeft
     {
         get => isLeft;
@@ -75,11 +76,9 @@ public class PlayerController : NetworkBehaviour
         get => (IsLeft && _inputActions.MovementLeft.Kick.IsInProgress()) ||
                !IsLeft && _inputActions.MovementRight.Kick.IsInProgress();
     }
-
     #endregion
 
     #region methods
-
     //Start is called before the first frame update
     void Start()
     {
@@ -145,9 +144,6 @@ public class PlayerController : NetworkBehaviour
             _isGrounded = true;
         }
     }
-    
-    
-    
 
     /// <summary>
     /// Reads player input and applies movement to the player accordingly.
@@ -212,6 +208,5 @@ public class PlayerController : NetworkBehaviour
             _bootPivot.Rotate(0, 0, -Time.deltaTime * kickSpeed);
         }
     }
-
     #endregion
 }

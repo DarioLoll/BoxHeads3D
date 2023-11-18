@@ -15,18 +15,21 @@ using UnityEngine.Serialization;
 
 public class LobbyManager : MonoBehaviour
 {
+    #region field
+    /// <summary>
+    /// The lobby this player is currently in
+    /// </summary>
+    [CanBeNull]
+    private Lobby _joinedLobby;
+    #endregion
+
+    #region properties
     //There is only one lobby manager in the game per player
     /// <summary>
     /// The singleton instance of this class
     /// </summary>
     public static LobbyManager Instance { get; private set; }
-    
-    
-    /// <summary>
-    /// The lobby this player is currently in
-    /// </summary>
-    [CanBeNull] private Lobby _joinedLobby;
-    
+
     [CanBeNull]
     public Lobby JoinedLobby
     {
@@ -37,12 +40,16 @@ public class LobbyManager : MonoBehaviour
             OnJoinedLobbyChanged();
         }
     }
+    #endregion
 
+    #region event
     /// <summary>
     /// Is called when the player joins or leaves a lobby
     /// </summary>
     public event EventHandler JoinedLobbyChanged;
-    
+    #endregion
+
+    #region constants
     private const string LobbySceneName = "Lobby";
     private const string MainMenuSceneName = "MainMenu";
     
@@ -53,8 +60,9 @@ public class LobbyManager : MonoBehaviour
     
     public const string PlayerNameProperty = "name";
     public const string PlayerIsReadyProperty = "isReady";
+    #endregion
 
-    
+    #region methods
     //Assigns the singleton instance of this class and makes sure it is not destroyed on scene change
     private void Awake()
     {
@@ -70,7 +78,6 @@ public class LobbyManager : MonoBehaviour
     {
         HandlePollingForLobbyUpdates();
     }
-
 
     /// <summary>
     /// Creates a new lobby with the name given in the input field
@@ -241,7 +248,6 @@ public class LobbyManager : MonoBehaviour
             }
         );
     }
-
     
     //Resets the 30s timer for the lobby with the given id to keep it in the active state
     private IEnumerator HeartbeatLobbyCoroutine(string lobbyId, float waitTimeSeconds)
@@ -258,7 +264,6 @@ public class LobbyManager : MonoBehaviour
             yield return delay;
         }
     }
-
     
     protected virtual void OnJoinedLobbyChanged()
     {
@@ -277,4 +282,5 @@ public class LobbyManager : MonoBehaviour
     {
         LeaveLobby();
     }
+    #endregion
 }

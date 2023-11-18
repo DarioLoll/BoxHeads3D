@@ -14,17 +14,38 @@ using UnityEngine.UI;
 /// </summary>
 public class LobbyVm : MonoBehaviour
 {
+    #region fields
     //Placeholders and buttons in the lobby scene
-    [SerializeField] private TextMeshProUGUI lobbyName;
-    [SerializeField] private GameObject lobbyCodeField;
-    [SerializeField] private TextMeshProUGUI hostPlayerName;
-    [SerializeField] private TextMeshProUGUI joinedPlayerName;
-    [SerializeField] private TextMeshProUGUI joinedPlayerReady;
-    [SerializeField] private GameObject hostPlayer;
-    [SerializeField] private GameObject joinedPlayer;
-    [SerializeField] private GameObject btnReady;
-    [SerializeField] private GameObject btnStartGame;
-    [SerializeField] private GameObject btnKickPlayer;
+    [SerializeField]
+    private TextMeshProUGUI lobbyName;
+
+    [SerializeField]
+    private GameObject lobbyCodeField;
+
+    [SerializeField]
+    private TextMeshProUGUI hostPlayerName;
+
+    [SerializeField]
+    private TextMeshProUGUI joinedPlayerName;
+
+    [SerializeField]
+    private TextMeshProUGUI joinedPlayerReady;
+
+    [SerializeField]
+    private GameObject hostPlayer;
+
+    [SerializeField]
+    private GameObject joinedPlayer;
+
+    [SerializeField]
+    private GameObject btnReady;
+
+    [SerializeField]
+    private GameObject btnStartGame;
+
+    [SerializeField]
+    private GameObject btnKickPlayer;
+
     private TMP_InputField _lobbyCodeInputField;
     
     /// <summary>
@@ -39,7 +60,9 @@ public class LobbyVm : MonoBehaviour
     //https://docs.unity.com/ugs/en-us/manual/lobby/manual/rate-limits
     private const float UpdatePlayerInterval = 1.1f;
     private float _updatePlayerTimer = UpdatePlayerInterval;
-    
+    #endregion
+
+    #region methods
     private void Start()
     {
         _lobbyCodeInputField = lobbyCodeField.GetComponent<TMP_InputField>();
@@ -158,6 +181,6 @@ public class LobbyVm : MonoBehaviour
             joinedPlayer.SetActive(false);
             joinedPlayerReady.gameObject.SetActive(false);
         }
-        
     }
+    #endregion
 }

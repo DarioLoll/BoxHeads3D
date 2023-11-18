@@ -8,6 +8,7 @@ using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
@@ -42,16 +43,6 @@ public class LobbyManager : MonoBehaviour
     /// </summary>
     public event EventHandler JoinedLobbyChanged;
     
-    /// <summary>
-    /// The input field in the lobby creation menu storing the name for the lobby to be created
-    /// </summary>
-    [SerializeField] private TextMeshProUGUI lobbyNameField;
-    
-    /// <summary>
-    /// The input field in the lobby joining menu storing the lobby code to join
-    /// </summary>
-    [SerializeField] private TextMeshProUGUI lobbyCodeField;
-    
     private const string LobbySceneName = "Lobby";
     private const string MainMenuSceneName = "MainMenu";
     
@@ -59,6 +50,9 @@ public class LobbyManager : MonoBehaviour
      The limit for requests by unity are 1 per second*/
     private const float PollingForLobbyUpdatesInterval = 1.1f;
     private float _pollingForLobbyUpdatesTimer = PollingForLobbyUpdatesInterval;
+    
+    public const string PlayerNameProperty = "name";
+    public const string PlayerIsReadyProperty = "isReady";
 
     
     //Assigns the singleton instance of this class and makes sure it is not destroyed on scene change
@@ -66,8 +60,7 @@ public class LobbyManager : MonoBehaviour
     {
         if (Instance != null)
         {
-            Destroy(gameObject);
-            return;
+            Destroy(Instance.gameObject);
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
@@ -82,10 +75,10 @@ public class LobbyManager : MonoBehaviour
     /// <summary>
     /// Creates a new lobby with the name given in the input field
     /// </summary>
+    /// <param name="lobbyName">The name of the lobby to be created</param>
     /// <param name="isPrivate">If the lobby is private: <c>true</c> or public: <c>false</c></param>
-    public async void CreateLobby(bool isPrivate)
+    public async void CreateLobby(string lobbyName, bool isPrivate)
     {
-        string lobbyName = lobbyNameField.text;
         int maxPlayers = 2;
         CreateLobbyOptions options = new CreateLobbyOptions
         {
@@ -109,17 +102,17 @@ public class LobbyManager : MonoBehaviour
     /// <summary>
     /// Joins a lobby with the given lobby code in the input field
     /// </summary>
-    public async void JoinLobbyByCode()
+    public async void JoinLobbyByCode(string lobbyCode)
     {
         try
         {
-            string lobbyCode = lobbyCodeField.text.Trim('\u200b');
             JoinedLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(lobbyCode, 
                 new JoinLobbyByCodeOptions()
                 {
                     Player = GetPlayer()
                 });
             SceneManager.LoadScene(LobbySceneName);
+            Debug.Log("Joined lobby " + JoinedLobby!.Name + "with code " + lobbyCode);
         }
         catch(LobbyServiceException e) { Debug.LogException(e); }
     }
@@ -136,6 +129,7 @@ public class LobbyManager : MonoBehaviour
                 Player = GetPlayer()
             });
             SceneManager.LoadScene(LobbySceneName);
+            Debug.Log("Joined lobby " + JoinedLobby!.Name);
         }
         catch (LobbyServiceException e)
         {
@@ -144,14 +138,16 @@ public class LobbyManager : MonoBehaviour
     }
     
     /// <summary>
-    /// Leaves the lobby the player is currently in and loads the previous scene
+    /// Leaves the lobby this player is currently in
     /// </summary>
     public async void LeaveLobby()
     {
         try
         {
-            await LobbyService.Instance.RemovePlayerAsync(JoinedLobby!.Id, AuthenticationService.Instance.PlayerId);
+            if (JoinedLobby == null) return;
+            await LobbyService.Instance.RemovePlayerAsync(JoinedLobby.Id, AuthenticationService.Instance.PlayerId);
             JoinedLobby = null;
+            Debug.Log($"Left the lobby");
         }
         catch (LobbyServiceException e)
         {
@@ -159,11 +155,18 @@ public class LobbyManager : MonoBehaviour
         }
     }
     
+    /// <summary>
+    /// Kicks the player with the given id from the lobby if this player is the host of the lobby
+    /// </summary>
+    /// <param name="playerId">The id of the player to be kicked from the lobby</param>
     public async void KickPlayer(string playerId)
     {
         try
         {
+            if (JoinedLobby == null || AuthenticationService.Instance.PlayerId != JoinedLobby.HostId) return;
+            string playerName = JoinedLobby.Players.Find(player => player.Id == playerId).Data[PlayerNameProperty].Value;
             await LobbyService.Instance.RemovePlayerAsync(JoinedLobby!.Id, playerId);
+            Debug.Log($"Successfully kicked the player {playerName}");
         }
         catch (LobbyServiceException e)
         {
@@ -199,9 +202,32 @@ public class LobbyManager : MonoBehaviour
             Debug.LogException(e);
         }
     }
+
+    /// <summary>
+    /// Updates the given data of this player in the cloud
+    /// </summary>
+    /// <param name="updates">A dictionary containing the properties to be updated,
+    /// where the key is the property name to be updated,
+    /// and the value the new value for that property</param>
+    public async void UpdatePlayer(Dictionary<string, PlayerDataObject> updates)
+    {
+        try
+        {
+            if (JoinedLobby == null) return;
+            JoinedLobby = await LobbyService.Instance.UpdatePlayerAsync(JoinedLobby.Id, AuthenticationService.Instance.PlayerId,
+                new UpdatePlayerOptions()
+                {
+                    Data = updates
+                });
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogException(e);
+        }
+    }
     
     /// <summary>
-    /// Creates a <see cref="Player"/> object with the current player's id and name
+    /// Creates a <see cref="Player"/> object with the current player's id, name and additional properties
     /// </summary>
     private Player GetPlayer()
     {
@@ -209,7 +235,9 @@ public class LobbyManager : MonoBehaviour
             id: AuthenticationService.Instance.PlayerId,
             data: new Dictionary<string, PlayerDataObject>()
             {
-                {"name", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, AuthenticationService.Instance.PlayerName)}
+                {PlayerNameProperty, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, 
+                    AuthenticationService.Instance.PlayerName)},
+                {PlayerIsReadyProperty, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, false.ToString())}
             }
         );
     }
@@ -244,5 +272,9 @@ public class LobbyManager : MonoBehaviour
         
         JoinedLobbyChanged?.Invoke(this, EventArgs.Empty);
     }
-    
+
+    private void OnApplicationQuit()
+    {
+        LeaveLobby();
+    }
 }

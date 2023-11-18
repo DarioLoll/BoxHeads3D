@@ -996,7 +996,6 @@ GameObject:
   - component: {fileID: 335023334}
   - component: {fileID: 335023333}
   - component: {fileID: 335023332}
-  - component: {fileID: 335023335}
   m_Layer: 5
   m_Name: btnBack
   m_TagString: Untagged
@@ -1068,9 +1067,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 335023335}
-        m_TargetAssemblyTypeName: MainMenuVM, Assembly-CSharp
-        m_MethodName: Back
+      - m_Target: {fileID: 719209424}
+        m_TargetAssemblyTypeName: MainMenuVm, Assembly-CSharp
+        m_MethodName: HideOnlineMenu
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1118,20 +1117,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 335023330}
   m_CullTransparentMesh: 1
---- !u!114 &335023335
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 335023330}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87b2f897184f5984d847e1b2452d0dd7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canvasOnline: {fileID: 1521587396}
-  canvasLobby: {fileID: 299973400}
 --- !u!1 &375120299
 GameObject:
   m_ObjectHideFlags: 0
@@ -1144,7 +1129,6 @@ GameObject:
   - component: {fileID: 375120303}
   - component: {fileID: 375120302}
   - component: {fileID: 375120301}
-  - component: {fileID: 375120304}
   m_Layer: 5
   m_Name: btnQuit
   m_TagString: Untagged
@@ -1216,8 +1200,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 375120304}
-        m_TargetAssemblyTypeName: MainMenuVM, Assembly-CSharp
+      - m_Target: {fileID: 719209424}
+        m_TargetAssemblyTypeName: MainMenuVm, Assembly-CSharp
         m_MethodName: Quit
         m_Mode: 1
         m_Arguments:
@@ -1266,20 +1250,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 375120299}
   m_CullTransparentMesh: 1
---- !u!114 &375120304
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 375120299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87b2f897184f5984d847e1b2452d0dd7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canvasOnline: {fileID: 1521587396}
-  canvasLobby: {fileID: 0}
 --- !u!1 &377399849
 GameObject:
   m_ObjectHideFlags: 0
@@ -1497,8 +1467,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1613442900}
-        m_TargetAssemblyTypeName: LobbyManager, Assembly-CSharp
+      - m_Target: {fileID: 719209424}
+        m_TargetAssemblyTypeName: MainMenuVm, Assembly-CSharp
         m_MethodName: CreateLobby
         m_Mode: 6
         m_Arguments:
@@ -2017,6 +1987,54 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 637687250}
   m_CullTransparentMesh: 1
+--- !u!1 &719209423
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 719209425}
+  - component: {fileID: 719209424}
+  m_Layer: 0
+  m_Name: MainMenuVm
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &719209424
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 719209423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87b2f897184f5984d847e1b2452d0dd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canvasOnline: {fileID: 1521587396}
+  canvasLobby: {fileID: 299973400}
+  lobbyNameField: {fileID: 531822123}
+  lobbyCodeField: {fileID: 617244565}
+--- !u!4 &719209425
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 719209423}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &784358721
 GameObject:
   m_ObjectHideFlags: 0
@@ -2104,7 +2122,6 @@ GameObject:
   - component: {fileID: 789857502}
   - component: {fileID: 789857501}
   - component: {fileID: 789857500}
-  - component: {fileID: 789857503}
   m_Layer: 5
   m_Name: btnOnline
   m_TagString: Untagged
@@ -2176,9 +2193,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 789857503}
-        m_TargetAssemblyTypeName: MainMenuVM, Assembly-CSharp
-        m_MethodName: StartOnlineGame
+      - m_Target: {fileID: 719209424}
+        m_TargetAssemblyTypeName: MainMenuVm, Assembly-CSharp
+        m_MethodName: ShowOnlineMenu
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2226,20 +2243,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 789857498}
   m_CullTransparentMesh: 1
---- !u!114 &789857503
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 789857498}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87b2f897184f5984d847e1b2452d0dd7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canvasOnline: {fileID: 1521587396}
-  canvasLobby: {fileID: 0}
 --- !u!1 &833722720
 GameObject:
   m_ObjectHideFlags: 0
@@ -2252,7 +2255,6 @@ GameObject:
   - component: {fileID: 833722724}
   - component: {fileID: 833722723}
   - component: {fileID: 833722722}
-  - component: {fileID: 833722725}
   m_Layer: 5
   m_Name: btnOffline
   m_TagString: Untagged
@@ -2324,8 +2326,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 833722725}
-        m_TargetAssemblyTypeName: MainMenuVM, Assembly-CSharp
+      - m_Target: {fileID: 719209424}
+        m_TargetAssemblyTypeName: MainMenuVm, Assembly-CSharp
         m_MethodName: StartOfflineGame
         m_Mode: 1
         m_Arguments:
@@ -2374,20 +2376,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 833722720}
   m_CullTransparentMesh: 1
---- !u!114 &833722725
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 833722720}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87b2f897184f5984d847e1b2452d0dd7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canvasOnline: {fileID: 1521587396}
-  canvasLobby: {fileID: 0}
 --- !u!1 &852752904
 GameObject:
   m_ObjectHideFlags: 0
@@ -2741,8 +2729,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1613442900}
-        m_TargetAssemblyTypeName: LobbyManager, Assembly-CSharp
+      - m_Target: {fileID: 719209424}
+        m_TargetAssemblyTypeName: MainMenuVm, Assembly-CSharp
         m_MethodName: QuickJoinLobby
         m_Mode: 1
         m_Arguments:
@@ -2874,9 +2862,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1613442900}
-        m_TargetAssemblyTypeName: LobbyManager, Assembly-CSharp
-        m_MethodName: JoinLobbyByCode
+      - m_Target: {fileID: 719209424}
+        m_TargetAssemblyTypeName: MainMenuVm, Assembly-CSharp
+        m_MethodName: JoinLobby
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3117,7 +3105,6 @@ GameObject:
   - component: {fileID: 1386276853}
   - component: {fileID: 1386276852}
   - component: {fileID: 1386276851}
-  - component: {fileID: 1386276850}
   m_Layer: 5
   m_Name: btnBack
   m_TagString: Untagged
@@ -3145,20 +3132,6 @@ RectTransform:
   m_AnchoredPosition: {x: 577, y: 275}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1386276850
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1386276848}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87b2f897184f5984d847e1b2452d0dd7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canvasOnline: {fileID: 1521587396}
-  canvasLobby: {fileID: 299973400}
 --- !u!114 &1386276851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3203,9 +3176,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1386276850}
-        m_TargetAssemblyTypeName: MainMenuVM, Assembly-CSharp
-        m_MethodName: BackToCanvasOnline
+      - m_Target: {fileID: 719209424}
+        m_TargetAssemblyTypeName: MainMenuVm, Assembly-CSharp
+        m_MethodName: HideLobbyCreationMenu
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3835,8 +3808,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06ea47e44c81ec141a7e32e646f2ef4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lobbyNameField: {fileID: 531822123}
-  lobbyCodeField: {fileID: 617244565}
 --- !u!4 &1613442901
 Transform:
   m_ObjectHideFlags: 0
@@ -4069,8 +4040,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1613442900}
-        m_TargetAssemblyTypeName: LobbyManager, Assembly-CSharp
+      - m_Target: {fileID: 719209424}
+        m_TargetAssemblyTypeName: MainMenuVm, Assembly-CSharp
         m_MethodName: CreateLobby
         m_Mode: 6
         m_Arguments:
@@ -4131,7 +4102,6 @@ GameObject:
   - component: {fileID: 1699392996}
   - component: {fileID: 1699392995}
   - component: {fileID: 1699392994}
-  - component: {fileID: 1699392997}
   m_Layer: 5
   m_Name: btnCreateLobby
   m_TagString: Untagged
@@ -4203,9 +4173,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1699392997}
-        m_TargetAssemblyTypeName: MainMenuVM, Assembly-CSharp
-        m_MethodName: CreateLobby
+      - m_Target: {fileID: 719209424}
+        m_TargetAssemblyTypeName: MainMenuVm, Assembly-CSharp
+        m_MethodName: ShowLobbyCreationMenu
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4253,20 +4223,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1699392992}
   m_CullTransparentMesh: 1
---- !u!114 &1699392997
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1699392992}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87b2f897184f5984d847e1b2452d0dd7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canvasOnline: {fileID: 1521587396}
-  canvasLobby: {fileID: 299973400}
 --- !u!1 &1829878307
 GameObject:
   m_ObjectHideFlags: 0
@@ -5084,3 +5040,4 @@ SceneRoots:
   - {fileID: 1521587400}
   - {fileID: 299973404}
   - {fileID: 1613442901}
+  - {fileID: 719209425}

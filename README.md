@@ -9,3 +9,8 @@ Therefore, we have chosen a simple but entertaining soccer game that can be play
 
 ## Planned Outcome:
 The successful development of an engaging soccer game with low latency, responsive controls, and smooth gameplay. It may be playable at any time on a website or through an app.
+
+## Download:
+You can download the current version for **Windows** here:
+- [**.EXE**](https://www.mediafire.com/file/34n2uc5iisef5p7/soccerheads.exe/file)
+- [**.ZIP**](https://www.mediafire.com/file/dgq7u258b1unhu4/SoccerHeads.zip/file)

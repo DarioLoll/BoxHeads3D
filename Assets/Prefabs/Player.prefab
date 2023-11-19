@@ -122,7 +122,7 @@ MonoBehaviour:
   isLeft: 1
   jumpForce: 7
   moveSpeed: 4
-  kickStrength: 750
+  kickSpeed: 750
 --- !u!50 &483178963421654668
 Rigidbody2D:
   serializedVersion: 4

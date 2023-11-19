@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using TMPro;
 using Unity.Services.Authentication;
@@ -12,21 +13,24 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using ColorUtility = UnityEngine.ColorUtility;
 
 public class LobbyManager : MonoBehaviour
 {
+    #region field
+    /// <summary>
+    /// The lobby this player is currently in
+    /// </summary>
+    [CanBeNull] private Lobby _joinedLobby;
+    #endregion
+
+    #region properties
     //There is only one lobby manager in the game per player
     /// <summary>
     /// The singleton instance of this class
     /// </summary>
     public static LobbyManager Instance { get; private set; }
-    
-    
-    /// <summary>
-    /// The lobby this player is currently in
-    /// </summary>
-    [CanBeNull] private Lobby _joinedLobby;
-    
+
     [CanBeNull]
     public Lobby JoinedLobby
     {
@@ -38,11 +42,27 @@ public class LobbyManager : MonoBehaviour
         }
     }
 
+    [CanBeNull] public Player ThisPlayer => JoinedLobby?.Players.
+        Find(player => player.Id == AuthenticationService.Instance.PlayerId);
+    [CanBeNull] public Player OtherPlayer => JoinedLobby?.Players.
+        Find(player => player.Id != AuthenticationService.Instance.PlayerId);
+    [CanBeNull] public Player HostPlayer => JoinedLobby?.Players.
+        Find(player => player.Id == JoinedLobby.HostId);
+    [CanBeNull] public Player JoinedPlayer => JoinedLobby?.Players.
+        Find(player => player.Id != AuthenticationService.Instance.PlayerId);
+    
+    public bool IsHost => AuthenticationService.Instance.PlayerId == JoinedLobby?.HostId;
+
+    #endregion
+
+    #region event
     /// <summary>
     /// Is called when the player joins or leaves a lobby
     /// </summary>
     public event EventHandler JoinedLobbyChanged;
-    
+    #endregion
+
+    #region constants
     private const string LobbySceneName = "Lobby";
     private const string MainMenuSceneName = "MainMenu";
     
@@ -53,8 +73,10 @@ public class LobbyManager : MonoBehaviour
     
     public const string PlayerNameProperty = "name";
     public const string PlayerIsReadyProperty = "isReady";
+    public const string PlayerColorProperty = "color";
+    #endregion
 
-    
+    #region methods
     //Assigns the singleton instance of this class and makes sure it is not destroyed on scene change
     private void Awake()
     {
@@ -71,13 +93,12 @@ public class LobbyManager : MonoBehaviour
         HandlePollingForLobbyUpdates();
     }
 
-
     /// <summary>
     /// Creates a new lobby with the name given in the input field
     /// </summary>
     /// <param name="lobbyName">The name of the lobby to be created</param>
     /// <param name="isPrivate">If the lobby is private: <c>true</c> or public: <c>false</c></param>
-    public async void CreateLobby(string lobbyName, bool isPrivate)
+    public async Task CreateLobby(string lobbyName, bool isPrivate)
     {
         int maxPlayers = 2;
         CreateLobbyOptions options = new CreateLobbyOptions
@@ -96,17 +117,26 @@ public class LobbyManager : MonoBehaviour
             SceneManager.LoadScene(LobbySceneName);
             Debug.Log($"Created lobby {lobbyName} with id {lobby.Id} and code {lobby.LobbyCode}");
         }
-        catch(LobbyServiceException e) { Debug.LogException(e); }
+        catch (LobbyServiceException e)
+        {
+            ErrorDisplay.Instance.DisplayLobbyError(e);
+            Debug.LogException(e);
+        }
     }
     
     /// <summary>
     /// Joins a lobby with the given lobby code in the input field
     /// </summary>
-    public async void JoinLobbyByCode(string lobbyCode)
+    public async Task JoinLobbyByCode(string lobbyCode)
     {
+        if (string.IsNullOrEmpty(lobbyCode))
+        {
+            ErrorDisplay.Instance.DisplayError("Please enter a lobby code.");
+            return;
+        }
         try
         {
-            JoinedLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(lobbyCode, 
+            JoinedLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(lobbyCode,
                 new JoinLobbyByCodeOptions()
                 {
                     Player = GetPlayer()
@@ -114,13 +144,17 @@ public class LobbyManager : MonoBehaviour
             SceneManager.LoadScene(LobbySceneName);
             Debug.Log("Joined lobby " + JoinedLobby!.Name + "with code " + lobbyCode);
         }
-        catch(LobbyServiceException e) { Debug.LogException(e); }
+        catch (LobbyServiceException e)
+        {
+            ErrorDisplay.Instance.DisplayLobbyError(e);
+            Debug.LogException(e);
+        }
     }
 
     /// <summary>
     /// Joins a random public lobby
     /// </summary>
-    public async void QuickJoinLobby()
+    public async Task QuickJoinLobby()
     {
         try
         {
@@ -133,6 +167,7 @@ public class LobbyManager : MonoBehaviour
         }
         catch (LobbyServiceException e)
         {
+            ErrorDisplay.Instance.DisplayLobbyError(e);
             Debug.LogException(e);
         }
     }
@@ -146,11 +181,12 @@ public class LobbyManager : MonoBehaviour
         {
             if (JoinedLobby == null) return;
             await LobbyService.Instance.RemovePlayerAsync(JoinedLobby.Id, AuthenticationService.Instance.PlayerId);
-            JoinedLobby = null;
+            SceneManager.LoadScene(MainMenuSceneName);
             Debug.Log($"Left the lobby");
         }
         catch (LobbyServiceException e)
         {
+            ErrorDisplay.Instance.DisplayLobbyError(e);
             Debug.LogException(e);
         }
     }
@@ -163,13 +199,14 @@ public class LobbyManager : MonoBehaviour
     {
         try
         {
-            if (JoinedLobby == null || AuthenticationService.Instance.PlayerId != JoinedLobby.HostId) return;
+            if (JoinedLobby == null || !IsHost) return;
             string playerName = JoinedLobby.Players.Find(player => player.Id == playerId).Data[PlayerNameProperty].Value;
             await LobbyService.Instance.RemovePlayerAsync(JoinedLobby!.Id, playerId);
             Debug.Log($"Successfully kicked the player {playerName}");
         }
         catch (LobbyServiceException e)
         {
+            ErrorDisplay.Instance.DisplayLobbyError(e);
             Debug.LogException(e);
         }
     }
@@ -193,12 +230,12 @@ public class LobbyManager : MonoBehaviour
         try
         {
             JoinedLobby = await LobbyService.Instance.GetLobbyAsync(JoinedLobby!.Id);
-            if (JoinedLobby != null && 
-                !JoinedLobby.Players.Exists(player => player.Id == AuthenticationService.Instance.PlayerId))
+            if (ThisPlayer == null)
                 JoinedLobby = null;
         }
         catch (LobbyServiceException e)
         {
+            ErrorDisplay.Instance.DisplayLobbyError(e);
             Debug.LogException(e);
         }
     }
@@ -222,6 +259,7 @@ public class LobbyManager : MonoBehaviour
         }
         catch (LobbyServiceException e)
         {
+            ErrorDisplay.Instance.DisplayLobbyError(e);
             Debug.LogException(e);
         }
     }
@@ -237,11 +275,12 @@ public class LobbyManager : MonoBehaviour
             {
                 {PlayerNameProperty, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, 
                     AuthenticationService.Instance.PlayerName)},
-                {PlayerIsReadyProperty, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, false.ToString())}
+                {PlayerIsReadyProperty, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, false.ToString())},
+                {PlayerColorProperty, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, 
+                    "#" + ColorUtility.ToHtmlStringRGB(Color.white))}
             }
         );
     }
-
     
     //Resets the 30s timer for the lobby with the given id to keep it in the active state
     private IEnumerator HeartbeatLobbyCoroutine(string lobbyId, float waitTimeSeconds)
@@ -258,13 +297,12 @@ public class LobbyManager : MonoBehaviour
             yield return delay;
         }
     }
-
     
     protected virtual void OnJoinedLobbyChanged()
     {
         if (JoinedLobby == null)
         {
-            SceneManager.LoadScene(MainMenuSceneName);
+            ErrorDisplay.Instance.DisplayInfo("You were kicked from the lobby", () => SceneManager.LoadScene(MainMenuSceneName));
             return;
         }
         if(JoinedLobby != null && SceneManager.GetActiveScene().name != LobbySceneName)
@@ -277,4 +315,5 @@ public class LobbyManager : MonoBehaviour
     {
         LeaveLobby();
     }
+    #endregion
 }

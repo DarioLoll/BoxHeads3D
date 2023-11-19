@@ -36,6 +36,7 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     [SerializeField] 
     private float kickSpeed = 750f;
+    
 
     /// <summary>
     /// If the player is currently touching the ground.
@@ -58,6 +59,8 @@ public class PlayerController : NetworkBehaviour
     /// </summary>
     private Transform _bootPivot;
 
+
+
     private bool _isOnNetwork;
     #endregion
 
@@ -67,6 +70,8 @@ public class PlayerController : NetworkBehaviour
         get => isLeft;
         set => isLeft = value;
     }
+    
+    
 
     /// <summary>
     /// Returns true if the player is currently holding down the Kick button

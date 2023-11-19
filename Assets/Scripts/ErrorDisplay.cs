@@ -23,12 +23,22 @@ public class ErrorDisplay : MonoBehaviour
         Instance = this;
     }
 
-    public void DisplayError(string errorMessage)
+    public void DisplayError(string errorMessage, Action onClose = null)
     {
         var errorPopup = Instantiate(errorPopupPrefab.transform, mainCanvas.transform);
         var errorPopupVm = errorPopup.GetComponent<ErrorPopupVm>();
-        errorPopupVm.ErrorMessage = errorMessage;
+        errorPopupVm.OnClose = onClose;
+        errorPopupVm.DisplayError(errorMessage);
     }
+
+    public void DisplayInfo(string infoMessage, Action onClose = null)
+    {
+        var errorPopup = Instantiate(errorPopupPrefab.transform, mainCanvas.transform);
+        var errorPopupVm = errorPopup.GetComponent<ErrorPopupVm>();
+        errorPopupVm.OnClose = onClose;
+        errorPopupVm.DisplayInfo(infoMessage);
+    }
+    
     
     public void DisplayLobbyError(LobbyServiceException exception)
     {
@@ -68,6 +78,9 @@ public class ErrorDisplay : MonoBehaviour
                 break;
             case LobbyExceptionReason.NetworkError:
                 DisplayError("Couldn't connect to the server.\n Check your internet connection and try again.");
+                break;
+            case LobbyExceptionReason.RateLimited:
+                DisplayError("You are sending too many requests to the server.\n Try again in a few seconds.");
                 break;
             default:
                 DisplayError("An unknown error occured.\n Try restarting your game.");

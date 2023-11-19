@@ -50,6 +50,7 @@ public class MainMenuVm : MonoBehaviour
     
 
     #region methods
+    
 
     private void Start()
     {

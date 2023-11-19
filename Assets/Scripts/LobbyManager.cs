@@ -13,6 +13,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using ColorUtility = UnityEngine.ColorUtility;
 
 public class LobbyManager : MonoBehaviour
 {
@@ -40,6 +41,18 @@ public class LobbyManager : MonoBehaviour
             OnJoinedLobbyChanged();
         }
     }
+
+    [CanBeNull] public Player ThisPlayer => JoinedLobby?.Players.
+        Find(player => player.Id == AuthenticationService.Instance.PlayerId);
+    [CanBeNull] public Player OtherPlayer => JoinedLobby?.Players.
+        Find(player => player.Id != AuthenticationService.Instance.PlayerId);
+    [CanBeNull] public Player HostPlayer => JoinedLobby?.Players.
+        Find(player => player.Id == JoinedLobby.HostId);
+    [CanBeNull] public Player JoinedPlayer => JoinedLobby?.Players.
+        Find(player => player.Id != AuthenticationService.Instance.PlayerId);
+    
+    public bool IsHost => AuthenticationService.Instance.PlayerId == JoinedLobby?.HostId;
+
     #endregion
 
     #region event
@@ -60,6 +73,7 @@ public class LobbyManager : MonoBehaviour
     
     public const string PlayerNameProperty = "name";
     public const string PlayerIsReadyProperty = "isReady";
+    public const string PlayerColorProperty = "color";
     #endregion
 
     #region methods
@@ -167,7 +181,7 @@ public class LobbyManager : MonoBehaviour
         {
             if (JoinedLobby == null) return;
             await LobbyService.Instance.RemovePlayerAsync(JoinedLobby.Id, AuthenticationService.Instance.PlayerId);
-            JoinedLobby = null;
+            SceneManager.LoadScene(MainMenuSceneName);
             Debug.Log($"Left the lobby");
         }
         catch (LobbyServiceException e)
@@ -185,7 +199,7 @@ public class LobbyManager : MonoBehaviour
     {
         try
         {
-            if (JoinedLobby == null || AuthenticationService.Instance.PlayerId != JoinedLobby.HostId) return;
+            if (JoinedLobby == null || !IsHost) return;
             string playerName = JoinedLobby.Players.Find(player => player.Id == playerId).Data[PlayerNameProperty].Value;
             await LobbyService.Instance.RemovePlayerAsync(JoinedLobby!.Id, playerId);
             Debug.Log($"Successfully kicked the player {playerName}");
@@ -216,8 +230,7 @@ public class LobbyManager : MonoBehaviour
         try
         {
             JoinedLobby = await LobbyService.Instance.GetLobbyAsync(JoinedLobby!.Id);
-            if (JoinedLobby != null && 
-                !JoinedLobby.Players.Exists(player => player.Id == AuthenticationService.Instance.PlayerId))
+            if (ThisPlayer == null)
                 JoinedLobby = null;
         }
         catch (LobbyServiceException e)
@@ -262,7 +275,9 @@ public class LobbyManager : MonoBehaviour
             {
                 {PlayerNameProperty, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, 
                     AuthenticationService.Instance.PlayerName)},
-                {PlayerIsReadyProperty, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, false.ToString())}
+                {PlayerIsReadyProperty, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, false.ToString())},
+                {PlayerColorProperty, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, 
+                    "#" + ColorUtility.ToHtmlStringRGB(Color.white))}
             }
         );
     }
@@ -287,7 +302,7 @@ public class LobbyManager : MonoBehaviour
     {
         if (JoinedLobby == null)
         {
-            SceneManager.LoadScene(MainMenuSceneName);
+            ErrorDisplay.Instance.DisplayInfo("You were kicked from the lobby", () => SceneManager.LoadScene(MainMenuSceneName));
             return;
         }
         if(JoinedLobby != null && SceneManager.GetActiveScene().name != LobbySceneName)

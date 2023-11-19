@@ -369,7 +369,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4832248028453148625}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -464,6 +464,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   errorText: {fileID: 3919406825509428357}
+  title: {fileID: 5162450761356104865}
+  icon: {fileID: 5558492645832123291}
+  errorIcon: {fileID: -4937144995963662283, guid: 4539fa3e3b42d9644b6c75f404ef7696, type: 3}
+  infoIcon: {fileID: -4840956905274968816, guid: bf294ae3498b618409b02e773742ecfe, type: 3}
 --- !u!1 &5279101468557555852
 GameObject:
   m_ObjectHideFlags: 0
@@ -612,7 +616,7 @@ GameObject:
   - component: {fileID: 5188700073090525337}
   - component: {fileID: 8686456517640016092}
   m_Layer: 0
-  m_Name: Image
+  m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -665,7 +669,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 133982719826790466, guid: 4539fa3e3b42d9644b6c75f404ef7696, type: 3}
+  m_Sprite: {fileID: -4937144995963662283, guid: 4539fa3e3b42d9644b6c75f404ef7696, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

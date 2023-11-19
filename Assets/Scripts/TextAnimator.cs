@@ -58,7 +58,7 @@ public class TextAnimator : MonoBehaviour
         if (_timer <= 0)
         {
             _timer = timeBetweenFrames;
-            if (_currentFrame >= keyFrames.Count) _currentFrame = 0;
+            if (_currentFrame >= keyFrames.Count - 1) _currentFrame = 0;
             else _currentFrame++;
             _textField.text = keyFrames[_currentFrame];
         }

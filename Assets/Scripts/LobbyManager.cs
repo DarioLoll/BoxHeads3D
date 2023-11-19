@@ -20,8 +20,7 @@ public class LobbyManager : MonoBehaviour
     /// <summary>
     /// The lobby this player is currently in
     /// </summary>
-    [CanBeNull]
-    private Lobby _joinedLobby;
+    [CanBeNull] private Lobby _joinedLobby;
     #endregion
 
     #region properties
@@ -104,7 +103,11 @@ public class LobbyManager : MonoBehaviour
             SceneManager.LoadScene(LobbySceneName);
             Debug.Log($"Created lobby {lobbyName} with id {lobby.Id} and code {lobby.LobbyCode}");
         }
-        catch(LobbyServiceException e) { Debug.LogException(e); }
+        catch (LobbyServiceException e)
+        {
+            ErrorDisplay.Instance.DisplayLobbyError(e);
+            Debug.LogException(e);
+        }
     }
     
     /// <summary>
@@ -112,9 +115,14 @@ public class LobbyManager : MonoBehaviour
     /// </summary>
     public async Task JoinLobbyByCode(string lobbyCode)
     {
+        if (string.IsNullOrEmpty(lobbyCode))
+        {
+            ErrorDisplay.Instance.DisplayError("Please enter a lobby code.");
+            return;
+        }
         try
         {
-            JoinedLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(lobbyCode, 
+            JoinedLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(lobbyCode,
                 new JoinLobbyByCodeOptions()
                 {
                     Player = GetPlayer()
@@ -122,7 +130,11 @@ public class LobbyManager : MonoBehaviour
             SceneManager.LoadScene(LobbySceneName);
             Debug.Log("Joined lobby " + JoinedLobby!.Name + "with code " + lobbyCode);
         }
-        catch(LobbyServiceException e) { Debug.LogException(e); }
+        catch (LobbyServiceException e)
+        {
+            ErrorDisplay.Instance.DisplayLobbyError(e);
+            Debug.LogException(e);
+        }
     }
 
     /// <summary>
@@ -141,6 +153,7 @@ public class LobbyManager : MonoBehaviour
         }
         catch (LobbyServiceException e)
         {
+            ErrorDisplay.Instance.DisplayLobbyError(e);
             Debug.LogException(e);
         }
     }
@@ -159,6 +172,7 @@ public class LobbyManager : MonoBehaviour
         }
         catch (LobbyServiceException e)
         {
+            ErrorDisplay.Instance.DisplayLobbyError(e);
             Debug.LogException(e);
         }
     }
@@ -178,6 +192,7 @@ public class LobbyManager : MonoBehaviour
         }
         catch (LobbyServiceException e)
         {
+            ErrorDisplay.Instance.DisplayLobbyError(e);
             Debug.LogException(e);
         }
     }
@@ -207,6 +222,7 @@ public class LobbyManager : MonoBehaviour
         }
         catch (LobbyServiceException e)
         {
+            ErrorDisplay.Instance.DisplayLobbyError(e);
             Debug.LogException(e);
         }
     }
@@ -230,6 +246,7 @@ public class LobbyManager : MonoBehaviour
         }
         catch (LobbyServiceException e)
         {
+            ErrorDisplay.Instance.DisplayLobbyError(e);
             Debug.LogException(e);
         }
     }

@@ -1,12 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using UnityEngine.U2D;
 using UnityEngine.UI;
 
 /// <summary>
@@ -16,6 +18,9 @@ public class LobbyVm : MonoBehaviour
 {
     #region fields
     //Placeholders and buttons in the lobby scene
+
+    [SerializeField] private GameObject mainCanvas;
+    
     [SerializeField]
     private TextMeshProUGUI lobbyName;
 
@@ -47,6 +52,7 @@ public class LobbyVm : MonoBehaviour
     private GameObject btnKickPlayer;
 
     private TMP_InputField _lobbyCodeInputField;
+
     
     /// <summary>
     /// Whether the player that joined the lobby (not the host) is ready for the game to start
@@ -66,10 +72,12 @@ public class LobbyVm : MonoBehaviour
     private void Start()
     {
         _lobbyCodeInputField = lobbyCodeField.GetComponent<TMP_InputField>();
+        ErrorDisplay.Instance.mainCanvas = mainCanvas;
         
         LobbyManager.Instance.JoinedLobbyChanged += UpdateLobby;
         UpdateLobby();
     }
+    
 
     /// <summary>
     /// Checks if the local ready status of the joined player is the same as
@@ -84,6 +92,7 @@ public class LobbyVm : MonoBehaviour
         
         if (_updatePlayerTimer <= 0)
         {
+                //On the unity server                                               //local
             if(lobby.Players[1].Data[LobbyManager.PlayerIsReadyProperty].Value != _joinedPlayerIsReady.ToString())
                 LobbyManager.Instance.UpdatePlayer(new Dictionary<string, PlayerDataObject>()
                 {

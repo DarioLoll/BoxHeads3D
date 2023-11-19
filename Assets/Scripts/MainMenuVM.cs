@@ -88,6 +88,7 @@ public class MainMenuVm : MonoBehaviour
     public async void JoinLobby()
     {
         _searchingForLobbyAnimator.StartAnimation();
+        ErrorDisplay.Instance.mainCanvas = canvasOnline;
         await LobbyManager.Instance.JoinLobbyByCode(lobbyCodeField.text.Trim('\u200b'));
         _searchingForLobbyAnimator.StopAnimation();
     }
@@ -98,6 +99,7 @@ public class MainMenuVm : MonoBehaviour
     public async void QuickJoinLobby()
     {
         _searchingForLobbyAnimator.StartAnimation();
+        ErrorDisplay.Instance.mainCanvas = canvasOnline;
         await LobbyManager.Instance.QuickJoinLobby();
         _searchingForLobbyAnimator.StopAnimation();
     }
@@ -110,6 +112,7 @@ public class MainMenuVm : MonoBehaviour
     public async void CreateLobby(bool isPrivate)
     {
         _creatingLobbyAnimator.StartAnimation();
+        ErrorDisplay.Instance.mainCanvas = canvasLobby;
         await LobbyManager.Instance.CreateLobby(lobbyNameField.text.Trim('\u200b'), isPrivate);
         _creatingLobbyAnimator.StopAnimation();
     }

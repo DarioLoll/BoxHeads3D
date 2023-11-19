@@ -68,6 +68,7 @@ public class LobbyVm : MonoBehaviour
         _lobbyCodeInputField = lobbyCodeField.GetComponent<TMP_InputField>();
         
         LobbyManager.Instance.JoinedLobbyChanged += UpdateLobby;
+        UpdateLobby();
     }
 
     /// <summary>
@@ -138,7 +139,7 @@ public class LobbyVm : MonoBehaviour
     /// <summary>
     /// Called after something in the lobby changed (after every poll = every 1.1s by default)
     /// </summary>
-    private void UpdateLobby(object sender, EventArgs e)
+    private void UpdateLobby(object sender = null, EventArgs e = default)
     {
         Lobby lobby = LobbyManager.Instance.JoinedLobby;
         if (lobby == null || 

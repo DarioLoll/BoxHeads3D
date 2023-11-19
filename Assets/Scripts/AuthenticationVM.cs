@@ -13,18 +13,35 @@ using UnityEngine.UI;
 public class AuthenticationVm : MonoBehaviour
 {
     #region fields
-    [SerializeField] 
-    private TextMeshProUGUI errorDisplay;
+    
+    /// <summary>
+    /// The text field displaying errors
+    /// </summary>
+    [SerializeField] private TextMeshProUGUI errorDisplay;
+
+    /// <summary>
+    /// The animated text that is displayed when the game is logging in the user
+    /// </summary>
+    [SerializeField] private GameObject loggingInText;
+    private TextAnimator _loggingInAnimator;
 
     private const string NotAlphaNumerical = "The name may only contain numbers and letters";
+    
     #endregion
 
     #region property
     public TextMeshProUGUI ErrorDisplay => errorDisplay;
+    
     #endregion
 
     #region methods
-    public void Login(TMPro.TextMeshProUGUI playerNameField) => Login(playerNameField.text.Trim('\u200b'));
+    
+    private void Start()
+    {
+        _loggingInAnimator = loggingInText.GetComponent<TextAnimator>();
+    }
+    
+    public void Login(TextMeshProUGUI playerNameField) => Login(playerNameField.text.Trim('\u200b'));
 
     private async void Login(string playerName)
     {
@@ -36,6 +53,7 @@ public class AuthenticationVm : MonoBehaviour
             return; 
         }
         
+        _loggingInAnimator.StartAnimation();
         try
         {
             InitializationOptions initializationOptions = new InitializationOptions();
@@ -51,6 +69,10 @@ public class AuthenticationVm : MonoBehaviour
         {
             ErrorDisplay.text = e.Message;
             Debug.LogException(e);
+        }
+        finally
+        {
+            _loggingInAnimator.StopAnimation();
         }
     }
     #endregion

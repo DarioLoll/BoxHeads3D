@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using TMPro;
 using Unity.Services.Authentication;
@@ -84,7 +85,7 @@ public class LobbyManager : MonoBehaviour
     /// </summary>
     /// <param name="lobbyName">The name of the lobby to be created</param>
     /// <param name="isPrivate">If the lobby is private: <c>true</c> or public: <c>false</c></param>
-    public async void CreateLobby(string lobbyName, bool isPrivate)
+    public async Task CreateLobby(string lobbyName, bool isPrivate)
     {
         int maxPlayers = 2;
         CreateLobbyOptions options = new CreateLobbyOptions
@@ -109,7 +110,7 @@ public class LobbyManager : MonoBehaviour
     /// <summary>
     /// Joins a lobby with the given lobby code in the input field
     /// </summary>
-    public async void JoinLobbyByCode(string lobbyCode)
+    public async Task JoinLobbyByCode(string lobbyCode)
     {
         try
         {
@@ -127,7 +128,7 @@ public class LobbyManager : MonoBehaviour
     /// <summary>
     /// Joins a random public lobby
     /// </summary>
-    public async void QuickJoinLobby()
+    public async Task QuickJoinLobby()
     {
         try
         {

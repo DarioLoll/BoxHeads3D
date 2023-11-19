@@ -33,12 +33,34 @@ public class MainMenuVm : MonoBehaviour
     /// </summary>
     [SerializeField] 
     private TextMeshProUGUI lobbyCodeField;
+    
+    /// <summary>
+    /// The animated text that is displayed when the game is searching for a lobby
+    /// </summary>
+    [SerializeField] private GameObject searchingForLobbyText;
+    private TextAnimator _searchingForLobbyAnimator;
+
+    /// <summary>
+    /// The animated text that is displayed when the game is creating a lobby
+    /// </summary>
+    [SerializeField] private GameObject creatingLobbyText;
+    private TextAnimator _creatingLobbyAnimator;
+    
     #endregion
+    
 
     #region methods
+
+    private void Start()
+    {
+        _searchingForLobbyAnimator = searchingForLobbyText.GetComponent<TextAnimator>();
+        _creatingLobbyAnimator = creatingLobbyText.GetComponent<TextAnimator>();
+    }
+
     public void StartOfflineGame() => SceneManager.LoadScene("MatchOffline");
     public void ShowOnlineMenu() => canvasOnline.SetActive(true);
     public void HideOnlineMenu() => canvasOnline.SetActive(false);
+    
     
     public void ShowLobbyCreationMenu()
     {
@@ -63,18 +85,34 @@ public class MainMenuVm : MonoBehaviour
     /// <summary>
     /// <inheritdoc cref="LobbyManager.JoinLobbyByCode"/>
     /// </summary>
-    public void JoinLobby() => LobbyManager.Instance.JoinLobbyByCode(lobbyCodeField.text.Trim('\u200b'));
-    
+    public async void JoinLobby()
+    {
+        _searchingForLobbyAnimator.StartAnimation();
+        await LobbyManager.Instance.JoinLobbyByCode(lobbyCodeField.text.Trim('\u200b'));
+        _searchingForLobbyAnimator.StopAnimation();
+    }
+
     /// <summary>
     /// <inheritdoc cref="LobbyManager.QuickJoinLobby"/>
     /// </summary>
-    public void QuickJoinLobby() => LobbyManager.Instance.QuickJoinLobby();
-    
+    public async void QuickJoinLobby()
+    {
+        _searchingForLobbyAnimator.StartAnimation();
+        await LobbyManager.Instance.QuickJoinLobby();
+        _searchingForLobbyAnimator.StopAnimation();
+    }
+
     /// <summary>
     /// <inheritdoc cref="LobbyManager.CreateLobby"/>
     /// </summary>
     /// <param name="isPrivate">
     /// If the lobby will be private (only join-able with code) or public (join-able with quick join as well)</param>
-    public void CreateLobby(bool isPrivate) => LobbyManager.Instance.CreateLobby(lobbyNameField.text.Trim('\u200b'), isPrivate);
+    public async void CreateLobby(bool isPrivate)
+    {
+        _creatingLobbyAnimator.StartAnimation();
+        await LobbyManager.Instance.CreateLobby(lobbyNameField.text.Trim('\u200b'), isPrivate);
+        _creatingLobbyAnimator.StopAnimation();
+    }
+
     #endregion
 }

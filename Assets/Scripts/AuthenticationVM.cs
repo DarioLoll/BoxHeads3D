@@ -13,10 +13,18 @@ using UnityEngine.UI;
 public class AuthenticationVm : MonoBehaviour
 {
     #region fields
+    [SerializeField]
+    private TextMeshProUGUI playerNameField;
+
+    [SerializeField]
+    private TextMeshProUGUI playerPasswordField;
+
     [SerializeField] 
     private TextMeshProUGUI errorDisplay;
 
     private const string NotAlphaNumerical = "The name may only contain numbers and letters";
+
+    private const string MinimumPasswordLength = "The password must be at least 8 characters long";
     #endregion
 
     #region property
@@ -24,16 +32,27 @@ public class AuthenticationVm : MonoBehaviour
     #endregion
 
     #region methods
-    public void Login(TMPro.TextMeshProUGUI playerNameField) => Login(playerNameField.text.Trim('\u200b'));
+    public void Login()
+    {
+        Login(playerNameField.text.Trim('\u200b'), playerPasswordField.text.Trim('\u200b'));
+    }
 
-    private async void Login(string playerName)
+    private async void Login(string playerName, string playerPassword)
     {
         ErrorDisplay.text = string.Empty;
+
         //The name may only contain numbers and letters
         if (!Regex.IsMatch(playerName, "^[a-zA-Z0-9]+$"))
         { 
             ErrorDisplay.text = NotAlphaNumerical; 
-            return; 
+            return;
+        }
+
+        //Password should be at least 8 characters long
+        if (playerPassword.Length < 8)
+        {
+            ErrorDisplay.text = MinimumPasswordLength;
+            return;
         }
         
         try
@@ -43,7 +62,9 @@ public class AuthenticationVm : MonoBehaviour
             await UnityServices.InitializeAsync(initializationOptions);
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
             await AuthenticationService.Instance.UpdatePlayerNameAsync(playerName);
+            await AuthenticationService.Instance.AddUsernamePasswordAsync(playerName, playerPassword);
             Debug.Log(AuthenticationService.Instance.PlayerId + " " + AuthenticationService.Instance.PlayerName);
+
             //Loading the next scene (main menu)
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
@@ -52,6 +73,11 @@ public class AuthenticationVm : MonoBehaviour
             ErrorDisplay.text = e.Message;
             Debug.LogException(e);
         }
+    }
+
+    private void SignInWithGoogle()
+    {
+        
     }
     #endregion
 }

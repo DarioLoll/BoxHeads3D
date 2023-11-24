@@ -13,41 +13,48 @@ using UnityEngine.UI;
 public class AuthenticationVm : MonoBehaviour
 {
     #region fields
+    [SerializeField]
+    private TextMeshProUGUI playerNameField;
 
-    [SerializeField] private GameObject mainCanvas;
+    [SerializeField]
+    private TextMeshProUGUI playerPasswordField;
 
-    /// <summary>
-    /// The animated text that is displayed when the game is logging in the user
-    /// </summary>
-    [SerializeField] private GameObject loggingInText;
-    private TextAnimator _loggingInAnimator;
+    [SerializeField] 
+    private TextMeshProUGUI errorDisplay;
 
-    private const string NotAlphaNumerical = "The name may only contain numbers and letters.";
-    private const string NetworkError = "Couldn't log in. Check your internet connection and try again.";
-    
+    private const string NotAlphaNumerical = "The name may only contain numbers and letters";
+
+    private const string MinimumPasswordLength = "The password must be at least 8 characters long";
     #endregion
-    
+
+    #region property
+    public TextMeshProUGUI ErrorDisplay => errorDisplay;
+    #endregion
 
     #region methods
-    
-    private void Start()
+    public void Login()
     {
-        _loggingInAnimator = loggingInText.GetComponent<TextAnimator>();
-        ErrorDisplay.Instance.mainCanvas = mainCanvas;
+        Login(playerNameField.text.Trim('\u200b'), playerPasswordField.text.Trim('\u200b'));
     }
-    
-    public void Login(TextMeshProUGUI playerNameField) => Login(playerNameField.text.Trim('\u200b'));
 
-    private async void Login(string playerName)
+    private async void Login(string playerName, string playerPassword)
     {
+        ErrorDisplay.text = string.Empty;
+
         //The name may only contain numbers and letters
         if (!Regex.IsMatch(playerName, "^[a-zA-Z0-9]+$"))
+        { 
+            ErrorDisplay.text = NotAlphaNumerical; 
+            return;
+        }
+
+        //Password should be at least 8 characters long
+        if (playerPassword.Length < 8)
         {
-            ErrorDisplay.Instance.DisplayError(NotAlphaNumerical);
-            return; 
+            ErrorDisplay.text = MinimumPasswordLength;
+            return;
         }
         
-        _loggingInAnimator.StartAnimation();
         try
         {
             InitializationOptions initializationOptions = new InitializationOptions();
@@ -55,19 +62,22 @@ public class AuthenticationVm : MonoBehaviour
             await UnityServices.InitializeAsync(initializationOptions);
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
             await AuthenticationService.Instance.UpdatePlayerNameAsync(playerName);
+            await AuthenticationService.Instance.AddUsernamePasswordAsync(playerName, playerPassword);
             Debug.Log(AuthenticationService.Instance.PlayerId + " " + AuthenticationService.Instance.PlayerName);
+
             //Loading the next scene (main menu)
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
         catch (Exception e)
         {
-            ErrorDisplay.Instance.DisplayError(NetworkError);
+            ErrorDisplay.text = e.Message;
             Debug.LogException(e);
         }
-        finally
-        {
-            _loggingInAnimator.StopAnimation();
-        }
+    }
+
+    private void SignInWithGoogle()
+    {
+        
     }
     #endregion
 }

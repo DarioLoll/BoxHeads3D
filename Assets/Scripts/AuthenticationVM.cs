@@ -60,12 +60,9 @@ public class AuthenticationVm : MonoBehaviour
             InitializationOptions initializationOptions = new InitializationOptions();
             initializationOptions.SetProfile(playerName);
             await UnityServices.InitializeAsync(initializationOptions);
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
-            await AuthenticationService.Instance.UpdatePlayerNameAsync(playerName);
-            await AuthenticationService.Instance.AddUsernamePasswordAsync(playerName, playerPassword);
+            await AuthenticationService.Instance.SignInWithUsernamePasswordAsync(playerName, playerPassword);
             Debug.Log(AuthenticationService.Instance.PlayerId + " " + AuthenticationService.Instance.PlayerName);
 
-            //Loading the next scene (main menu)
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
         catch (Exception e)

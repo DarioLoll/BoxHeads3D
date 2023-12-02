@@ -1,11 +1,12 @@
-# SoccerHeads
-SoccerHeads is a 2D multiplayer, 1v1 soccer (football) game, where each player is a blob (representing a human head) with one foot.
+# BoxHeads 3D
+Box Heads is a first person, 3D multiplayer game where players try to survive in a zombie apocalypse by fending off zombies with guns
+The game is still in the planning phase...
 This is a school project managed by @DarioLoll and @RaminKasumov.
 
 ## Background:
 More and more students can't or don't want to invest too much time in games. 
 At the same time, there is a lack of mini online games that can be played at any time without wasting too much of it. 
-Therefore, we have chosen a simple but entertaining soccer game that can be played at any time with friends or strangers over the network.
+Therefore, we have chosen a simple but entertaining shooter game that can be played at any time with friends or strangers over the network.
 
 ## Goals:
 - Fun, enjoyable to play
@@ -13,12 +14,14 @@ Therefore, we have chosen a simple but entertaining soccer game that can be play
 - Smooth gameplay
 - Low latency
 - Playable through an app
-- Playable on a website
+- Difficulties to choose from
+- Endless game mode
 
 ## Non-goals (presently):
-- Having real football players as selectable characters
-- A single player mode where the opponent is an A.I.
 - Beautiful graphics
+- PvP (Player versus Player game mode)
+- A lot of weapon types
+- A lot of zombie types
 
 ## Used resources:
 - Unity Engine
@@ -27,6 +30,7 @@ Therefore, we have chosen a simple but entertaining soccer game that can be play
   - Lobby Service
   - Relay Server
   - NetCode for GameObjects
+- Blender
 - GIMP
 - XAMMP
 

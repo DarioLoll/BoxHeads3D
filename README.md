@@ -1,4 +1,4 @@
-# SoccerHeads
+# BoxHeads 3D
 Box Heads is a first person, 3D multiplayer game where players try to survive in a zombie apocalypse by fending off zombies with guns
 The game is still in the planning phase...
 This is a school project managed by @DarioLoll and @RaminKasumov.

@@ -14,6 +14,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using ColorUtility = UnityEngine.ColorUtility;
+using Random = UnityEngine.Random;
 
 public class LobbyManager : MonoBehaviour
 {
@@ -44,12 +45,8 @@ public class LobbyManager : MonoBehaviour
 
     [CanBeNull] public Player ThisPlayer => JoinedLobby?.Players.
         Find(player => player.Id == AuthenticationService.Instance.PlayerId);
-    [CanBeNull] public Player OtherPlayer => JoinedLobby?.Players.
-        Find(player => player.Id != AuthenticationService.Instance.PlayerId);
     [CanBeNull] public Player HostPlayer => JoinedLobby?.Players.
         Find(player => player.Id == JoinedLobby.HostId);
-    [CanBeNull] public Player JoinedPlayer => JoinedLobby?.Players.
-        Find(player => player.Id != AuthenticationService.Instance.PlayerId);
     
     public bool IsHost => AuthenticationService.Instance.PlayerId == JoinedLobby?.HostId;
 
@@ -82,7 +79,8 @@ public class LobbyManager : MonoBehaviour
     {
         if (Instance != null)
         {
-            Destroy(Instance.gameObject);
+            Destroy(gameObject);
+            return;
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
@@ -92,6 +90,7 @@ public class LobbyManager : MonoBehaviour
     {
         HandlePollingForLobbyUpdates();
     }
+    
 
     /// <summary>
     /// Creates a new lobby with the name given in the input field
@@ -100,7 +99,7 @@ public class LobbyManager : MonoBehaviour
     /// <param name="isPrivate">If the lobby is private: <c>true</c> or public: <c>false</c></param>
     public async Task CreateLobby(string lobbyName, bool isPrivate)
     {
-        int maxPlayers = 2;
+        int maxPlayers = 4;
         CreateLobbyOptions options = new CreateLobbyOptions
         {
             IsPrivate = isPrivate,
@@ -110,12 +109,11 @@ public class LobbyManager : MonoBehaviour
         try
         {
             Lobby lobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, options);
-            JoinedLobby = lobby;
 
             //Calls the HeartbeatLobby method every 15s to keep the lobby active
-            StartCoroutine(HeartbeatLobbyCoroutine(JoinedLobby!.Id, 15));
-            SceneManager.LoadScene(LobbySceneName);
+            StartCoroutine(HeartbeatLobbyCoroutine(lobby.Id, 15));
             Debug.Log($"Created lobby {lobbyName} with id {lobby.Id} and code {lobby.LobbyCode}");
+            JoinedLobby = lobby;
         }
         catch (LobbyServiceException e)
         {
@@ -181,6 +179,7 @@ public class LobbyManager : MonoBehaviour
         {
             if (JoinedLobby == null) return;
             await LobbyService.Instance.RemovePlayerAsync(JoinedLobby.Id, AuthenticationService.Instance.PlayerId);
+            _joinedLobby = null;
             SceneManager.LoadScene(MainMenuSceneName);
             Debug.Log($"Left the lobby");
         }
@@ -230,7 +229,7 @@ public class LobbyManager : MonoBehaviour
         try
         {
             JoinedLobby = await LobbyService.Instance.GetLobbyAsync(JoinedLobby!.Id);
-            if (ThisPlayer == null)
+            if(ThisPlayer == null)
                 JoinedLobby = null;
         }
         catch (LobbyServiceException e)
@@ -277,7 +276,8 @@ public class LobbyManager : MonoBehaviour
                     AuthenticationService.Instance.PlayerName)},
                 {PlayerIsReadyProperty, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, false.ToString())},
                 {PlayerColorProperty, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, 
-                    "#" + ColorUtility.ToHtmlStringRGB(Color.white))}
+                    "#" + ColorUtility.ToHtmlStringRGB(
+                        Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f)))}
             }
         );
     }

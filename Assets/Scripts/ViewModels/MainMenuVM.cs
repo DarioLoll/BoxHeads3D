@@ -58,7 +58,7 @@ public class MainMenuVm : MonoBehaviour
         _creatingLobbyAnimator = creatingLobbyText.GetComponent<TextAnimator>();
     }
 
-    public void StartOfflineGame() => SceneManager.LoadScene("MatchOffline");
+    public void StartOfflineGame() => SceneManager.LoadScene("Battlefield");
     public void ShowOnlineMenu() => canvasOnline.SetActive(true);
     public void HideOnlineMenu() => canvasOnline.SetActive(false);
     

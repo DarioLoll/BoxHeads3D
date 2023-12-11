@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: be7cd6e9ad58a462a91b1cae7694ef4c
+timeCreated: 1552764727
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 142076
+  packageName: 'Conifers [BOTD]'
+  packageVersion: 1.4
+  assetPath: Assets/Conifers [BOTD]/Render Pipeline Support/Built-in RP/Sources/Billboards/Conifer
+    Bare_BillboardMaterial.mat
+  uploadId: 565333

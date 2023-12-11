@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: f9ed72d63ee8a47edbfc5cdeaf78181a
+timeCreated: 1551381197
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 142076
+  packageName: 'Conifers [BOTD]'
+  packageVersion: 1.4
+  assetPath: Assets/Conifers [BOTD]/Render Pipeline Support/Built-in RP/CTI Runtime
+    Components/Shaders/Includes/CTI_indirect.cginc
+  uploadId: 565333

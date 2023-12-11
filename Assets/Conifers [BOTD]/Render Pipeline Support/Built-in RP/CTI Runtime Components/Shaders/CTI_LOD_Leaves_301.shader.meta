@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 6ae32366f15a64fc19f245f040af8f21
+timeCreated: 1551376163
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 142076
+  packageName: 'Conifers [BOTD]'
+  packageVersion: 1.4
+  assetPath: Assets/Conifers [BOTD]/Render Pipeline Support/Built-in RP/CTI Runtime
+    Components/Shaders/CTI_LOD_Leaves_301.shader
+  uploadId: 565333

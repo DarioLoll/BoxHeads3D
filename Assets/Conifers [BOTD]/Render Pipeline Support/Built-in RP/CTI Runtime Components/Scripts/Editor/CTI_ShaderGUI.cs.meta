@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: 71369e1df01d140e5888122d9de3bd6c
+timeCreated: 1509881332
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 142076
+  packageName: 'Conifers [BOTD]'
+  packageVersion: 1.4
+  assetPath: Assets/Conifers [BOTD]/Render Pipeline Support/Built-in RP/CTI Runtime
+    Components/Scripts/Editor/CTI_ShaderGUI.cs
+  uploadId: 565333

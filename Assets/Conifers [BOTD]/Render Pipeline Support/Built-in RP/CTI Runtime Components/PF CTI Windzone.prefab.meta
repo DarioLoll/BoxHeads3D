@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: eaf383cb55cf38f448529df28e28abba
+timeCreated: 1453985392
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 142076
+  packageName: 'Conifers [BOTD]'
+  packageVersion: 1.4
+  assetPath: Assets/Conifers [BOTD]/Render Pipeline Support/Built-in RP/CTI Runtime
+    Components/PF CTI Windzone.prefab
+  uploadId: 565333

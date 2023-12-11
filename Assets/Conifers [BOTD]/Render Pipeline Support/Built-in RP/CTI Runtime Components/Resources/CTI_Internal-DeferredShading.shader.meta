@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 74c1aeb6f161f4fc5959aedac7310b49
+timeCreated: 1453758311
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 142076
+  packageName: 'Conifers [BOTD]'
+  packageVersion: 1.4
+  assetPath: Assets/Conifers [BOTD]/Render Pipeline Support/Built-in RP/CTI Runtime
+    Components/Resources/CTI_Internal-DeferredShading.shader
+  uploadId: 565333

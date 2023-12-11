@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: fba25871281c3416cbb4faf8edfb3a1c
+timeCreated: 1552765108
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 142076
+  packageName: 'Conifers [BOTD]'
+  packageVersion: 1.4
+  assetPath: Assets/Conifers [BOTD]/Render Pipeline Support/Built-in RP/Sources/Billboards/Conifer
+    Small_BillboardMaterial.mat
+  uploadId: 565333

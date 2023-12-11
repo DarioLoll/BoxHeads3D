@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 6da1894adda584f759ccf5e4d9ada5bf
+timeCreated: 1510486724
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 142076
+  packageName: 'Conifers [BOTD]'
+  packageVersion: 1.4
+  assetPath: Assets/Conifers [BOTD]/Render Pipeline Support/Built-in RP/CTI Runtime
+    Components/Default Components/Resources/CTI_default_billboard_material.mat
+  uploadId: 565333

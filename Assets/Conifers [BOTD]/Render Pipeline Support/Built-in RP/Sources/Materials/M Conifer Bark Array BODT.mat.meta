@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: a7e78992c7c5347a29bb4ad9b987be59
+timeCreated: 1552476395
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 142076
+  packageName: 'Conifers [BOTD]'
+  packageVersion: 1.4
+  assetPath: Assets/Conifers [BOTD]/Render Pipeline Support/Built-in RP/Sources/Materials/M
+    Conifer Bark Array BODT.mat
+  uploadId: 565333

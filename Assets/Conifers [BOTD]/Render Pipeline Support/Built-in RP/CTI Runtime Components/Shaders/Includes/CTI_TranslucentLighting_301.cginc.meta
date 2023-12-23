@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 0960135195a204bf7bb5aaad6fd78e87
+timeCreated: 1454180687
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 142076
+  packageName: 'Conifers [BOTD]'
+  packageVersion: 1.4
+  assetPath: Assets/Conifers [BOTD]/Render Pipeline Support/Built-in RP/CTI Runtime
+    Components/Shaders/Includes/CTI_TranslucentLighting_301.cginc
+  uploadId: 565333

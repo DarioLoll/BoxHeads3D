@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 5d3ded904854c45a884c86212264252a
+timeCreated: 1514984434
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 142076
+  packageName: 'Conifers [BOTD]'
+  packageVersion: 1.4
+  assetPath: Assets/Conifers [BOTD]/Render Pipeline Support/Built-in RP/CTI Runtime
+    Components/Shaders/Includes/CTI_Builtin4xTreeLibraryTumbling_301.cginc
+  uploadId: 565333

@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: f1f73434226324b14a7261c1175d543f
+timeCreated: 1552821881
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 142076
+  packageName: 'Conifers [BOTD]'
+  packageVersion: 1.4
+  assetPath: Assets/Conifers [BOTD]/Render Pipeline Support/Built-in RP/CTI Runtime
+    Components/Resources/CTI_Camera-DepthNormalTexture_301.shader
+  uploadId: 565333

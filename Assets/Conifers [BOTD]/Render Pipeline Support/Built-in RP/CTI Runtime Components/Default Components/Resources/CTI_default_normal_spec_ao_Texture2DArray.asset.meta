@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 7fd5245b1b9714fa2acf58c5bfd24030
+timeCreated: 1509705872
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 142076
+  packageName: 'Conifers [BOTD]'
+  packageVersion: 1.4
+  assetPath: Assets/Conifers [BOTD]/Render Pipeline Support/Built-in RP/CTI Runtime
+    Components/Default Components/Resources/CTI_default_normal_spec_ao_Texture2DArray.asset
+  uploadId: 565333

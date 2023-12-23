@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: e6d607e9c6a0a44fb974c8a3766673da
+timeCreated: 1509882907
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 142076
+  packageName: 'Conifers [BOTD]'
+  packageVersion: 1.4
+  assetPath: Assets/Conifers [BOTD]/Render Pipeline Support/Built-in RP/CTI Runtime
+    Components/Default Components/Resources/CTI_default_albedo_Texture2DArray.asset
+  uploadId: 565333

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e4d200bd9cd394c85b6d524927580559
+timeCreated: 1552818386
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 142076
+  packageName: 'Conifers [BOTD]'
+  packageVersion: 1.4
+  assetPath: Assets/Conifers [BOTD]/Render Pipeline Support/Built-in RP/VSPro_CTIShaderController.unitypackage
+  uploadId: 565333

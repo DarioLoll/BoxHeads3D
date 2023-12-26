@@ -185,7 +185,7 @@ Terrain:
   m_StaticShadowCaster: 0
   m_IgnoreQualitySettings: 0
   m_ReflectionProbeUsage: 1
-  m_MaterialTemplate: {fileID: 10652, guid: 0000000000000000f000000000000000, type: 0}
+  m_MaterialTemplate: {fileID: 2100000, guid: 89904bed098b8164b9d826c76a9d1bd6, type: 2}
   m_BakeLightProbesForTrees: 0
   m_PreserveTreePrototypeLayers: 1
   m_DeringLightProbesForTrees: 1
@@ -450,7 +450,7 @@ MonoBehaviour:
   - enabled: 1
     name: PF Conifer Bare BOTD
     seed: 6614
-    probability: 0
+    probability: 36.2
     collisionCheck: 0
     rejectUnderwater: 0
     heightRange: {x: 0, y: 1000}
@@ -460,75 +460,12 @@ MonoBehaviour:
     - name: Grass 1
       layerID: 0
       threshold: 0.983
-    instanceCount: 0
+    instanceCount: 1005
     prefabs:
     - index: 0
       probability: 100
-      prefab: {fileID: 1743353957770956, guid: 539fa9bc6500e44708e0f7b2c78cbefe, type: 3}
+      prefab: {fileID: 1743353957770956, guid: 4663d5cca4ed98548946e758cd5979e2, type: 3}
     distance: 4
-    scaleRange: {x: 0.8, y: 1.2}
-    sinkAmount: 0
-  - enabled: 1
-    name: CobbleRock_B
-    seed: 2094
-    probability: 5.1
-    collisionCheck: 0
-    rejectUnderwater: 0
-    heightRange: {x: 0, y: 1000}
-    slopeRange: {x: 0, y: 60}
-    curvatureRange: {x: 0, y: 1}
-    layerMasks:
-    - name: Grass 1
-      layerID: 0
-      threshold: 0.99
-    instanceCount: 85
-    prefabs:
-    - index: 1
-      probability: 100
-      prefab: {fileID: 156448, guid: 149f31fa3c070bf44a66da3a784cdc43, type: 3}
-    distance: 5
-    scaleRange: {x: 0.12142861, y: 0.64047635}
-    sinkAmount: 0
-  - enabled: 1
-    name: CobbleRock_C
-    seed: 3741
-    probability: 5.6
-    collisionCheck: 0
-    rejectUnderwater: 0
-    heightRange: {x: 0, y: 1000}
-    slopeRange: {x: 0, y: 60}
-    curvatureRange: {x: 0, y: 1}
-    layerMasks:
-    - name: Grass 1
-      layerID: 0
-      threshold: 0.99
-    instanceCount: 91
-    prefabs:
-    - index: 2
-      probability: 100
-      prefab: {fileID: 108168, guid: 675dd002390c04947b66a330d6ce7727, type: 3}
-    distance: 5
-    scaleRange: {x: 0.5261905, y: 0.92619056}
-    sinkAmount: 0
-  - enabled: 1
-    name: CobbleRock_D
-    seed: 63554
-    probability: 5.6
-    collisionCheck: 0
-    rejectUnderwater: 0
-    heightRange: {x: 0, y: 1000}
-    slopeRange: {x: 0, y: 60}
-    curvatureRange: {x: 0, y: 1}
-    layerMasks:
-    - name: Grass 1
-      layerID: 0
-      threshold: 0.99
-    instanceCount: 97
-    prefabs:
-    - index: 3
-      probability: 100
-      prefab: {fileID: 160516, guid: 601b7f10102e66b41b534b7b077bd9a0, type: 3}
-    distance: 5
     scaleRange: {x: 0.8, y: 1.2}
     sinkAmount: 0
   grassPrefabs:
@@ -709,6 +646,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1019021736}
   - component: {fileID: 1019021735}
+  - component: {fileID: 1019021737}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -793,6 +731,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &1019021737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1019021734}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_LightLayerMask: 1
+  m_RenderingLayers: 1
+  m_CustomShadowLayers: 0
+  m_ShadowLayerMask: 1
+  m_ShadowRenderingLayers: 1
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
 --- !u!1 &1360914570
 GameObject:
   m_ObjectHideFlags: 0

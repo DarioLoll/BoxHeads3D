@@ -1,12 +1,10 @@
-# BoxHeads 3D
-Box Heads is a first person, 3D multiplayer game where players try to survive in a zombie apocalypse by fending off zombies with guns
+# Celestial Echo
+Celestial Echo is a first person, 3D multiplayer engineering game where players try to survive on an exoplanet
 The game is still in the planning phase...
 This is a school project managed by @DarioLoll and @RaminKasumov.
 
 ## Background:
-More and more students can't or don't want to invest too much time in games. 
-At the same time, there is a lack of mini online games that can be played at any time without wasting too much of it. 
-Therefore, we have chosen a simple but entertaining shooter game that can be played at any time with friends or strangers over the network.
+Engineering games like Factorio, and modded Minecraft are highly addictive, and for a good reason. When playing such games, one is constantly encountered with various problems that require problem-solving skills. We are of the belief that engineering games help in evolving one's problem-solving skills while also familiarizing one with topics in real-life enginnering like automation, logistics, optimization and efficiency (bottle necks, centralization vs on-site...). This is why we decided to make an engineering game!
 
 ## Goals:
 - Fun, enjoyable to play
@@ -14,14 +12,12 @@ Therefore, we have chosen a simple but entertaining shooter game that can be pla
 - Smooth gameplay
 - Low latency
 - Playable through an app
-- Difficulties to choose from
-- Endless game mode
+- Not too hard to learn to play
+- Not too easy to complete
 
 ## Non-goals (presently):
 - Beautiful graphics
-- PvP (Player versus Player game mode)
-- A lot of weapon types
-- A lot of zombie types
+- Sandbox game
 
 ## Used resources:
 - Unity Engine
@@ -32,9 +28,7 @@ Therefore, we have chosen a simple but entertaining shooter game that can be pla
   - NetCode for GameObjects
 - Blender
 - GIMP
-- XAMMP
 
 ## Download:
 You can download the current version for **Windows** here:
-- [**.EXE**](https://www.mediafire.com/file/34n2uc5iisef5p7/soccerheads.exe/file)
-- [**.ZIP**](https://www.mediafire.com/file/dgq7u258b1unhu4/SoccerHeads.zip/file)
+- Coming soon...

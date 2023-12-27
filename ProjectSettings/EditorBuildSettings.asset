@@ -15,7 +15,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Lobby.unity
     guid: 212fe52efde0ce9428c681ec05171040
   - enabled: 1
-    path: Assets/Scenes/Battlefield.unity
+    path: Assets/Scenes/Game.unity
     guid: 1c21d7e8bff74ca499ffb4aa21d64810
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

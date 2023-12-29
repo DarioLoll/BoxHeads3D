@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DefaultNamespace;
 using JetBrains.Annotations;
 using TMPro;
+using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Lobbies;
@@ -36,7 +38,7 @@ public class LobbyManager : MonoBehaviour
     public Lobby JoinedLobby
     {
         get => _joinedLobby;
-        set
+        private set
         {
             _joinedLobby = value;
             OnJoinedLobbyChanged();
@@ -48,26 +50,26 @@ public class LobbyManager : MonoBehaviour
     [CanBeNull] public Player HostPlayer => JoinedLobby?.Players.
         Find(player => player.Id == JoinedLobby.HostId);
     
+    public LobbyState? State => Enum.Parse<LobbyState>(JoinedLobby?.Data[LobbyStateProperty].Value);
+    
     public bool IsHost => AuthenticationService.Instance.PlayerId == JoinedLobby?.HostId;
 
     #endregion
 
-    #region event
     /// <summary>
     /// Is called when the player joins or leaves a lobby
     /// </summary>
     public event EventHandler JoinedLobbyChanged;
-    #endregion
+    public event EventHandler LobbyStateChanged;
 
     #region constants
-    private const string LobbySceneName = "Lobby";
-    private const string MainMenuSceneName = "MainMenu";
     
     /*Lobbies are stored somewhere in the internet and so all users need to constantly poll for updates
      The limit for requests by unity are 1 per second*/
     private const float PollingForLobbyUpdatesInterval = 1.1f;
     private float _pollingForLobbyUpdatesTimer = PollingForLobbyUpdatesInterval;
     
+    public const string LobbyStateProperty = "state";
     public const string PlayerNameProperty = "name";
     public const string PlayerIsReadyProperty = "isReady";
     public const string PlayerColorProperty = "color";
@@ -103,21 +105,30 @@ public class LobbyManager : MonoBehaviour
         CreateLobbyOptions options = new CreateLobbyOptions
         {
             IsPrivate = isPrivate,
-            Player = GetPlayer()
+            Player = GetPlayer(),
+            Data = new Dictionary<string, DataObject>()
+            {
+                {LobbyStateProperty, new DataObject(DataObject.VisibilityOptions.Public, LobbyState.Waiting.ToString())}
+            }
         };
 
         try
         {
             Lobby lobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, maxPlayers, options);
-
             //Calls the HeartbeatLobby method every 15s to keep the lobby active
             StartCoroutine(HeartbeatLobbyCoroutine(lobby.Id, 15));
             Debug.Log($"Created lobby {lobbyName} with id {lobby.Id} and code {lobby.LobbyCode}");
             JoinedLobby = lobby;
+            await SceneLoader.LoadSceneAsync(Scenes.Lobby);
         }
         catch (LobbyServiceException e)
         {
             ErrorDisplay.Instance.DisplayLobbyError(e);
+            Debug.LogException(e);
+        }
+        catch (Exception e)
+        {
+            ErrorDisplay.Instance.DisplayError("Unexpected error.");
             Debug.LogException(e);
         }
     }
@@ -139,12 +150,17 @@ public class LobbyManager : MonoBehaviour
                 {
                     Player = GetPlayer()
                 });
-            SceneManager.LoadScene(LobbySceneName);
+            await SceneLoader.LoadSceneAsync(Scenes.Lobby);
             Debug.Log("Joined lobby " + JoinedLobby!.Name + "with code " + lobbyCode);
         }
         catch (LobbyServiceException e)
         {
             ErrorDisplay.Instance.DisplayLobbyError(e);
+            Debug.LogException(e);
+        }
+        catch (Exception e)
+        {
+            ErrorDisplay.Instance.DisplayError("Unexpected error.");
             Debug.LogException(e);
         }
     }
@@ -160,12 +176,17 @@ public class LobbyManager : MonoBehaviour
             {
                 Player = GetPlayer()
             });
-            SceneManager.LoadScene(LobbySceneName);
+            await SceneLoader.LoadSceneAsync(Scenes.Lobby);
             Debug.Log("Joined lobby " + JoinedLobby!.Name);
         }
         catch (LobbyServiceException e)
         {
             ErrorDisplay.Instance.DisplayLobbyError(e);
+            Debug.LogException(e);
+        }
+        catch (Exception e)
+        {
+            ErrorDisplay.Instance.DisplayError("Unexpected error.");
             Debug.LogException(e);
         }
     }
@@ -180,7 +201,7 @@ public class LobbyManager : MonoBehaviour
             if (JoinedLobby == null) return;
             await LobbyService.Instance.RemovePlayerAsync(JoinedLobby.Id, AuthenticationService.Instance.PlayerId);
             _joinedLobby = null;
-            SceneManager.LoadScene(MainMenuSceneName);
+            SceneLoader.LoadScene(Scenes.MainMenu);
             Debug.Log($"Left the lobby");
         }
         catch (LobbyServiceException e)
@@ -229,8 +250,11 @@ public class LobbyManager : MonoBehaviour
         try
         {
             JoinedLobby = await LobbyService.Instance.GetLobbyAsync(JoinedLobby!.Id);
-            if(ThisPlayer == null)
+            if(ThisPlayer == null) //Player was kicked
+            {
                 JoinedLobby = null;
+                ErrorDisplay.Instance.DisplayInfo("You were kicked from the lobby", () => SceneLoader.LoadScene(Scenes.MainMenu));
+            }
         }
         catch (LobbyServiceException e)
         {
@@ -261,6 +285,31 @@ public class LobbyManager : MonoBehaviour
             ErrorDisplay.Instance.DisplayLobbyError(e);
             Debug.LogException(e);
         }
+    }
+
+    /// <summary>
+    /// Updates the state of the lobby in the cloud
+    /// </summary>
+    public async void UpdateLobbyState(LobbyState newState)
+    {
+        try
+        {
+            if (JoinedLobby == null) return;
+            JoinedLobby = await LobbyService.Instance.UpdateLobbyAsync(JoinedLobby.Id,
+                new UpdateLobbyOptions()
+                {
+                    Data = new Dictionary<string, DataObject>()
+                    {
+                        {LobbyStateProperty, new DataObject(DataObject.VisibilityOptions.Public, newState.ToString())}
+                    }
+                });
+            OnLobbyStateChanged();
+        }
+        catch (LobbyServiceException e)
+        {
+            ErrorDisplay.Instance.DisplayLobbyError(e);
+            Debug.LogException(e);
+        }    
     }
     
     /// <summary>
@@ -300,14 +349,18 @@ public class LobbyManager : MonoBehaviour
     
     protected virtual void OnJoinedLobbyChanged()
     {
-        if (JoinedLobby == null)
+        if (JoinedLobby != null)
         {
-            ErrorDisplay.Instance.DisplayInfo("You were kicked from the lobby", () => SceneManager.LoadScene(MainMenuSceneName));
-            return;
+            if (State is LobbyState.Started or LobbyState.Starting)
+            {
+                if (IsHost) return;
+                if (NetworkManager.Singleton == null) return;
+                if(NetworkManager.Singleton.IsClient) return;
+                NetworkManager.Singleton.StartClient();
+                Debug.Log("Connecting as client");
+                
+            }
         }
-        if(JoinedLobby != null && SceneManager.GetActiveScene().name != LobbySceneName)
-            SceneManager.LoadScene(LobbySceneName);
-        
         JoinedLobbyChanged?.Invoke(this, EventArgs.Empty);
     }
 
@@ -316,4 +369,47 @@ public class LobbyManager : MonoBehaviour
         LeaveLobby();
     }
     #endregion
+
+    protected virtual void OnLobbyStateChanged()
+    {
+        Debug.Log("Changed lobby state to " + State);
+        LobbyStateChanged?.Invoke(this, EventArgs.Empty);
+    }
+    
+    public async void EstablishNetCodeConnection()
+    {
+        if(JoinedLobby == null || NetworkManager.Singleton.IsHost)
+            return;
+        NetworkManager.Singleton.StartHost();
+        Debug.Log("NetCode: Started host");
+        if (JoinedLobby.Players.Count == 1)
+        {
+            await SceneLoader.LoadSceneAsync(Scenes.Game);
+            UpdateLobbyState(LobbyState.Started);
+            return;
+        }
+        NetworkManager.Singleton.OnClientConnectedCallback += NetworkManagerOnClientConnected;
+        UpdateLobbyState(LobbyState.Starting);
+    }
+
+    private void NetworkManagerOnClientConnected(ulong clientId)
+    {
+        Debug.Log("NetCode: Client connected: " + clientId);
+        if (JoinedLobby == null)
+        {
+            NetworkManager.Singleton.Shutdown();
+            return;
+        }
+        if(NetworkManager.Singleton.ConnectedClients.Count != JoinedLobby.Players.Count) 
+            return;
+        NetworkManager.Singleton.OnClientConnectedCallback -= NetworkManagerOnClientConnected;
+        UpdateLobbyState(LobbyState.Started);
+        SceneLoader.LoadSceneOnNetwork(Scenes.Game);
+        NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += GameStarted;
+    }
+
+    private void GameStarted(string scenename, LoadSceneMode loadscenemode, List<ulong> clientscompleted, List<ulong> clientstimedout)
+    {
+        Debug.Log("Game started!");
+    }
 }

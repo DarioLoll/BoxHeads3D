@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Services.Lobbies;
 using UnityEngine;
+using ViewModels;
 
 public class ErrorDisplay : MonoBehaviour
 {

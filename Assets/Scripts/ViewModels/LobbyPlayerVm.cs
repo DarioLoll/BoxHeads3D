@@ -1,3 +1,5 @@
+using DefaultNamespace;
+using Managers;
 using TMPro;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
@@ -61,12 +63,11 @@ namespace ViewModels
                 _readyIconImage.color = _crownColor;
                 return;
             }
-
-            SetReady(player.Data[LobbyManager.PlayerIsReadyProperty].Value == true.ToString());
-            _readyIconImage.sprite = readyImage;
-            _readyIconImage.color = _checkmarkColor;
             if(LobbyManager.Instance.IsHost)
                 kickButton.SetActive(true);
+            _readyIconImage.sprite = readyImage;
+            _readyIconImage.color = _checkmarkColor;
+            SetReady(player.Data[LobbyManager.PlayerIsReadyProperty].Value == true.ToString());
         }
 
         public void SetReady(bool isReady)

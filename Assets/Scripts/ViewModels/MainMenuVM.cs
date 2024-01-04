@@ -1,4 +1,8 @@
+using System;
+using Managers;
+using Services;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -31,31 +35,51 @@ namespace ViewModels
         [SerializeField] 
         private TextMeshProUGUI lobbyCodeField;
     
-        /// <summary>
-        /// The animated text that is displayed when the game is searching for a lobby
-        /// </summary>
-        [SerializeField] private GameObject searchingForLobbyText;
-        private TextAnimator _searchingForLobbyAnimator;
 
-        /// <summary>
-        /// The animated text that is displayed when the game is creating a lobby
-        /// </summary>
-        [SerializeField] private GameObject creatingLobbyText;
-        private TextAnimator _creatingLobbyAnimator;
     
         #endregion
     
 
         #region methods
-    
 
         private void Start()
         {
-            _searchingForLobbyAnimator = searchingForLobbyText.GetComponent<TextAnimator>();
-            _creatingLobbyAnimator = creatingLobbyText.GetComponent<TextAnimator>();
+            LobbyManager.Instance.CreatingLobby += OnCreatingLobby;
+            LobbyManager.Instance.JoiningLobby += OnJoiningLobby;
+            LobbyManager.Instance.LobbyCreated += OnJoinedLobby;
+            LobbyManager.Instance.LobbyJoined += OnJoinedLobby;
+        }
+        
+
+        private void OnJoinedLobby()
+        {
+            LoadingScreen.Instance.CloseLoadingScreen();
+            SceneLoader.LoadScene(Scenes.Lobby);
         }
 
-        public void StartOfflineGame() => SceneLoader.LoadScene(Scenes.Game);
+        private void OnJoiningLobby()
+        {
+            LoadingScreen.Instance.DisplayLoadingScreen("Searching for lobby");
+        }
+        private void OnCreatingLobby()
+        {
+            LoadingScreen.Instance.DisplayLoadingScreen("Creating a lobby");
+        }
+
+        private void OnDestroy()
+        {
+            LobbyManager.Instance.CreatingLobby -= OnCreatingLobby;
+            LobbyManager.Instance.JoiningLobby -= OnJoiningLobby;
+            LobbyManager.Instance.LobbyCreated -= OnJoinedLobby;
+            LobbyManager.Instance.LobbyJoined -= OnJoinedLobby;
+        }
+
+        public void StartOfflineGame()
+        {
+            NetworkManager.Singleton.StartHost();
+            SceneLoader.LoadSceneOnNetwork(Scenes.Game);
+        }
+
         public void ShowOnlineMenu() => canvasOnline.SetActive(true);
         public void HideOnlineMenu() => canvasOnline.SetActive(false);
     
@@ -85,10 +109,13 @@ namespace ViewModels
         /// </summary>
         public async void JoinLobby()
         {
-            _searchingForLobbyAnimator.StartAnimation();
-            ErrorDisplay.Instance.mainCanvas = canvasOnline;
-            await LobbyManager.Instance.JoinLobbyByCode(lobbyCodeField.text.Trim('\u200b'));
-            _searchingForLobbyAnimator.StopAnimation();
+            string lobbyCode = lobbyCodeField.text.Trim('\u200b');
+            if (string.IsNullOrEmpty(lobbyCode))
+            {
+                PopupBox.Instance.DisplayError("Please enter a lobby code.");
+                return;
+            }
+            await LobbyManager.Instance.JoinLobbyByCode(lobbyCode);
         }
 
         /// <summary>
@@ -96,10 +123,7 @@ namespace ViewModels
         /// </summary>
         public async void QuickJoinLobby()
         {
-            _searchingForLobbyAnimator.StartAnimation();
-            ErrorDisplay.Instance.mainCanvas = canvasOnline;
             await LobbyManager.Instance.QuickJoinLobby();
-            _searchingForLobbyAnimator.StopAnimation();
         }
 
         /// <summary>
@@ -109,10 +133,7 @@ namespace ViewModels
         /// If the lobby will be private (only join-able with code) or public (join-able with quick join as well)</param>
         public async void CreateLobby(bool isPrivate)
         {
-            _creatingLobbyAnimator.StartAnimation();
-            ErrorDisplay.Instance.mainCanvas = canvasLobby;
             await LobbyManager.Instance.CreateLobby(lobbyNameField.text.Trim('\u200b'), isPrivate);
-            _creatingLobbyAnimator.StopAnimation();
         }
 
         #endregion

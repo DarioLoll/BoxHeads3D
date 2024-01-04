@@ -1,10 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : NetworkBehaviour
 {
     private InputActions _inputActions;
     /// <summary>
@@ -47,20 +49,24 @@ public class PlayerController : MonoBehaviour
     private const float G = -9.81f;
     
 
-    // Start is called before the first frame update
-    void Awake()
+    public override void OnNetworkSpawn()
     {
-        // Making the cursor (mouse pointer) invisible
+        if (!IsOwner) return;
         Cursor.lockState = CursorLockMode.Locked;
         _inputActions = new InputActions();
+        _inputActions.OnFoot.Enable();
         _playerRotator = GetComponent<PlayerRotator>();
         _characterController = GetComponent<CharacterController>();
+        _playerRotator.Camera = Camera.main;
+        CameraFollower cameraFollower = Camera.main!.GetComponent<CameraFollower>();
+        cameraFollower.FollowObject = transform;
     }
-    
+
 
     // Update is called once per frame
     void Update()
     {
+        if(!IsOwner) return;
         Move(_inputActions.OnFoot.Movement.ReadValue<Vector2>());
         _playerRotator.Look(_inputActions.OnFoot.Look.ReadValue<Vector2>());
     }
@@ -92,18 +98,5 @@ public class PlayerController : MonoBehaviour
         //and accounts for the orientation of the transform
         _characterController.Move(transform.TransformDirection(motion));
     }
-
     
-    
-    private void OnEnable()
-    {
-        //Enabling the input system
-        _inputActions.OnFoot.Enable();
-    }
-
-    private void OnDisable()
-    {
-        //Disabling the input system
-        _inputActions.OnFoot.Disable();
-    }
 }

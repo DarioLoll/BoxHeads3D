@@ -2,10 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DefaultNamespace;
+using Managers;
+using Services;
 using TMPro;
 using Unity.Netcode;
+using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 namespace ViewModels
@@ -27,10 +32,17 @@ namespace ViewModels
         [SerializeField] private GameObject btnReady;
 
         [SerializeField] private GameObject btnStartGame;
+        
+        [SerializeField] private GameObject btnLeave;
 
         [SerializeField] private Transform playerTable;
 
         [SerializeField] private Transform btnChangeColor;
+
+        private Button _buttonReady;
+        private Button _buttonStart;
+        private Button _buttonLeave;
+        
         private const float SpaceBetweenTableRows = 160f;
     
         private TMP_InputField _lobbyCodeInputField;
@@ -40,7 +52,26 @@ namespace ViewModels
         private List<LobbyPlayerVm> _players = new();
         private LobbyPlayerVm ThisPlayerVm => _players[_thisPlayer];
         private Color _thisPlayerColor;
-        private bool _thisPlayerIsReady;
+        private bool _thisPlayerReady;
+        
+        private Color ThisPlayerColor
+        {
+            get => _thisPlayerColor;
+            set
+            {
+                _thisPlayerColor = value;
+                ThisPlayerVm.Color = value;
+            }
+        }
+        private bool ThisPlayerReady
+        {
+            get => _thisPlayerReady;
+            set
+            {
+                _thisPlayerReady = value;
+                ThisPlayerVm.SetReady(value);
+            }
+        }
     
         //When something about the player changed, all other players in the lobby need to be notified
         //This requires sending the update info into the internet
@@ -54,9 +85,17 @@ namespace ViewModels
         #endregion
 
         #region methods
+
+        private void Awake()
+        {
+            _buttonReady = btnReady.GetComponent<Button>();
+            _buttonStart = btnStartGame.GetComponent<Button>();
+            _buttonLeave = btnLeave.GetComponent<Button>();
+            _lobbyCodeInputField = lobbyCodeField.GetComponent<TMP_InputField>();
+        }
+
         private void Start()
         {
-            _lobbyCodeInputField = lobbyCodeField.GetComponent<TMP_InputField>();
             for (int i = 0; i < PlayerCount; i++)
             {
                 _players.Add(playerTable.GetChild(i).GetComponent<LobbyPlayerVm>());
@@ -64,21 +103,105 @@ namespace ViewModels
             _thisPlayer = LobbyManager.Instance.JoinedLobby!.Players.IndexOf(LobbyManager.Instance.ThisPlayer);
             _players[_thisPlayer].SetPlayer(LobbyManager.Instance.ThisPlayer);
             _thisPlayerColor = ThisPlayerVm.Color;
-            _thisPlayerIsReady = ThisPlayerVm.IsReady;
-            ErrorDisplay.Instance.mainCanvas = mainCanvas;
-        
+            _thisPlayerReady = ThisPlayerVm.IsReady;
             UpdateLobby();
             LobbyManager.Instance.JoinedLobbyChanged += UpdateLobby;
+            LobbyManager.Instance.PlayerKicked += OnPlayerKicked;
+            LobbyManager.Instance.LobbyStateChanged += OnLobbyStateChanged;
+            LobbyManager.Instance.LobbyLeft += OnLobbyLeft;
+            LobbyManager.Instance.Busy += OnLobbyManagerBusy;
+            LobbyManager.Instance.NoLongerBusy += OnLobbyManagerNoLongerBusy;
+            LobbyManager.Instance.GameStarting += OnGameStarting;
         }
 
+        
 
+        private void OnDestroy()
+        {
+            LobbyManager.Instance.JoinedLobbyChanged -= UpdateLobby;
+            LobbyManager.Instance.PlayerKicked -= OnPlayerKicked;
+            LobbyManager.Instance.LobbyStateChanged -= OnLobbyStateChanged;
+            LobbyManager.Instance.LobbyLeft -= OnLobbyLeft;
+            LobbyManager.Instance.Busy -= OnLobbyManagerBusy;
+            LobbyManager.Instance.NoLongerBusy -= OnLobbyManagerNoLongerBusy;
+            LobbyManager.Instance.GameStarting -= OnGameStarting;
+        }
+
+        #region Event Handlers
+
+        private void OnLobbyManagerNoLongerBusy()
+        {
+            _buttonReady.enabled = true;
+            _buttonStart.enabled = true;
+            _buttonLeave.enabled = true;
+        }
+
+        private void OnLobbyManagerBusy()
+        {
+            _buttonReady.enabled = false;
+            _buttonStart.enabled = false;
+            _buttonLeave.enabled = false;
+        }
+        
+        private void OnGameStarting()
+        {
+            LoadingScreen.Instance.DisplayLoadingScreen("Game starting...");
+        }
+
+        private void OnLobbyLeft() => SceneLoader.LoadScene(Scenes.MainMenu);
+
+        private void OnLobbyStateChanged()
+        {
+            LobbyState newState = LobbyManager.Instance.State;
+            if(newState == LobbyState.Starting)
+                LoadingScreen.Instance.DisplayLoadingScreen("Starting game");
+            if(newState == LobbyState.Started)
+                LoadingScreen.Instance.CloseLoadingScreen();
+        }
+
+        private void OnPlayerKicked()
+        {
+            PopupBox.Instance.DisplayInfo("You were kicked from the lobby", () => SceneLoader.LoadScene(Scenes.MainMenu));
+        }
+
+        #endregion
+
+
+        #region UI Event Handlers
 
         public void ChangeColor()
         {
             Color newColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
-            _thisPlayerColor = newColor;
-            ThisPlayerVm.Color = newColor;
+            ThisPlayerColor = newColor;
         }
+
+        public void LeaveLobby() => LobbyManager.Instance.LeaveLobby();
+    
+        public void StartGame()
+        {
+            Lobby lobby = LobbyManager.Instance.JoinedLobby;
+            if (lobby == null) return;
+            //Start the game, pass in both players
+            //Leave the lobbies with both players, load the match scene
+            Debug.Log("Starting game");
+            LobbyManager.Instance.BeginStartingGameAsHost();
+        }
+
+        /// <summary>
+        /// Changes the local ready status
+        /// </summary>
+        public void SetReady()
+        {
+            Lobby lobby = LobbyManager.Instance.JoinedLobby;
+            if(lobby == null) return;
+            //The host doesn't have a ready status, they just click on start when they're ready
+            if (LobbyManager.Instance.IsHost) return;
+            ThisPlayerReady = !_thisPlayerReady;
+        }
+        
+        #endregion
+
+        
     
         /// <summary>
         /// Checks if there are any changes to the player data every 1.1s and sends them to the cloud
@@ -124,39 +247,12 @@ namespace ViewModels
             return changes;
         }
 
-        public void LeaveLobby() => LobbyManager.Instance.LeaveLobby();
-    
-        public void StartGame()
-        {
-            Lobby lobby = LobbyManager.Instance.JoinedLobby;
-            if (lobby == null) return;
-            if (_players.Any(player => player.IsReady == false))
-            {
-                return;
-            }
-            //Start the game, pass in both players
-            //Leave the lobbies with both players, load the match scene
-            Debug.Log("Starting game");
-            LobbyManager.Instance.EstablishNetCodeConnection();
-        }
-
-        /// <summary>
-        /// Changes the local ready status
-        /// </summary>
-        public void SetReady()
-        {
-            Lobby lobby = LobbyManager.Instance.JoinedLobby;
-            if(lobby == null) return;
-            //The host doesn't have a ready status, they just click on start when they're ready
-            if (LobbyManager.Instance.IsHost) return;
-            _thisPlayerIsReady = !_thisPlayerIsReady;
-            ThisPlayerVm.SetReady(_thisPlayerIsReady);
-        }
+       
     
         /// <summary>
         /// Called after something in the lobby changed (after every poll = every 1.1s by default)
         /// </summary>
-        private void UpdateLobby(object sender = null, EventArgs e = default)
+        private void UpdateLobby()
         {
             Lobby lobby = LobbyManager.Instance.JoinedLobby;
             if (lobby == null || LobbyManager.Instance.ThisPlayer == null) return;
@@ -176,6 +272,10 @@ namespace ViewModels
             //Only the host can start the game
             btnStartGame.SetActive(LobbyManager.Instance.IsHost);
             UpdatePlayers();
+            if ((LobbyManager.Instance.State is LobbyState.Started or LobbyState.Starting) && _thisPlayerReady)
+            {
+                LobbyManager.Instance.TryConnectToGame();
+            }
         }
 
         private void UpdatePlayers()
@@ -192,17 +292,14 @@ namespace ViewModels
                     player.gameObject.SetActive(true);
                     player.SetPlayer(LobbyManager.Instance.JoinedLobby!.Players[i]);
                 }
-
-                if (i != _thisPlayer) continue;
-                player.Color = _thisPlayerColor;
-                player.SetReady(_thisPlayerIsReady);
+                if(i != _thisPlayer) continue;
+                ThisPlayerVm.Color = ThisPlayerColor;
+                ThisPlayerVm.SetReady(LobbyManager.Instance.IsHost || ThisPlayerReady);
             }
+            
         }
 
-        private void OnDestroy()
-        {
-            LobbyManager.Instance.JoinedLobbyChanged -= UpdateLobby;
-        }
+        
 
         #endregion
     }

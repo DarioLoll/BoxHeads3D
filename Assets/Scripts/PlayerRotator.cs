@@ -10,8 +10,7 @@ public class PlayerRotator : MonoBehaviour
     /// <summary>
     /// The camera attached to the player
     /// </summary>
-    [SerializeField]
-    Camera cam;
+    public Camera Camera { get; set; }
 
     public float mouseSensitivityX;
     public float mouseSensitivityY;
@@ -40,7 +39,7 @@ public class PlayerRotator : MonoBehaviour
         
         //For looking left/right, we should also rotate the player around the y axis
         //For looking up/down, we should only rotate the camera around the x axis
-        cam.transform.rotation = Quaternion.Euler(_xRotation, _yRotation, 0);
+        Camera.transform.rotation = Quaternion.Euler(_xRotation, _yRotation, 0);
         transform.rotation = Quaternion.Euler(0, _yRotation, 0);
     }
 }

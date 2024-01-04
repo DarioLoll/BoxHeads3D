@@ -1,5 +1,6 @@
 using System;
 using System.Text.RegularExpressions;
+using Services;
 using TMPro;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
@@ -12,12 +13,7 @@ namespace ViewModels
         #region fields
 
         [SerializeField] private GameObject mainCanvas;
-
-        /// <summary>
-        /// The animated text that is displayed when the game is logging in the user
-        /// </summary>
-        [SerializeField] private GameObject loggingInText;
-        private TextAnimator _loggingInAnimator;
+        
 
         private const string NotAlphaNumerical = "The name may only contain numbers and letters.";
         private const string NetworkError = "Couldn't log in. Check your internet connection and try again.";
@@ -27,12 +23,6 @@ namespace ViewModels
 
         #region methods
     
-        private void Start()
-        {
-            _loggingInAnimator = loggingInText.GetComponent<TextAnimator>();
-            ErrorDisplay.Instance.mainCanvas = mainCanvas;
-        }
-    
         public void Login(TextMeshProUGUI playerNameField) => Login(playerNameField.text.Trim('\u200b'));
 
         private async void Login(string playerName)
@@ -40,11 +30,11 @@ namespace ViewModels
             //The name may only contain numbers and letters
             if (!Regex.IsMatch(playerName, "^[a-zA-Z0-9]+$"))
             {
-                ErrorDisplay.Instance.DisplayError(NotAlphaNumerical);
+                PopupBox.Instance.DisplayError(NotAlphaNumerical);
                 return; 
             }
         
-            _loggingInAnimator.StartAnimation();
+            LoadingScreen.Instance.DisplayLoadingScreen("Logging in");
             try
             {
                 InitializationOptions initializationOptions = new InitializationOptions();
@@ -55,15 +45,12 @@ namespace ViewModels
                 Debug.Log(AuthenticationService.Instance.PlayerId + " " + AuthenticationService.Instance.PlayerName);
                 //Loading the next scene (main menu)
                 SceneLoader.LoadScene(Scenes.MainMenu);
+                LoadingScreen.Instance.CloseLoadingScreen();
             }
             catch (Exception e)
             {
-                ErrorDisplay.Instance.DisplayError(NetworkError);
+                PopupBox.Instance.DisplayError(NetworkError, LoadingScreen.Instance.CloseLoadingScreen);
                 Debug.LogException(e);
-            }
-            finally
-            {
-                _loggingInAnimator.StopAnimation();
             }
         }
         #endregion

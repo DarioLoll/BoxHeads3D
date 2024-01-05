@@ -1,4 +1,4 @@
-﻿namespace DefaultNamespace
+﻿namespace Models
 {
     public enum LobbyState
     {

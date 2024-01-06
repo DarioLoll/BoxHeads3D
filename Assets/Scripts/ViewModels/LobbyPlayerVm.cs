@@ -1,4 +1,3 @@
-using DefaultNamespace;
 using Managers;
 using TMPro;
 using Unity.Services.Lobbies.Models;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using PlayFab;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -24,6 +25,7 @@ public class CameraFollower : MonoBehaviour
     private void Awake()
     {
         enabled = false;
+        
     }
 
     private void LateUpdate()

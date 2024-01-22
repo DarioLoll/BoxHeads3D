@@ -31,4 +31,4 @@ Engineering games like Factorio, and modded Minecraft are highly addictive, and 
 
 ## Download:
 You can download the current version for **Windows** here:
-- Coming soon...
+- [Mediafire](https://www.mediafire.com/file/brfnr1ihy5h0aao/celestialecho-setup.exe/file)

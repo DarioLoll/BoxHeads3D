@@ -6,9 +6,13 @@ using JetBrains.Annotations;
 using Models;
 using Services;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
+using Unity.Networking.Transport.Relay;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
+using Unity.Services.Relay;
+using Unity.Services.Relay.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using ColorUtility = UnityEngine.ColorUtility;
@@ -79,7 +83,7 @@ namespace Managers
         public const string PlayerNameProperty = "name";
         public const string PlayerIsReadyProperty = "isReady";
         public const string PlayerColorProperty = "color";
-        public const string ClientIdProperty = "clientId";
+        public const string RelayCodeProperty = "relayCode";
     
         public const int MaxPlayerCount = 4;
 
@@ -143,6 +147,38 @@ namespace Managers
             catch (LobbyServiceException e)
             {
                 PopupBox.Instance.DisplayLobbyError(e);
+                Debug.LogException(e);
+            }
+        }
+
+        private async Task<Allocation> AllocateRelay()
+        {
+            if (!IsHost) return default;
+            try
+            {
+                Allocation allocation = await RelayService.Instance.CreateAllocationAsync(MaxPlayerCount - 1);
+                string relayCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+                await SetRelayCode(relayCode);
+                Debug.Log($"Allocated relay with code {relayCode}");
+                return allocation;
+            }
+            catch (RelayServiceException e)
+            {
+                Debug.LogException(e);
+                return default;
+            }
+        }
+        
+        private async Task JoinRelay(string relayCode)
+        {
+            try
+            {
+                JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(relayCode);
+                UnityTransport unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+                unityTransport.SetRelayServerData(new RelayServerData(allocation, "dtls"));
+            }
+            catch (RelayServiceException e)
+            {
                 Debug.LogException(e);
             }
         }
@@ -296,7 +332,24 @@ namespace Managers
         /// <summary>
         /// Updates the state of the lobby in the cloud
         /// </summary>
-        public async void UpdateLobbyState(LobbyState newState)
+        public async Task UpdateLobbyState(LobbyState newState)
+        {
+            await UpdateLobbyData(new Dictionary<string, DataObject>()
+            {
+                {LobbyStateProperty, new DataObject(DataObject.VisibilityOptions.Public, newState.ToString())}
+            });
+            OnLobbyStateChanged();
+        }
+
+        private async Task SetRelayCode(string relayCode)
+        {
+            await UpdateLobbyData(new Dictionary<string, DataObject>()
+            {
+                {RelayCodeProperty, new DataObject(DataObject.VisibilityOptions.Member, relayCode)}
+            });
+        }
+
+        private async Task UpdateLobbyData(Dictionary<string, DataObject> updates)
         {
             try
             {
@@ -304,13 +357,8 @@ namespace Managers
                 JoinedLobby = await LobbyService.Instance.UpdateLobbyAsync(JoinedLobby.Id,
                     new UpdateLobbyOptions()
                     {
-                        Data = new Dictionary<string, DataObject>()
-                        {
-                            {LobbyStateProperty, 
-                                new DataObject(DataObject.VisibilityOptions.Public, newState.ToString())}
-                        }
+                        Data = updates
                     });
-                OnLobbyStateChanged();
             }
             catch (LobbyServiceException e)
             {
@@ -348,18 +396,32 @@ namespace Managers
         }
     
 
-        public void BeginStartingGameAsHost()
+        public async void BeginStartingGameAsHost()
         {
             //can't start game if you're: not in a lobby, already hosting or are not the lobby host
-            if(JoinedLobby == null || NetworkManager.Singleton.IsHost || !IsHost)
-                return;
-            IsBusy = true;
-            NetworkManager.Singleton.StartHost();
-            Debug.Log("NetCode: Started host");
-            UpdateLobbyState(LobbyState.Starting);
-            OnGameStarting();
-            SceneLoader.LoadSceneOnNetwork(Scenes.Game);
-            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += GameStarted;
+            try
+            {
+                if(JoinedLobby == null || NetworkManager.Singleton.IsHost || !IsHost)
+                    return;
+                IsBusy = true;
+                
+                Allocation allocation = await AllocateRelay();
+                UnityTransport unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+                unityTransport.SetRelayServerData(new RelayServerData(allocation, "dtls"));
+                Debug.Log($"Set Host relay data {unityTransport.ConnectionData.Address}");
+                
+                NetworkManager.Singleton.StartHost();
+                Debug.Log("NetCode: Started host");
+                
+                UpdateLobbyState(LobbyState.Starting);
+                OnGameStarting();
+                SceneLoader.LoadSceneOnNetwork(Scenes.Game);
+                NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += GameStarted;
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
         }
     
 
@@ -392,13 +454,14 @@ namespace Managers
             JoinedLobbyChanged?.Invoke();
         }
 
-        public void TryConnectToGame()
+        public async void TryConnectToGame()
         {
             if (NetworkManager.Singleton == null) return;
             if(NetworkManager.Singleton.IsClient) return;
             IsBusy = true;
+            await JoinRelay(JoinedLobby!.Data[RelayCodeProperty].Value);
             NetworkManager.Singleton.StartClient();
-        
+            Debug.Log("Client started.");
             OnGameStarting();
         }
         

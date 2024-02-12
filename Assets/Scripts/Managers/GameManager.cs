@@ -69,7 +69,7 @@ namespace Managers
             
             var player = Instantiate(playerPrefab, spawnPoint, Quaternion.identity);
             player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
-            AssignNickAndColorOnNetwork(clientId);
+            //AssignNickAndColorOnNetwork(clientId);
         }
 
         private void AssignNickAndColorOnNetwork(ulong clientId)

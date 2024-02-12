@@ -53,8 +53,11 @@ namespace Managers
     
         public LobbyState State => Enum.Parse<LobbyState>(JoinedLobby?.Data[LobbyStateProperty].Value);
     
-        public bool IsHost => AuthenticationService.Instance.PlayerId == JoinedLobby?.HostId;
-        
+        public bool IsHost
+        {
+            get { return AuthenticationService.Instance.PlayerId == JoinedLobby?.HostId; }
+        }
+
         public Player GetPlayer(string playerId) => JoinedLobby?.Players.Find(player => player.Id == playerId);
 
         private bool _isBusy;
@@ -176,6 +179,7 @@ namespace Managers
                 JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(relayCode);
                 UnityTransport unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
                 unityTransport.SetRelayServerData(new RelayServerData(allocation, "dtls"));
+                Debug.Log($"Relay joined {relayCode}");
             }
             catch (RelayServiceException e)
             {

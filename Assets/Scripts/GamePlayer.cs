@@ -26,6 +26,8 @@ public class GamePlayer : NetworkBehaviour
         
     }
     
+    
+    
     public override void OnNetworkSpawn()
     {
         Nickname.OnValueChanged += OnNicknameChanged;

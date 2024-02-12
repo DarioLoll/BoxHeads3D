@@ -53,6 +53,8 @@ namespace ViewModels
         private LobbyPlayerVm ThisPlayerVm => _players[_thisPlayer];
         private Color _thisPlayerColor;
         private bool _thisPlayerReady;
+
+        private bool _inGame;
         
         private Color ThisPlayerColor
         {
@@ -272,9 +274,10 @@ namespace ViewModels
             //Only the host can start the game
             btnStartGame.SetActive(LobbyManager.Instance.IsHost);
             UpdatePlayers();
-            if ((LobbyManager.Instance.State is LobbyState.Started or LobbyState.Starting) && _thisPlayerReady)
+            if ((LobbyManager.Instance.State is LobbyState.Started or LobbyState.Starting) && _thisPlayerReady && !_inGame)
             {
                 LobbyManager.Instance.TryConnectToGame();
+                _inGame = true;
             }
         }
 

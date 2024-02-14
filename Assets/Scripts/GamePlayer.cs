@@ -42,6 +42,7 @@ public class GamePlayer : NetworkBehaviour
     private void OnColorChanged(FixedString32Bytes previousValue, FixedString32Bytes newValue)
     {
         _playerMaterial.color = ColorUtility.TryParseHtmlString(newValue.Value, out var color) ? color : Color.white;
+        
     }
 
     private void OnNicknameChanged(FixedString32Bytes previousValue, FixedString32Bytes newValue)

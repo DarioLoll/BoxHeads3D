@@ -20,7 +20,7 @@ namespace UI
                 {
                     _eventSystem.currentSelectedGameObject.GetComponent<Selectable>().FindSelectableOnUp().Select();
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // no need to handle
                 }
@@ -31,7 +31,7 @@ namespace UI
                 {
                     _eventSystem.currentSelectedGameObject.GetComponent<Selectable>().FindSelectableOnDown().Select();
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // no need to handle
                 }

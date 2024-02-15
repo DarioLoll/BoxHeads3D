@@ -53,8 +53,8 @@ namespace UI
             _animatedObjects.Add(gameObject);
             RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
             rectTransform.localRotation = Quaternion.Euler(0, from, 0);
-            LeanTween.value(gameObject, from, to, _ui.EnteringAnimationDuration)
-                .setEase(LeanTweenType.easeOutCubic)
+            LeanTween.value(gameObject, from, to, _ui.EnteringAnimationDuration / 2)
+                //.setEase(LeanTweenType.easeOutCubic)
                 .setOnUpdate((float v) =>
                 {
                     rectTransform.localRotation = Quaternion.Euler(0, v, 0);

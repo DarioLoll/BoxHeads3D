@@ -417,10 +417,11 @@ namespace Managers
                 NetworkManager.Singleton.StartHost();
                 Debug.Log("NetCode: Started host");
                 
-                UpdateLobbyState(LobbyState.Starting);
+                await UpdateLobbyState(LobbyState.Starting);
                 OnGameStarting();
                 SceneLoader.LoadSceneOnNetwork(Scenes.Game);
                 NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += GameStarted;
+                
             }
             catch (Exception e)
             {
@@ -429,10 +430,10 @@ namespace Managers
         }
     
 
-        private void GameStarted(string scenename, LoadSceneMode loadscenemode, 
+        private async void GameStarted(string scenename, LoadSceneMode loadscenemode, 
             List<ulong> clientscompleted, List<ulong> clientstimedout)
         {
-            UpdateLobbyState(LobbyState.Started);
+            await UpdateLobbyState(LobbyState.Started);
             IsBusy = false;
             Debug.Log("Game started!");
         }

@@ -155,7 +155,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc6e210b6179ec74084ea22fd1a3f296, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buttonTypeName: 1
+  backgroundColor: 18
+  textColor: 14
+  backgroundColorOnHover: 18
+  textColorOnHover: 15
 --- !u!1 &9156347477986836244
 GameObject:
   m_ObjectHideFlags: 0

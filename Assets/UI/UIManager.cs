@@ -8,9 +8,11 @@ namespace UI
         public static UIManager Instance;
     
         public UIAnimator Animator { get; private set; }
-    
+
         public UIPanelElement signUpPanel;
         public UIPanelElement logInPanel;
+        public GameObject mainMenuTitleSection;
+        public GameObject mainMenuButtonsSection;
 
         public Color baseBackground;
         public Color baseForeground;
@@ -26,6 +28,8 @@ namespace UI
         public Color primaryBackgroundHoverGreen;
         public Color primaryBackgroundTale;
         public Color primaryBackgroundHoverTale;
+        public Color primaryBackgroundRed;
+        public Color primaryBackgroundHoverRed;
         public Color transparent;
     
         public float FadeBaseDuration = 0.5f;
@@ -64,6 +68,33 @@ namespace UI
         {
             Enter(logInPanel.gameObject, EnteringAnimation.SlideInFromLeft);
         }
+        
+        public Color GetColor(ThemeColors themeColor)
+        {
+            return themeColor switch
+            {
+                ThemeColors.BaseBackground => baseBackground,
+                ThemeColors.BaseForeground => baseForeground,
+                ThemeColors.HighlightedForeground => highlightedForeground,
+                ThemeColors.HighlightedBackground => highlightedBackground,
+                ThemeColors.DisabledForeground => disabledForeground,
+                ThemeColors.PlaceholderForeground => placeholderForeground,
+                ThemeColors.ElementBackground => elementBackground,
+                ThemeColors.ElementBackgroundOnHover => elementBackgroundOnHover,
+                ThemeColors.DisabledElementBackground => disabledElementBackground,
+                ThemeColors.DarkForeground => darkForeground,
+                ThemeColors.PrimaryBackgroundGreen => primaryBackgroundGreen,
+                ThemeColors.PrimaryBackgroundHoverGreen => primaryBackgroundHoverGreen,
+                ThemeColors.PrimaryBackgroundTale => primaryBackgroundTale,
+                ThemeColors.PrimaryBackgroundHoverTale => primaryBackgroundHoverTale,
+                ThemeColors.Transparent => transparent,
+                ThemeColors.PrimaryBackground => PrimaryBackgroundColor,
+                ThemeColors.PrimaryBackgroundHover => PrimaryBackgroundHoverColor,
+                ThemeColors.PrimaryBackgroundRed => primaryBackgroundRed,
+                ThemeColors.PrimaryBackgroundHoverRed => primaryBackgroundHoverRed,
+                _ => baseBackground
+            };
+        }
 
         public void Enter(GameObject go, EnteringAnimation enteringAnimation, Action callback = null)
         {
@@ -80,9 +111,11 @@ namespace UI
         
         public void Exit(GameObject go, ExitingAnimation exitingAnimation, Action callback = null)
         {
+            Vector3 pos = go.transform.localPosition;
             Action callbackAction = () =>
             {
                 go.SetActive(false);
+                go.transform.localPosition = pos;
                 callback?.Invoke();
             };
             if(Animator.IsBeingAnimated(go))
@@ -115,6 +148,10 @@ namespace UI
                 LogInSignUpSwitchEnteringAnimation);
         }
 
+        public void CloseApplication()
+        {
+            Application.Quit();
+        }
         
     }
 
@@ -122,6 +159,29 @@ namespace UI
     {
         Green,
         Tale
+    }
+
+    public enum ThemeColors
+    {
+        BaseBackground,
+        BaseForeground,
+        HighlightedForeground,
+        HighlightedBackground,
+        DisabledForeground,
+        PlaceholderForeground,
+        ElementBackground,
+        ElementBackgroundOnHover,
+        DisabledElementBackground,
+        DarkForeground,
+        PrimaryBackgroundGreen,
+        PrimaryBackgroundHoverGreen,
+        PrimaryBackgroundTale,
+        PrimaryBackgroundHoverTale,
+        PrimaryBackground,
+        PrimaryBackgroundHover,
+        PrimaryBackgroundRed,
+        PrimaryBackgroundHoverRed,
+        Transparent
     }
     
     

@@ -10,17 +10,36 @@ namespace UI
     {
         private Button _button;
         private TextMeshProUGUI _buttonText;
-        public ButtonTypeName buttonTypeName;
-        private ButtonType _buttonType;
+        public ThemeColors backgroundColor;
+        public ThemeColors textColor;
+        public ThemeColors backgroundColorOnHover;
+        public ThemeColors textColorOnHover;
+        public Image icon;
+        private bool _hasIcon;
+        public float onHoverSizeMultiplier = 1.0f;
+
+        private Color _backgroundColor;
+        private Color _textColor;
+        private Color _backgroundColorOnHover;
+        private Color _textColorOnHover;
+        
+        private bool _animateBackground => backgroundColor != backgroundColorOnHover;
+        private bool _animateText => textColor != textColorOnHover;
+        
         private void Start()
         {
             _button = GetComponent<Button>();
             _buttonText = GetComponentInChildren<TextMeshProUGUI>();
-            ButtonTypes types = new ButtonTypes();
-            _buttonType = types.GetButtonType(buttonTypeName);
-            _button.image.color = _buttonType.backgroundColor;
-            _buttonText.color = _buttonType.textColor;
-        
+            UIManager ui = UIManager.Instance;
+            _backgroundColor = ui.GetColor(backgroundColor);
+            _textColor = ui.GetColor(textColor);
+            _backgroundColorOnHover = ui.GetColor(backgroundColorOnHover);
+            _textColorOnHover = ui.GetColor(textColorOnHover);
+            _button.image.color = _backgroundColor;
+            _buttonText.color = _textColor;
+            _hasIcon = icon != null;
+            if(_hasIcon)
+                icon.color = _textColor;
         }
 
         public static Color DarkenColor(Color color, float multiplier)
@@ -45,100 +64,46 @@ namespace UI
         public void OnPointerEnter(PointerEventData eventData)
         {
             UIManager ui = UIManager.Instance;
-            if (_buttonType.AnimateBackground)
+            if (_animateBackground)
             {
-                LeanTween.value(gameObject, _buttonType.backgroundColor, _buttonType.backgroundColorOnHover, ui.HoverBaseDuration)
+                LeanTween.value(gameObject, _backgroundColor, _backgroundColorOnHover, ui.HoverBaseDuration)
                     .setOnUpdateColor(color => _button.image.color = color);
             }
-            if (_buttonType.AnimateText)
+            if (_animateText)
             {
-                LeanTween.value(gameObject, _buttonType.textColor, _buttonType.textColorOnHover, ui.HoverBaseDuration)
-                    .setOnUpdateColor(color => _buttonText.color = color);
+                LeanTween.value(gameObject, _textColor, _textColorOnHover, ui.HoverBaseDuration)
+                    .setOnUpdateColor(color =>
+                    {
+                        _buttonText.color = color;
+                        if(_hasIcon)
+                            icon.color = color;
+                    });
             }
+            LeanTween.scale(gameObject, Vector3.one * onHoverSizeMultiplier, ui.HoverBaseDuration)
+                .setEase(LeanTweenType.easeOutCubic);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             UIManager ui = UIManager.Instance;
-            if (_buttonType.AnimateBackground)
+            if (_animateBackground)
             {
-                LeanTween.value(gameObject, _buttonType.backgroundColorOnHover, _buttonType.backgroundColor, ui.HoverBaseDuration)
+                LeanTween.value(gameObject, _backgroundColorOnHover, _backgroundColor, ui.HoverBaseDuration)
                     .setOnUpdateColor(color => _button.image.color = color);
             }
-            if (_buttonType.AnimateText)
+            if (_animateText)
             {
-                LeanTween.value(gameObject, _buttonType.textColorOnHover, _buttonType.textColor, ui.HoverBaseDuration)
-                    .setOnUpdateColor(color => _buttonText.color = color);
+                LeanTween.value(gameObject, _textColorOnHover, _textColor, ui.HoverBaseDuration)
+                    .setOnUpdateColor(color =>
+                    {
+                        _buttonText.color = color;
+                        if(_hasIcon)
+                            icon.color = color;
+                    });
             }
+            LeanTween.scale(gameObject, Vector3.one, ui.HoverBaseDuration)
+                .setEase(LeanTweenType.easeOutCubic);
         }
     }
-
-    public class ButtonTypes
-    {
-        public ButtonTypes()
-        {
-            TextButton = new ButtonType
-            {
-                backgroundColor = UIManager.Instance.transparent,
-                backgroundColorOnHover = UIManager.Instance.transparent,
-                textColor = UIManager.Instance.PrimaryBackgroundColor,
-                textColorOnHover = UIManager.Instance.PrimaryBackgroundHoverColor
-            };
-            StandardButton = new ButtonType
-            {
-                backgroundColor = UIManager.Instance.elementBackground,
-                backgroundColorOnHover = UIManager.Instance.elementBackgroundOnHover,
-                textColor = UIManager.Instance.baseForeground,
-                textColorOnHover = UIManager.Instance.baseForeground
-            };
-            DisabledButton = new ButtonType
-            {
-                backgroundColor = UIManager.Instance.disabledElementBackground,
-                backgroundColorOnHover = UIManager.Instance.disabledElementBackground,
-                textColor = UIManager.Instance.disabledForeground,
-                textColorOnHover = UIManager.Instance.disabledForeground
-            };
-            PrimaryButton = new ButtonType
-            {
-                backgroundColor = UIManager.Instance.PrimaryBackgroundColor,
-                backgroundColorOnHover = UIManager.Instance.PrimaryBackgroundHoverColor,
-                textColor = UIManager.Instance.darkForeground,
-                textColorOnHover = UIManager.Instance.darkForeground
-            };
-        }
-        public ButtonType PrimaryButton;
-        public ButtonType TextButton;
-        public ButtonType StandardButton;
-        public ButtonType DisabledButton;
-        public ButtonType GetButtonType(ButtonTypeName buttonTypeName)
-        {
-            return buttonTypeName switch
-            {
-                ButtonTypeName.PrimaryButton => PrimaryButton,
-                ButtonTypeName.TextButton => TextButton,
-                ButtonTypeName.StandardButton => StandardButton,
-                ButtonTypeName.DisabledButton => DisabledButton,
-                _ => StandardButton
-            };
-        }
-    }
-
-    public enum ButtonTypeName
-    {
-        PrimaryButton,
-        TextButton,
-        StandardButton,
-        DisabledButton
-    }
-
-    [Serializable]
-    public struct ButtonType
-    {
-        public Color backgroundColor;
-        public Color backgroundColorOnHover;
-        public Color textColor;
-        public Color textColorOnHover;
-        public bool AnimateBackground => backgroundColor != backgroundColorOnHover;
-        public bool AnimateText => textColor != textColorOnHover;
-    }
+    
 }

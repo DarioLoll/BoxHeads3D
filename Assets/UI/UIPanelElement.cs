@@ -44,7 +44,8 @@ namespace UI
         private void Start()
         {
             _eventSystem = EventSystem.current;
-            firstSelected.Select();
+            if(firstSelected != null)
+                firstSelected.Select();
         }
         
     }

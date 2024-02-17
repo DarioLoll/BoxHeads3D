@@ -29,6 +29,8 @@ namespace Services
     public enum Scenes
     {
         Authentication,
+        Loader,
+        Menu,
         MainMenu,
         Lobby,
         Game

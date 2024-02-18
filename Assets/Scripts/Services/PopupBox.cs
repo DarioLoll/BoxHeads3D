@@ -1,4 +1,5 @@
 using System;
+using PlayFab;
 using TMPro;
 using Unity.Services.Lobbies;
 using UnityEngine;
@@ -78,6 +79,11 @@ namespace Services
             _canvas.enabled = false;
             _onClose?.Invoke();
             LoadingScreen.Instance.CloseLoadingScreen();
+        }
+
+        public void DisplayPlayFabError(PlayFabError error)
+        {
+            DisplayError(error.ErrorMessage);
         }
     
         public void DisplayLobbyError(LobbyServiceException exception)

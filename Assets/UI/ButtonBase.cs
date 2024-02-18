@@ -28,8 +28,8 @@ namespace UI
         
         private void Start()
         {
-            _button = GetComponent<Button>();
-            _buttonText = GetComponentInChildren<TextMeshProUGUI>();
+            _button = gameObject.GetComponent<Button>();
+            _buttonText = gameObject.GetComponentInChildren<TextMeshProUGUI>();
             UIManager ui = UIManager.Instance;
             _backgroundColor = ui.GetColor(backgroundColor);
             _textColor = ui.GetColor(textColor);
@@ -42,6 +42,26 @@ namespace UI
                 icon.color = _textColor;
         }
 
+        public void Disable()
+        {
+            if (_button == null)
+                _button = gameObject.GetComponent<Button>();
+            _button.interactable = false;
+            var disabledBg = UIManager.Instance.disabledElementBackground;
+            var disabledText = UIManager.Instance.disabledForeground;
+            AnimateBackgroundColor(_backgroundColor, disabledBg, UIManager.Instance.HoverBaseDuration);
+            AnimateTextColor(_textColor, disabledText, UIManager.Instance.HoverBaseDuration);
+        }
+
+        public void Enable()
+        {
+            if (_button == null)
+                _button = gameObject.GetComponent<Button>();
+            _button.interactable = true;
+            AnimateBackgroundColor(UIManager.Instance.disabledElementBackground, _backgroundColor, UIManager.Instance.HoverBaseDuration);
+            AnimateTextColor(UIManager.Instance.disabledForeground, _textColor, UIManager.Instance.HoverBaseDuration);
+        }
+
         public static Color DarkenColor(Color color, float multiplier)
         {
             return new Color(color.r * multiplier, color.g * multiplier, color.b * multiplier);
@@ -49,6 +69,7 @@ namespace UI
 
         public void OnPointerDown(PointerEventData eventData)
         {
+            if (!_button.interactable) return;
             UIManager ui = UIManager.Instance;
             LeanTween.scale(gameObject, Vector3.one * ui.ButtonOnClickSizeMultiplier, ui.HoverBaseDuration)
                 .setEase(LeanTweenType.easeOutCubic);
@@ -56,6 +77,7 @@ namespace UI
 
         public void OnPointerUp(PointerEventData eventData)
         {
+            if (!_button.interactable) return;
             UIManager ui = UIManager.Instance;
             LeanTween.scale(gameObject, Vector3.one, ui.HoverBaseDuration)
                 .setEase(LeanTweenType.easeOutCubic);
@@ -63,21 +85,15 @@ namespace UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
+            if (!_button.interactable) return;
             UIManager ui = UIManager.Instance;
             if (_animateBackground)
             {
-                LeanTween.value(gameObject, _backgroundColor, _backgroundColorOnHover, ui.HoverBaseDuration)
-                    .setOnUpdateColor(color => _button.image.color = color);
+                AnimateBackgroundColor(_backgroundColor, _backgroundColorOnHover, ui.HoverBaseDuration);
             }
             if (_animateText)
             {
-                LeanTween.value(gameObject, _textColor, _textColorOnHover, ui.HoverBaseDuration)
-                    .setOnUpdateColor(color =>
-                    {
-                        _buttonText.color = color;
-                        if(_hasIcon)
-                            icon.color = color;
-                    });
+                AnimateTextColor(_textColor, _textColorOnHover, ui.HoverBaseDuration);
             }
             LeanTween.scale(gameObject, Vector3.one * onHoverSizeMultiplier, ui.HoverBaseDuration)
                 .setEase(LeanTweenType.easeOutCubic);
@@ -85,24 +101,35 @@ namespace UI
 
         public void OnPointerExit(PointerEventData eventData)
         {
+            if (!_button.interactable) return;
             UIManager ui = UIManager.Instance;
             if (_animateBackground)
             {
-                LeanTween.value(gameObject, _backgroundColorOnHover, _backgroundColor, ui.HoverBaseDuration)
-                    .setOnUpdateColor(color => _button.image.color = color);
+                AnimateBackgroundColor(_backgroundColorOnHover, _backgroundColor, ui.HoverBaseDuration);
             }
             if (_animateText)
             {
-                LeanTween.value(gameObject, _textColorOnHover, _textColor, ui.HoverBaseDuration)
-                    .setOnUpdateColor(color =>
-                    {
-                        _buttonText.color = color;
-                        if(_hasIcon)
-                            icon.color = color;
-                    });
+                AnimateTextColor(_textColorOnHover, _textColor, ui.HoverBaseDuration);
             }
             LeanTween.scale(gameObject, Vector3.one, ui.HoverBaseDuration)
                 .setEase(LeanTweenType.easeOutCubic);
+        }
+        
+        public void AnimateBackgroundColor(Color from, Color to, float duration)
+        {
+            LeanTween.value(gameObject, from, to, duration)
+                .setOnUpdateColor(color => _button.image.color = color);
+        }
+        
+        public void AnimateTextColor(Color from, Color to, float duration)
+        {
+            LeanTween.value(gameObject, from, to, duration)
+                .setOnUpdateColor(color =>
+                {
+                    _buttonText.color = color;
+                    if(_hasIcon)
+                        icon.color = color;
+                });
         }
     }
     

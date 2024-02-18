@@ -1,3 +1,5 @@
+using System;
+using Managers;
 using Services;
 using UnityEngine;
 
@@ -8,13 +10,17 @@ namespace ViewModels
         // Start is called before the first frame update
         void Start()
         {
-            SceneLoader.LoadScene(Scenes.Menu);
+            PlayFabManager.Instance.LoadingComplete += LoadMenu;
         }
 
-        // Update is called once per frame
-        void Update()
+        private void LoadMenu()
         {
-        
+            //SceneLoader.LoadScene(Scenes.Menu);
+        }
+
+        private void OnDestroy()
+        {
+            PlayFabManager.Instance.LoadingComplete -= LoadMenu;
         }
     }
 }

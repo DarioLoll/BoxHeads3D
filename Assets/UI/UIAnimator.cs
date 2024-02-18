@@ -45,6 +45,31 @@ namespace UI
                 });
         }
         
+        public void FadeIn(GameObject gameObject, Action callback = null)
+        {
+            _animatedObjects.Add(gameObject);
+            CanvasGroup canvasGroup = gameObject.GetComponent<CanvasGroup>();
+            canvasGroup.alpha = 0;
+            LeanTween.alphaCanvas(canvasGroup, 1, _ui.EnteringAnimationDuration)
+                .setEase(LeanTweenType.easeOutCubic).setOnComplete(() =>
+                {
+                    _animatedObjects.Remove(gameObject);
+                    callback?.Invoke();
+                });
+        }
+        
+        public void FadeOut(GameObject gameObject, Action callback = null)
+        {
+            _animatedObjects.Add(gameObject);
+            CanvasGroup canvasGroup = gameObject.GetComponent<CanvasGroup>();
+            LeanTween.alphaCanvas(canvasGroup, 0, _ui.EnteringAnimationDuration)
+                .setEase(LeanTweenType.easeInCubic).setOnComplete(() =>
+                {
+                    _animatedObjects.Remove(gameObject);
+                    callback?.Invoke();
+                });
+        }
+        
         public void Rotate(GameObject gameObject, bool rotateIn, Action callback = null)
         {
             //how do I return a task that completes when the animation is done?
@@ -113,7 +138,8 @@ namespace UI
         SlideInFromRight,
         SlideInFromTop,
         SlideInFromBottom,
-        RotateIn
+        RotateIn,
+        FadeIn
     }
     
     public enum ExitingAnimation
@@ -122,6 +148,7 @@ namespace UI
         SlideOutToRight,
         SlideOutToTop,
         SlideOutToBottom,
-        RotateOut
+        RotateOut,
+        FadeOut
     }
 }

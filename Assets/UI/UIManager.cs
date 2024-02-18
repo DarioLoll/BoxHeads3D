@@ -1,8 +1,11 @@
 using System;
 using System.Text.RegularExpressions;
+using Managers;
+using Models;
 using PlayFab;
 using Services;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace UI
 {
@@ -13,16 +16,22 @@ namespace UI
         public UIAnimator Animator { get; private set; }
 
         public GameObject CurrentPanel { get; private set; }
-        public bool IsLoggedIn { get; private set; }
         public UIPanelElement signUpPanel;
+        public UIPanelElement addAccountDataPanel;
         public UIPanelElement logInPanel;
         public UIPanelElement displayNamePanel;
         public UIPanelElement resetPasswordPanel;
         public UIPanelElement emailVerificationPanel;
+        public UIPanelElement profilePanel;
         public GameObject mainMenu;
         public EmailCanvas EmailCanvas { get; private set; }
+        public bool IsOnMainMenu { get; private set; }
         public GameObject mainMenuTitleSection;
         public GameObject mainMenuButtonsSection;
+        public GameObject mainMenuObscure;
+        
+        public GameObject multiplayerButton;
+        private ButtonBase _multiplayerButton;
 
         public Color baseBackground;
         public Color baseForeground;
@@ -73,16 +82,73 @@ namespace UI
 
         private void Awake()
         {
-            Instance = this;
-            Animator = new UIAnimator(this);
-            EmailCanvas = emailVerificationPanel.gameObject.GetComponent<EmailCanvas>(); 
+            if(Instance != null)
+                Destroy(gameObject);
+            else
+            {
+                Instance = this;
+                Animator = new UIAnimator(this);
+                EmailCanvas = emailVerificationPanel.gameObject.GetComponent<EmailCanvas>(); 
+            }
         }
 
         private void Start()
         {
-            Enter(logInPanel.gameObject, EnteringAnimation.SlideInFromLeft);
+            PlayFabManager manager = PlayFabManager.Instance;
+            manager.LoggedIn += OnLoggedIn;
+            manager.EmailVerificationRequested += OnEmailVerificationRequested;
+            manager.PasswordResetRequested += OnPasswordResetRequested;
+            manager.LoggedOut += BackToLogin;
+            manager.DisplayNameUpdated += OnDisplayNameUpdated;
+            if (manager.IsOffline)
+            {
+                //Show offline message
+                EnterMainMenu();
+                _multiplayerButton = multiplayerButton.GetComponent<ButtonBase>();
+                _multiplayerButton.Disable();
+            }
+            else if (manager.IsLoggedIn) 
+                EnterMainMenu();
+            else
+                Enter(logInPanel.gameObject, EnteringAnimation.SlideInFromLeft);
         }
-        
+
+        private void OnDisplayNameUpdated(PlayFabPlayer obj)
+        {
+            if(!IsOnMainMenu)
+                SwitchToMainMenu();
+        }
+
+        public void BackToLogin()
+        {
+            Exit(CurrentPanel.gameObject, DefaultExitingAnimation, () =>
+            {
+                ExitMainMenu(() =>
+                {
+                    Enter(logInPanel.gameObject, DefaultEnteringAnimation);
+                });
+            });
+        }
+
+        private void OnPasswordResetRequested(string email) => SwitchToEmailCanvas(EmailTypes.PasswordReset, email);
+
+        private void OnEmailVerificationRequested(string email) => SwitchToEmailCanvas(EmailTypes.Verification, email);
+
+        private void SwitchToEmailCanvas(EmailTypes type, string email)
+        {
+            EmailCanvas.SetEmailCanvas(type, email);
+            Switch(CurrentPanel.gameObject, DefaultExitingAnimation, 
+                emailVerificationPanel.gameObject, DefaultEnteringAnimation);
+        }
+
+        private void OnLoggedIn(PlayFabPlayer obj)
+        {
+            if (string.IsNullOrEmpty(PlayFabManager.Instance.Player?.DisplayName) && !IsOnMainMenu)
+                SwitchToDisplayName();
+            else
+                SwitchToMainMenu();
+        }
+
         public Color GetColor(ThemeColors themeColor)
         {
             return themeColor switch
@@ -114,6 +180,11 @@ namespace UI
         {
             if(Animator.IsBeingAnimated(go))
                 return;
+            if (IsOnMainMenu)
+            {
+                mainMenuObscure.SetActive(true);
+                Animator.FadeIn(mainMenuObscure.gameObject);
+            }
             CurrentPanel = go;
             go.SetActive(true);
             
@@ -130,6 +201,8 @@ namespace UI
             if(Animator.IsBeingAnimated(go))
                 return;
             CurrentPanel = null;
+            if (IsOnMainMenu) 
+                Animator.FadeOut(mainMenuObscure.gameObject, () => mainMenuObscure.SetActive(false));
             Vector3 pos = go.transform.localPosition;
             Vector3 rot = go.transform.localEulerAngles;
             Action callbackAction = () =>
@@ -156,6 +229,8 @@ namespace UI
             Exit(from, exitingAnimation, () => Enter(to, enteringAnimation));
         }
         
+        public void EnterProfile() => Enter(profilePanel.gameObject, EnteringAnimation.SlideInFromLeft);
+
         public void SwitchToLogIn()
         {
             ExitingAnimation exitingAnimation = CurrentPanel == signUpPanel.gameObject
@@ -169,14 +244,29 @@ namespace UI
         
         public void SwitchToMainMenu()
         {
-            Exit(CurrentPanel, DefaultExitingAnimation, () =>
+            if (IsOnMainMenu)
             {
-                IsLoggedIn = true;
-                mainMenu.SetActive(true);
-                //enter main menu
-                Enter(mainMenuTitleSection, EnteringAnimation.SlideInFromTop);
-                Enter(mainMenuButtonsSection, EnteringAnimation.SlideInFromBottom);
-            });
+                Exit(CurrentPanel, DefaultExitingAnimation);
+            }
+            else
+            {
+                Exit(CurrentPanel, DefaultExitingAnimation, EnterMainMenu);
+            }
+        }
+
+        private void EnterMainMenu()
+        {
+            mainMenu.SetActive(true);
+            Enter(mainMenuTitleSection, EnteringAnimation.SlideInFromTop);
+            Enter(mainMenuButtonsSection, EnteringAnimation.SlideInFromBottom, () => IsOnMainMenu = true);
+        }
+        
+        public void ExitMainMenu(Action callback)
+        {
+            Animator.FadeOut(mainMenuObscure.gameObject, () => mainMenuObscure.SetActive(false));
+            Exit(mainMenuTitleSection, ExitingAnimation.SlideOutToTop);
+            Exit(mainMenuButtonsSection, ExitingAnimation.SlideOutToBottom, callback);
+            IsOnMainMenu = false;
         }
 
         public void SwitchToSignUp()
@@ -202,79 +292,26 @@ namespace UI
                 DefaultEnteringAnimation);
         }
 
-        public void CloseApplication()
+        public void CloseWindow()
         {
-            Application.Quit();
+            if (IsOnMainMenu)
+            {
+                if(CurrentPanel != null)
+                    Exit(CurrentPanel, DefaultExitingAnimation);
+            }
+            else if (CurrentPanel != logInPanel.gameObject)
+                SwitchToLogIn();
+            else
+                Application.Quit();
         }
-
-        public bool ValidateUsername(string username)
-        {
-            username = username.Trim();
-            if (username.Length is < 3 or > 20)
-            {
-                PopupBox.Instance.DisplayError("Username must be between 3 and 20 characters");
-                return false;
-            }
-            if (!Regex.IsMatch(username, "^[a-zA-Z0-9_.-]+$"))
-            {
-                PopupBox.Instance.DisplayError("Username may only contain numbers, letters, hyphens, underscores, and periods");
-                return false;
-            }
-            if(username.Contains("..") || username.Contains("--") || username.Contains("__"))
-            {
-                PopupBox.Instance.DisplayError("Username may not contain consecutive periods, hyphens, or underscores");
-                return false;
-            }
-            if(username.StartsWith('.') || username.StartsWith('-') || username.StartsWith('_'))
-            {
-                PopupBox.Instance.DisplayError("Username may not start with a period, hyphen, or underscore");
-                return false;
-            }
-            if(username.EndsWith('.') || username.EndsWith('-') || username.EndsWith('_'))
-            {
-                PopupBox.Instance.DisplayError("Username may not end with a period, hyphen, or underscore");
-                return false;
-            }
-            return true;
-        }
-
+        
         public void DisplayError(PlayFabError message)
         {
             PopupBox.Instance.DisplayPlayFabError(message);
         }
 
-        public bool ValidateEmail(string email)
-        {
-            string emailText = email.Trim();
-            if (!Regex.IsMatch(emailText, @"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$"))
-            {
-                PopupBox.Instance.DisplayError("Invalid email address");
-                return false;
-            }
-            return true;
-        }
 
-        public bool ValidatePassword(string passwordText)
-        {
-            passwordText = passwordText.Trim();
-            if (passwordText.Length < 8)
-            {
-                PopupBox.Instance.DisplayError("Password must be at least 8 characters long");
-                return false;
-            }
-            return true;
-        }
-
-        public bool ValidateDisplayName(string displayNameText)
-        {
-            displayNameText = displayNameText.Trim();
-            if (displayNameText.Length is < 3 or > 20)
-            {
-                PopupBox.Instance.DisplayError("Display name must be between 3 and 20 characters");
-                return false;
-            }
-            return true;
-        }
+        
     }
 
     public enum PrimaryColor

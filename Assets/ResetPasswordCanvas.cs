@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Managers;
 using PlayFab;
 using PlayFab.ClientModels;
 using TMPro;
@@ -8,34 +10,16 @@ using UnityEngine;
 
 public class ResetPasswordCanvas : MonoBehaviour
 {
+    public ButtonBase backToLoginButton;
     public TMP_InputField email;
-    private string _emailAddress;
-    
-    public void ResetPassword()
+
+    private void OnEnable()
     {
-        if (!UIManager.Instance.ValidateEmail(email.text)) return;
-        Debug.Log("Inputs are valid. Sending email...");
-        _emailAddress = email.text.Trim();
-        var request = new SendAccountRecoveryEmailRequest
-        {
-            Email = _emailAddress,
-            TitleId = PlayFabSettings.TitleId
-        };
-        PlayFabClientAPI.SendAccountRecoveryEmail(request, OnResetPasswordSuccess, OnResetPasswordFailure);
+        if (UIManager.Instance.IsOnMainMenu)
+            backToLoginButton.gameObject.SetActive(false);
+        else
+            backToLoginButton.gameObject.SetActive(true);
     }
 
-    private void OnResetPasswordFailure(PlayFabError obj)
-    {
-        Debug.Log("Failed to reset password: " + obj.ErrorMessage);
-        UIManager.Instance.DisplayError(obj);
-    }
-
-    private void OnResetPasswordSuccess(SendAccountRecoveryEmailResult obj)
-    {
-        Debug.Log("Password reset email sent successfully");
-        UIManager ui = UIManager.Instance;
-        ui.EmailCanvas.SetEmailCanvas(EmailTypes.PasswordReset, _emailAddress);
-        ui.Switch(ui.CurrentPanel.gameObject, ui.DefaultExitingAnimation, 
-            ui.emailVerificationPanel.gameObject, ui.DefaultEnteringAnimation);
-    }
+    public void ResetPassword() => PlayFabManager.Instance.ResetPassword(email.text);
 }

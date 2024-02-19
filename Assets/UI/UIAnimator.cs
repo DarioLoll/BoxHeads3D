@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Managers;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -128,6 +130,30 @@ namespace UI
                     SlideOut(go, pos.x, -UIManager.VerticalSlideDistance, callback);
                     break;
             }
+        }
+        
+        public void FadeColor(Image image, ColorType from, ColorType to, float duration, Action callback = null)
+        {
+            FadeColor(image, ThemeManager.GetColor(from, _ui.currentTheme), 
+                ThemeManager.GetColor(to, _ui.currentTheme), duration, callback);
+        }
+
+        public void FadeTextColor(TextMeshProUGUI text, Color from, Color to, float duration, Action callback = null)
+        {
+            LeanTween.value(text.gameObject, from, to, duration)
+                .setOnUpdateColor(color => text.color = color).setOnComplete(() =>
+                {
+                    callback?.Invoke();
+                });
+        }
+
+        public void FadeColor(Image image, Color from, Color to, float duration, Action callback = null)
+        {
+            LeanTween.value(image.gameObject, from, to, duration)
+                .setOnUpdateColor(color => image.color = color).setOnComplete(() =>
+                {
+                    callback?.Invoke();
+                });
         }
         
     }

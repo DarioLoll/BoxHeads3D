@@ -37,7 +37,7 @@ namespace Managers
             [SerializeField] private AnimatableWindow mainMenu;
             [SerializeField] private AnimatableWindow titleScreen;
             [SerializeField] private AnimatableWindow settings;
-            
+            [SerializeField] private AnimatableWindow lobbyOptions;
 
         #endregion
         
@@ -144,7 +144,8 @@ namespace Managers
                 {Window.Profile, profile},
                 {Window.MainMenu, mainMenu},
                 {Window.TitleScreen, titleScreen},
-                {Window.Settings, settings}
+                {Window.Settings, settings},
+                {Window.LobbyOptions, lobbyOptions}
             };
         }
 
@@ -383,7 +384,8 @@ namespace Managers
         Profile,
         MainMenu,
         TitleScreen,
-        Settings
+        Settings,
+        LobbyOptions
     }
     
     

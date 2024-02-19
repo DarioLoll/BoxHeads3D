@@ -1,10 +1,13 @@
 using System;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Models;
 using PlayFab;
 using PlayFab.ClientModels;
 using Services;
 using UI;
+using Unity.Services.Authentication;
+using Unity.Services.Core;
 using UnityEngine;
 
 namespace Managers
@@ -48,7 +51,7 @@ namespace Managers
         
         #region When the game starts, try to log the player in with the device id
 
-            private void LoginWithDeviceId()
+            private async void LoginWithDeviceId()
             {
                 if(Application.internetReachability == NetworkReachability.NotReachable)
                 {
@@ -57,6 +60,8 @@ namespace Managers
                     OnLoadingComplete();
                     return;
                 }
+
+                await StartUnityServices();
                 var request = new LoginWithCustomIDRequest
                 {
                     TitleId = PlayFabSettings.TitleId,
@@ -73,6 +78,19 @@ namespace Managers
                     }
                 };
                 PlayFabClientAPI.LoginWithCustomID(request, OnLoginWithDeviceIdSuccess, OnLoginWithDeviceIdFailure);
+            }
+            
+            private async Task StartUnityServices()
+            {
+                try
+                {
+                    await UnityServices.InitializeAsync();
+                    await AuthenticationService.Instance.SignInAnonymouslyAsync();
+                }
+                catch (Exception e)
+                {
+                    Log("Failed to initialize Unity Services: " + e.Message);
+                }
             }
             
             private void OnLoginWithDeviceIdSuccess(LoginResult obj)

@@ -22,7 +22,7 @@ namespace Models
             gameObject.SetActive(true);
             if (enteringAnimation.ToString().StartsWith("SlideIn"))
             {
-                Animator.SlideIn(gameObject, enteringAnimation, onComplete);
+                Animator.Slide(gameObject, enteringAnimation, onComplete);
             }
             else if(enteringAnimation == EnteringAnimation.RotateIn)
                 Animator.Rotate(gameObject, true, onComplete);
@@ -49,15 +49,7 @@ namespace Models
             else if(exitingAnimation == ExitingAnimation.RotateOut)
                 Animator.Rotate(gameObject, false, callbackAction);
         }
-
-        public void SetTheme()
-        {
-            List<IRefreshable> refreshables = new List<IRefreshable>();
-            GetComponentsInChildren(refreshables);
-            if(TryGetComponent(typeof(IRefreshable), out var refreshable))
-                refreshables.Add((IRefreshable) refreshable);
-            refreshables.ForEach(element => element.Refresh());
-        }
+        
 
         
         

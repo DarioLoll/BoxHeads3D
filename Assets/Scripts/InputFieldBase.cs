@@ -1,3 +1,4 @@
+using System;
 using Managers;
 using Models;
 using TMPro;
@@ -14,18 +15,24 @@ public class InputFieldBase : MonoBehaviour, IRefreshable
     [SerializeField] private Image inputFieldOutline;
     public Image symbolImage;
     private Image _inputFieldImage;
+    private bool _initialized;
 
     // Start is called before the first frame update
     private void Start()
     {
         _inputFieldImage = inputField.GetComponent<Image>();
         Refresh();
+        _initialized = true;
     }
-    
-    public void Refresh()
+
+    private void OnEnable()
     {
-        if(_inputFieldImage == null)
-            _inputFieldImage = inputField.GetComponent<Image>();
+        if (!_initialized) return;
+        Refresh();
+    }
+
+    public void Refresh(float animationDuration = 0f)
+    {
         UIManager ui = UIManager.Instance;
         Color newTextColor = ui.GetColor(ColorType.BaseForeground);
         Color newOutlineColor = ui.GetColor(ColorType.Transparent);
@@ -34,15 +41,15 @@ public class InputFieldBase : MonoBehaviour, IRefreshable
         Color newPlaceholderColor = ui.GetColor(ColorType.PlaceholderForeground);
         
         if(_inputFieldImage.color != newBackgroundColor)
-            UIManager.Instance.Animator.FadeColor(_inputFieldImage, _inputFieldImage.color, newBackgroundColor, ui.FadeBaseDuration);
+            UIManager.Instance.Animator.FadeColor(_inputFieldImage, _inputFieldImage.color, newBackgroundColor, animationDuration);
         if(placeholderText.color != newPlaceholderColor)
-            UIManager.Instance.Animator.FadeTextColor(placeholderText, placeholderText.color, newPlaceholderColor, ui.FadeBaseDuration);
+            UIManager.Instance.Animator.FadeTextColor(placeholderText, placeholderText.color, newPlaceholderColor, animationDuration);
         if(inputFieldText.color != newTextColor)
-            UIManager.Instance.Animator.FadeTextColor(inputFieldText, inputFieldText.color, newTextColor, ui.FadeBaseDuration);
+            UIManager.Instance.Animator.FadeTextColor(inputFieldText, inputFieldText.color, newTextColor, animationDuration);
         if(inputFieldOutline.color != newOutlineColor)
-            UIManager.Instance.Animator.FadeColor(inputFieldOutline, inputFieldOutline.color, newOutlineColor, ui.FadeBaseDuration);
+            UIManager.Instance.Animator.FadeColor(inputFieldOutline, inputFieldOutline.color, newOutlineColor, animationDuration);
         if(symbolImage.color != newSymbolColor)
-            UIManager.Instance.Animator.FadeColor(symbolImage, symbolImage.color, newSymbolColor, ui.FadeBaseDuration);
+            UIManager.Instance.Animator.FadeColor(symbolImage, symbolImage.color, newSymbolColor, animationDuration);
     }
 
     public void OnInputFieldGotFocus()

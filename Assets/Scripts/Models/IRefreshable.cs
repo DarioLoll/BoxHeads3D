@@ -2,6 +2,6 @@ namespace Models
 {
     public interface IRefreshable
     {
-        void Refresh();
+        void Refresh(float animationDuration);
     }
 }

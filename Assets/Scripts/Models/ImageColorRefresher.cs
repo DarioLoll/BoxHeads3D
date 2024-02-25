@@ -12,22 +12,30 @@ namespace Models
         [SerializeField] private ColorType colorType;
         [SerializeField] private float alpha = 1.0f;
         [SerializeField] private bool hasAlpha = false;
+        private bool _initialized;
 
         private void Awake()
         {
             _image = GetComponent<Image>();
             UIManager.Instance.ThemeChanged += _ => Refresh();
             Refresh();
+            _initialized = true;
         }
         
-        public void Refresh()
+        void OnEnable()
         {
-            if(_image == null)
-                _image = GetComponent<Image>();
+            if (!_initialized) return;
+            Refresh();
+        }
+
+        public void Refresh(float animationDuration = 0f)
+        {
             Color newColor = UIManager.Instance.GetColor(colorType);
             if(hasAlpha) newColor.a = alpha;
-            if(_image.color != newColor)
-                UIManager.Instance.Animator.FadeColor(_image, _image.color, newColor, UIManager.Instance.FadeBaseDuration);
+            if(animationDuration == 0f)
+                _image.color = newColor;
+            else if(_image.color != newColor)
+                UIManager.Instance.Animator.FadeColor(_image, _image.color, newColor, animationDuration);
         }
     }
 }

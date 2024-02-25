@@ -44,6 +44,9 @@ public static class ThemeManager
         new(Theme.Dark, ColorType.HighlightedBackground, ConvertToColor("#434956")),
         new(Theme.Light, ColorType.HighlightedBackground, ConvertToColor("#e4e7ea")),
         
+        new(Theme.Dark, ColorType.HighlightedBackgroundOnHover, ConvertToColor("#383e48")),
+        new(Theme.Light, ColorType.HighlightedBackgroundOnHover, ConvertToColor("#c3c4c8")),
+        
         new(Theme.Dark, ColorType.DisabledForeground, ConvertToColor("#848b8e")),
         new(Theme.Light, ColorType.DisabledForeground, ConvertToColor("#949598")),
         
@@ -131,5 +134,6 @@ public enum ColorType
     PrimaryBackgroundHover,
     PrimaryBackgroundRed,
     PrimaryBackgroundHoverRed,
-    Transparent
+    Transparent,
+    HighlightedBackgroundOnHover,
 }

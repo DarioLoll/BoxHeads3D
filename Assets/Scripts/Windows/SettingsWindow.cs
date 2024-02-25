@@ -29,12 +29,14 @@ namespace Windows
         public override void Enter(Action onComplete = null)
         {
             UIManager.Instance.ChangeMainTitle("Settings");
+            UIManager.Instance.ToggleProfileButton();
             base.Enter(onComplete);
         }
 
         public override void Exit(Action onComplete = null)
         {
             UIManager.Instance.ChangeMainTitle("Celestial Echo");
+            UIManager.Instance.ToggleProfileButton();
             base.Exit(onComplete);
         }
     }

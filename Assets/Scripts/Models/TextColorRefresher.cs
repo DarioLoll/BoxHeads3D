@@ -9,21 +9,29 @@ namespace Models
     {
         private TextMeshProUGUI _text;
         [SerializeField] private ColorType colorType;
+        private bool _initialized;
 
         private void Awake()
         {
             _text = GetComponent<TextMeshProUGUI>();
             UIManager.Instance.ThemeChanged += _ => Refresh();
             Refresh();
+            _initialized = true;
         }
         
-        public void Refresh()
+        void OnEnable()
         {
-            if(_text == null)
-                _text = GetComponent<TextMeshProUGUI>();
+            if (!_initialized) return;
+            Refresh();
+        }
+
+        public void Refresh(float animationDuration = 0f)
+        {
             Color newColor = UIManager.Instance.GetColor(colorType);
-            if(_text.color != newColor)
-                UIManager.Instance.Animator.FadeTextColor(_text, _text.color, newColor, UIManager.Instance.FadeBaseDuration);
+            if(animationDuration == 0f)
+                _text.color = newColor;
+            else if(_text.color != newColor)
+                UIManager.Instance.Animator.FadeTextColor(_text, _text.color, newColor, animationDuration);
         }
     }
 }

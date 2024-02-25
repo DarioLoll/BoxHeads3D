@@ -11,60 +11,67 @@ namespace UI
     public class ButtonBase : MonoBehaviour, IPointerDownHandler, 
         IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler, IRefreshable
     {
-        private Button _button;
-        private TextMeshProUGUI _buttonText;
+        protected Button _button;
+        protected TextMeshProUGUI _buttonText;
         public ColorType backgroundColor;
         public ColorType textColor;
         public ColorType backgroundColorOnHover;
         public ColorType textColorOnHover;
         public Image icon;
-        private bool _hasIcon;
+        protected bool _hasIcon;
+        protected bool _hasText = true;
         public float onHoverSizeMultiplier = 1.0f;
 
-        private Color _backgroundColor;
-        private Color _textColor;
-        private Color _backgroundColorOnHover;
-        private Color _textColorOnHover;
+        protected Color _backgroundColor;
+        protected Color _textColor;
+        protected Color _backgroundColorOnHover;
+        protected Color _textColorOnHover;
+        protected bool _initialized;
         
-        private bool AnimateBackground => backgroundColor != backgroundColorOnHover;
-        private bool AnimateText => textColor != textColorOnHover;
+        protected bool AnimateBackground => backgroundColor != backgroundColorOnHover;
+        protected bool AnimateText => textColor != textColorOnHover;
         
         private void Start()
         {
             _button = gameObject.GetComponent<Button>();
             _buttonText = gameObject.GetComponentInChildren<TextMeshProUGUI>();
+            _hasText = _buttonText != null;
             UIManager ui = UIManager.Instance;
             _backgroundColor = ui.GetColor(backgroundColor);
             _textColor = ui.GetColor(textColor);
             _backgroundColorOnHover = ui.GetColor(backgroundColorOnHover);
             _textColorOnHover = ui.GetColor(textColorOnHover);
             _button.image.color = _backgroundColor;
-            _buttonText.color = _textColor;
+            if(_hasText)
+                _buttonText.color = _textColor;
             _hasIcon = icon != null;
             if(_hasIcon)
                 icon.color = _textColor;
             Refresh();
+            _initialized = true;
         }
-        
-        public void Refresh()
+
+        private void OnEnable()
         {
-            if(_button == null)
-                _button = gameObject.GetComponent<Button>();
-            if(_buttonText == null)
-                _buttonText = gameObject.GetComponentInChildren<TextMeshProUGUI>();
-            _hasIcon = icon != null;
+            if (!_initialized) return;
+            Refresh();
+        }
+
+        public virtual void Refresh(float animationDuration = 0f)
+        {
             UIManager ui = UIManager.Instance;
             _backgroundColor = ui.GetColor(backgroundColor);
             _textColor = ui.GetColor(textColor);
             _backgroundColorOnHover = ui.GetColor(backgroundColorOnHover);
             _textColorOnHover = ui.GetColor(textColorOnHover);
             if(_button.image.color != _backgroundColor)
-                UIManager.Instance.Animator.FadeColor(_button.image, _button.image.color, _backgroundColor, ui.FadeBaseDuration);
-            if (_buttonText.color != _textColor)
+                UIManager.Instance.Animator.FadeColor(_button.image, _button.image.color, _backgroundColor, animationDuration);
+            if ((_hasText && _buttonText.color != _textColor) || (_hasIcon && icon.color != _textColor))
             {
                 if(_hasIcon)
-                    UIManager.Instance.Animator.FadeColor(icon, icon.color, _textColor, ui.FadeBaseDuration);
-                UIManager.Instance.Animator.FadeTextColor(_buttonText, _buttonText.color, _textColor, ui.FadeBaseDuration);
+                    UIManager.Instance.Animator.FadeColor(icon, icon.color, _textColor, animationDuration);
+                if(_hasText)
+                    UIManager.Instance.Animator.FadeTextColor(_buttonText, _buttonText.color, _textColor, animationDuration);
             }
         }
 
@@ -154,7 +161,8 @@ namespace UI
             LeanTween.value(gameObject, from, to, duration)
                 .setOnUpdateColor(color =>
                 {
-                    _buttonText.color = color;
+                    if(_hasText)
+                        _buttonText.color = color;
                     if(_hasIcon)
                         icon.color = color;
                 });

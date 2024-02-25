@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2342596657664244057}
   - component: {fileID: 4539796363306214209}
   - component: {fileID: 7481984738721687080}
+  - component: {fileID: 5672118522347839225}
   m_Layer: 5
   m_Name: LobbyElement
   m_TagString: Untagged
@@ -123,7 +124,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1392064001411848886}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5672118522347839225}
+        m_TargetAssemblyTypeName: Models.LobbyElement, Assembly-CSharp
+        m_MethodName: JoinLobby
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &4539796363306214209
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -139,7 +152,7 @@ MonoBehaviour:
   m_IgnoreLayout: 0
   m_MinWidth: 200
   m_MinHeight: 100
-  m_PreferredWidth: -1
+  m_PreferredWidth: 700
   m_PreferredHeight: -1
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
@@ -162,6 +175,20 @@ MonoBehaviour:
   textColorOnHover: 2
   icon: {fileID: 0}
   onHoverSizeMultiplier: 1
+--- !u!114 &5672118522347839225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1693093354287990188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 146578608c58dc54ba23408c1d6302f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lobbyName: {fileID: 7868875957189334964}
+  lobbyPlayers: {fileID: 7756903847043378295}
 --- !u!1 &4438512014699700208
 GameObject:
   m_ObjectHideFlags: 0

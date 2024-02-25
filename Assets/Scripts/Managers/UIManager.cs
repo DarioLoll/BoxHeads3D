@@ -38,6 +38,8 @@ namespace Managers
             [SerializeField] private AnimatableWindow titleScreen;
             [SerializeField] private AnimatableWindow settings;
             [SerializeField] private AnimatableWindow lobbyOptions;
+            [SerializeField] private AnimatableWindow createLobby;
+            [SerializeField] private AnimatableWindow lobbyWindow;
 
         #endregion
         
@@ -49,6 +51,8 @@ namespace Managers
         
         public GameObject multiplayerButton;
         private ButtonBase _multiplayerButton;
+        
+        [SerializeField] Button profileButton;
     
         public float FadeBaseDuration = 0.5f;
         public float HoverBaseDuration = 0.2f;
@@ -95,6 +99,10 @@ namespace Managers
             manager.PasswordResetRequested += OnPasswordResetRequested;
             manager.LoggedOut += BackToLogin;
             manager.DisplayNameUpdated += OnDisplayNameUpdated;
+            LobbyManager.Instance.LobbyCreated += SwitchToLobby;
+            LobbyManager.Instance.LobbyJoined += SwitchToLobby;
+            LobbyManager.Instance.LobbyLeft += SwitchToLobbyOptions;
+            LobbyManager.Instance.PlayerKicked += SwitchToLobbyOptions;
             
             if (manager.IsOffline)
             {
@@ -108,6 +116,23 @@ namespace Managers
             else
                 EnterWindow(Window.LogIn);
         }
+
+        private void OnDestroy()
+        {
+            PlayFabManager manager = PlayFabManager.Instance;
+            manager.LoggedIn -= OnLoggedIn;
+            manager.EmailVerificationRequested -= OnEmailVerificationRequested;
+            manager.PasswordResetRequested -= OnPasswordResetRequested;
+            manager.LoggedOut -= BackToLogin;
+            manager.DisplayNameUpdated -= OnDisplayNameUpdated;
+            LobbyManager.Instance.LobbyCreated -= SwitchToLobby;
+            LobbyManager.Instance.LobbyJoined -= SwitchToLobby;
+            LobbyManager.Instance.LobbyLeft -= SwitchToLobbyOptions;
+            LobbyManager.Instance.PlayerKicked -= SwitchToLobbyOptions;
+        }
+
+        private void SwitchToLobby() => SwitchToWindow(Window.LobbyWindow);
+        private void SwitchToLobbyOptions() => SwitchToWindow(Window.LobbyOptions);
         
         [ContextMenu("Change Theme")]
         public void ChangeTheme()
@@ -125,10 +150,11 @@ namespace Managers
 
         private void RefreshTheme()
         {
-            foreach (var window in Windows.Values)
-            {
-                window.SetTheme();
-            }
+            List<IRefreshable> refreshables = new List<IRefreshable>();
+            GetComponentsInChildren(refreshables);
+            if(TryGetComponent(typeof(IRefreshable), out var refreshable))
+                refreshables.Add((IRefreshable) refreshable);
+            refreshables.ForEach(element => element.Refresh(HoverBaseDuration));
         }
 
         private void InitializeWindowDictionary()
@@ -145,7 +171,9 @@ namespace Managers
                 {Window.MainMenu, mainMenu},
                 {Window.TitleScreen, titleScreen},
                 {Window.Settings, settings},
-                {Window.LobbyOptions, lobbyOptions}
+                {Window.LobbyOptions, lobbyOptions},
+                {Window.CreateLobby, createLobby},
+                {Window.LobbyWindow, lobbyWindow}
             };
         }
 
@@ -158,7 +186,8 @@ namespace Managers
         public void SwitchToWindow(Window window)
         {
             AnimatableWindow animatableWindow = Windows[window];
-            if (animatableWindow.isModal && IsOnMainMenu)
+            if(CurrentWindow == window) return;
+            if (animatableWindow.isModal)
             {
                 ExitCurrentModalWindow(() =>
                 {
@@ -167,8 +196,10 @@ namespace Managers
             }
             else
             {
-                if (CurrentWindow != window) 
+                ExitCurrentModalWindow(() =>
+                {
                     ExitWindow(CurrentWindow, () => EnterWindow(window));
+                });
             }
         }
         
@@ -276,6 +307,14 @@ namespace Managers
             });
         }
 
+        public void ToggleProfileButton()
+        {
+            if (profileButton.gameObject.activeSelf)
+                Exit(profileButton.gameObject, ExitingAnimation.SlideOutToLeft);
+            else
+                Enter(profileButton.gameObject, EnteringAnimation.SlideInFromLeft);
+        }
+
         public Color GetColor(ColorType colorType)
         {
             return colorType switch
@@ -296,7 +335,7 @@ namespace Managers
                 
                 if (enteringAnimation.ToString().StartsWith("SlideIn"))
                 {
-                    Animator.SlideIn(go, enteringAnimation, callback);
+                    Animator.Slide(go, enteringAnimation, callback);
                 }
                 else if(enteringAnimation == EnteringAnimation.RotateIn)
                     Animator.Rotate(go, true, callback);
@@ -336,6 +375,11 @@ namespace Managers
 
         public void CloseWindow()
         {
+            if (LobbyManager.Instance.JoinedLobby != null)
+            {
+                LobbyManager.Instance.LeaveLobby();
+                return;
+            }
             if (IsOnMainMenu)
             {
                 if(CurrentModalWindow.HasValue)
@@ -385,7 +429,9 @@ namespace Managers
         MainMenu,
         TitleScreen,
         Settings,
-        LobbyOptions
+        LobbyOptions,
+        CreateLobby,
+        LobbyWindow
     }
     
     

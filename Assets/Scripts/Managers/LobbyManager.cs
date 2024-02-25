@@ -52,11 +52,9 @@ namespace Managers
             Find(player => player.Id == JoinedLobby.HostId);
     
         public LobbyState State => Enum.Parse<LobbyState>(JoinedLobby?.Data[LobbyStateProperty].Value);
+        public bool GameStarted => State == LobbyState.Started;
     
-        public bool IsHost
-        {
-            get { return AuthenticationService.Instance.PlayerId == JoinedLobby?.HostId; }
-        }
+        public bool IsHost => AuthenticationService.Instance.PlayerId == JoinedLobby?.HostId;
 
         public Player GetPlayer(string playerId) => JoinedLobby?.Players.Find(player => player.Id == playerId);
 
@@ -154,6 +152,31 @@ namespace Managers
             }
         }
 
+        public async Task<List<Lobby>> GetOpenLobbies()
+        {
+            try
+            {
+                QueryLobbiesOptions options = new QueryLobbiesOptions();
+                options.Count = 25;
+                // Order by newest lobbies first
+                options.Order = new List<QueryOrder>()
+                {
+                    new QueryOrder(
+                        asc: false,
+                        field: QueryOrder.FieldOptions.Created)
+                };
+
+                QueryResponse lobbies = await Lobbies.Instance.QueryLobbiesAsync(options);
+                return lobbies.Results;
+            }
+            catch (LobbyServiceException e)
+            {
+                PopupBox.Instance.DisplayLobbyError(e);
+                Debug.Log(e);
+                return new List<Lobby>();
+            }
+        }
+
         private async Task<Allocation> AllocateRelay()
         {
             if (!IsHost) return default;
@@ -183,6 +206,26 @@ namespace Managers
             }
             catch (RelayServiceException e)
             {
+                Debug.LogException(e);
+            }
+        }
+
+        public async Task JoinLobby(Lobby lobby)
+        {
+            try
+            {
+                OnJoiningLobby();
+                JoinedLobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobby.Id,
+                    new JoinLobbyByIdOptions()
+                    {
+                        Player = GetPlayer()
+                    });
+                OnLobbyJoined();
+                Debug.Log("Joined lobby " + JoinedLobby!.Name);
+            }
+            catch (LobbyServiceException e)
+            {
+                PopupBox.Instance.DisplayLobbyError(e);
                 Debug.LogException(e);
             }
         }
@@ -376,12 +419,16 @@ namespace Managers
         /// </summary>
         private Player GetPlayer()
         {
+            string name = "";
+            if(PlayFabManager.Instance != null && PlayFabManager.Instance.Player != null)
+                name = PlayFabManager.Instance.Player.DisplayName;
+            name = string.IsNullOrEmpty(name) ? AuthenticationService.Instance.PlayerId : name;
             return new Player(
                 id: AuthenticationService.Instance.PlayerId,
                 data: new Dictionary<string, PlayerDataObject>()
                 {
                     {PlayerNameProperty, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, 
-                        AuthenticationService.Instance.PlayerName)},
+                        name)},
                     {PlayerIsReadyProperty, new PlayerDataObject
                         (PlayerDataObject.VisibilityOptions.Member, false.ToString())},
                     {PlayerColorProperty, new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, 
@@ -420,7 +467,7 @@ namespace Managers
                 await UpdateLobbyState(LobbyState.Starting);
                 OnGameStarting();
                 SceneLoader.LoadSceneOnNetwork(Scenes.Game);
-                NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += GameStarted;
+                NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnGameStarted;
                 
             }
             catch (Exception e)
@@ -430,7 +477,7 @@ namespace Managers
         }
     
 
-        private async void GameStarted(string scenename, LoadSceneMode loadscenemode, 
+        private async void OnGameStarted(string scenename, LoadSceneMode loadscenemode, 
             List<ulong> clientscompleted, List<ulong> clientstimedout)
         {
             await UpdateLobbyState(LobbyState.Started);

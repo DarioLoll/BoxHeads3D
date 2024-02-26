@@ -7,6 +7,7 @@ using Models;
 using Services;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
+using Unity.Networking.Transport;
 using Unity.Networking.Transport.Relay;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
@@ -52,7 +53,7 @@ namespace Managers
             Find(player => player.Id == JoinedLobby.HostId);
     
         public LobbyState State => Enum.Parse<LobbyState>(JoinedLobby?.Data[LobbyStateProperty].Value);
-        public bool GameStarted => State == LobbyState.Started;
+        public bool GameStarted => State is LobbyState.Started or LobbyState.Starting;
     
         public bool IsHost => AuthenticationService.Instance.PlayerId == JoinedLobby?.HostId;
 
@@ -87,6 +88,7 @@ namespace Managers
         public const string RelayCodeProperty = "relayCode";
     
         public const int MaxPlayerCount = 4;
+        
 
         //Assigns the singleton instance of this class and makes sure it is not destroyed on scene change
         private void Awake()
@@ -180,19 +182,11 @@ namespace Managers
         private async Task<Allocation> AllocateRelay()
         {
             if (!IsHost) return default;
-            try
-            {
-                Allocation allocation = await RelayService.Instance.CreateAllocationAsync(MaxPlayerCount - 1);
-                string relayCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
-                await SetRelayCode(relayCode);
-                Debug.Log($"Allocated relay with code {relayCode}");
-                return allocation;
-            }
-            catch (RelayServiceException e)
-            {
-                Debug.LogException(e);
-                return default;
-            }
+            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(MaxPlayerCount - 1);
+            string relayCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+            await SetRelayCode(relayCode);
+            Debug.Log($"Allocated relay with code {relayCode}");
+            return allocation;
         }
         
         private async Task JoinRelay(string relayCode)
@@ -206,6 +200,7 @@ namespace Managers
             }
             catch (RelayServiceException e)
             {
+                OnFailedToStartGame();
                 Debug.LogException(e);
             }
         }
@@ -445,6 +440,14 @@ namespace Managers
                 LobbyService.Instance.SendHeartbeatPingAsync(lobbyId);
             } catch(LobbyServiceException e) { Debug.LogException(e); }
         }
+        
+        public void StartSinglePlayerGame()
+        {
+            UnityTransport unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+            unityTransport.SetConnectionData(NetworkEndPoint.LoopbackIpv4);
+            NetworkManager.Singleton.StartHost();
+            SceneLoader.LoadScene(Scenes.Game);
+        }
     
 
         public async void BeginStartingGameAsHost()
@@ -455,7 +458,6 @@ namespace Managers
                 if(JoinedLobby == null || NetworkManager.Singleton.IsHost || !IsHost)
                     return;
                 IsBusy = true;
-                
                 Allocation allocation = await AllocateRelay();
                 UnityTransport unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
                 unityTransport.SetRelayServerData(new RelayServerData(allocation, "dtls"));
@@ -466,12 +468,11 @@ namespace Managers
                 
                 await UpdateLobbyState(LobbyState.Starting);
                 OnGameStarting();
-                SceneLoader.LoadSceneOnNetwork(Scenes.Game);
                 NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnGameStarted;
-                
             }
             catch (Exception e)
             {
+                OnFailedToStartGame();
                 Debug.LogException(e);
             }
         }
@@ -499,6 +500,7 @@ namespace Managers
         public event Action Busy;
         public event Action NoLongerBusy;
         public event Action GameStarting;
+        public event Action FailedToStartGame;
     
     
         private void OnJoinedLobbyChanged()
@@ -512,9 +514,8 @@ namespace Managers
             if(NetworkManager.Singleton.IsClient) return;
             IsBusy = true;
             await JoinRelay(JoinedLobby!.Data[RelayCodeProperty].Value);
-            NetworkManager.Singleton.StartClient();
-            Debug.Log("Client started.");
             OnGameStarting();
+            Debug.Log("Client started.");
         }
         
 
@@ -572,6 +573,11 @@ namespace Managers
         private void OnGameStarting()
         {
             GameStarting?.Invoke();
+        }
+
+        private void OnFailedToStartGame()
+        {
+            FailedToStartGame?.Invoke();
         }
     }
 }

@@ -13,19 +13,26 @@ namespace Models
         [SerializeField] private TextMeshProUGUI playerName;
         [SerializeField] private bool canBeKicked = true;
 
+        private bool _initialized = false;
+
         public Player Player { get; private set; }
 
-        public Color Color { get; private set; }
+        public Color Color { get; private set; } 
         public bool IsReady { get; private set; }
+
+        public bool InGame { get; set; } = false;
 
         public bool IsHost { get; private set; }
         
+        
         public void SetPlayer(Player player)
         {
+            bool overwriteLocalValues = !_initialized;
             Player = player;
             if (LobbyManager.Instance.JoinedLobby == null) return;
+            if(LobbyManager.Instance.ThisPlayer == null) return;
             IsHost = player.Id == LobbyManager.Instance.HostPlayer!.Id;
-            if(LobbyManager.Instance.ThisPlayer!.Id != player.Id)
+            if(LobbyManager.Instance.ThisPlayer?.Id != player.Id || overwriteLocalValues)
             {
                 SetColor(ColorUtility.TryParseHtmlString
                     (player.Data[LobbyManager.PlayerColorProperty].Value, out Color color)
@@ -35,6 +42,7 @@ namespace Models
             }
             RefreshKickButton(player);
             UpdateName();
+            _initialized = true;
         }
 
         private void RefreshKickButton(Player player)

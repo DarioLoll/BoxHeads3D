@@ -6,6 +6,7 @@ using PlayFab;
 using Services;
 using TMPro;
 using UI;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -103,7 +104,8 @@ namespace Managers
             LobbyManager.Instance.LobbyJoined += SwitchToLobby;
             LobbyManager.Instance.LobbyLeft += SwitchToLobbyOptions;
             LobbyManager.Instance.PlayerKicked += SwitchToLobbyOptions;
-            
+            LobbyManager.Instance.GameStarting += SwitchToGame;
+            LobbyManager.Instance.FailedToStartGame += OnFailedToStartGame;
             if (manager.IsOffline)
             {
                 //Show offline message
@@ -115,6 +117,33 @@ namespace Managers
                 EnterWindow(Window.MainMenu);
             else
                 EnterWindow(Window.LogIn);
+        }
+
+        public void SwitchToGame()
+        {
+            ExitWindow(Window.LobbyWindow, () =>
+            {
+                ExitWindow(Window.MainMenu);
+                Animator.FadeColor(backgroundImage, backgroundImage.color, Color.black, 1f,() =>
+                {
+                    if(LobbyManager.Instance.JoinedLobby != null && LobbyManager.Instance.IsHost)
+                        SceneLoader.LoadSceneOnNetwork(Scenes.Game);
+                    else if (LobbyManager.Instance.JoinedLobby != null)
+                        NetworkManager.Singleton.StartClient();
+                    else
+                        LobbyManager.Instance.StartSinglePlayerGame();
+                });
+            });
+        }
+
+        private void OnFailedToStartGame()
+        {
+            Animator.FadeColor(backgroundImage, backgroundImage.color, 
+                ThemeManager.GetColor(ColorType.BaseBackground, currentTheme), 1f, () =>
+            {
+                EnterWindow(Window.MainMenu);
+                EnterWindow(Window.LobbyWindow);
+            });
         }
 
         private void OnDestroy()
@@ -129,6 +158,7 @@ namespace Managers
             LobbyManager.Instance.LobbyJoined -= SwitchToLobby;
             LobbyManager.Instance.LobbyLeft -= SwitchToLobbyOptions;
             LobbyManager.Instance.PlayerKicked -= SwitchToLobbyOptions;
+            LobbyManager.Instance.GameStarting -= SwitchToGame;
         }
 
         private void SwitchToLobby() => SwitchToWindow(Window.LobbyWindow);
@@ -187,7 +217,7 @@ namespace Managers
         {
             AnimatableWindow animatableWindow = Windows[window];
             if(CurrentWindow == window) return;
-            if (animatableWindow.isModal)
+            if (animatableWindow.isModal && IsOnMainMenu)
             {
                 ExitCurrentModalWindow(() =>
                 {
@@ -261,7 +291,7 @@ namespace Managers
             ExitCurrentModalWindow(() =>
             {
                 ExitWindow(Window.MainMenu);
-                SwitchToWindow(Window.LogIn);
+                ExitWindow(Window.Profile, () => EnterWindow(Window.LogIn));
             });
         }
 

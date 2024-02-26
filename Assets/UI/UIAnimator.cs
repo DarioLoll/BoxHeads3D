@@ -166,6 +166,31 @@ namespace UI
         }
         
     }
+
+    public interface IAnimation
+    {
+        float Duration { get; set; }
+        void Start(RectTransform obj, Action callback = null);
+    }
+    
+    public class MoveAnimation : IAnimation
+    {
+        public Vector3? From { get; set; }
+        public Vector3 To { get; set; }
+        public float Duration { get; set; }
+        public void Start(RectTransform obj, Action callback = null)
+        {
+            From ??= obj.anchoredPosition;
+            LeanTween.value(obj.gameObject, From.Value, To, Duration)
+                .setOnUpdate((Vector3 pos) =>
+                {
+                    obj.anchoredPosition = pos;
+                }).setOnComplete(() =>
+                {
+                    callback?.Invoke();
+                });
+        }
+    }
     
     public enum EnteringAnimation
     {

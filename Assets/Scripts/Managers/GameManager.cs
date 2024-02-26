@@ -4,15 +4,21 @@ using Models;
 using Services;
 using Unity.Collections;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
+using Unity.Networking.Transport.Relay;
 using Unity.Services.Lobbies.Models;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Cursor = UnityEngine.Cursor;
+using Image = UnityEngine.UI.Image;
 
 namespace Managers
 {
     public class GameManager : NetworkBehaviour
     {
         [SerializeField] private Transform playerPrefab;
+        [SerializeField] private Image overlay;
         public Vector3 spawnPoint;
 
         private NetworkList<PlayerId> _connectedPlayers;
@@ -20,10 +26,34 @@ namespace Managers
         private void Awake()
         {
             _connectedPlayers = new NetworkList<PlayerId>();
+            bool isSinglePlayer = NetworkManager.GetComponent<UnityTransport>().Protocol == UnityTransport.ProtocolType.UnityTransport;
+            if (isSinglePlayer)
+            {
+                SpawnPlayers();
+                Fade(false);
+            }
+        }
+        
+
+        private void Fade(bool fadeOut, Action onComplete = null)
+        {
+            overlay.color = fadeOut ? Color.clear : Color.black;
+            overlay.gameObject.SetActive(true);
+            LeanTween.alpha(overlay.rectTransform, fadeOut ? 1 : 0, 3f).setOnComplete(() =>
+            {
+                if (!fadeOut) overlay.gameObject.SetActive(false);
+                onComplete?.Invoke();
+            });
+        }
+
+        private async void BackToMenu()
+        {
+            await SceneLoader.LoadSceneAsync(Scenes.Menu);
         }
 
         public override void OnNetworkSpawn()
         {
+            Fade(false);
             NetworkManager.SceneManager.OnLoadEventCompleted += OnSceneLoaded;
             NetworkManager.OnClientDisconnectCallback += OnClientDisconnected;
             if (LobbyManager.Instance.ThisPlayer == null) return;
@@ -45,8 +75,8 @@ namespace Managers
             {
                 Cursor.lockState = CursorLockMode.None;
                 LobbyManager.Instance.LeaveLobby();
-                await SceneLoader.LoadSceneAsync(Scenes.MainMenu);
-                PopupBox.Instance.DisplayInfo("Host left the game.");
+                //PopupBox.Instance.DisplayInfo("Host left the game.");
+                Fade(true, BackToMenu);
                 return;
             }
 
@@ -69,7 +99,7 @@ namespace Managers
             
             var player = Instantiate(playerPrefab, spawnPoint, Quaternion.identity);
             player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
-            //AssignNickAndColorOnNetwork(clientId);
+            AssignNickAndColorOnNetwork(clientId);
         }
 
         private void AssignNickAndColorOnNetwork(ulong clientId)

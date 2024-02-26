@@ -23,12 +23,15 @@ namespace Windows
         [SerializeField] TextMeshProUGUI lobbyCode;
         
         private TextMeshProUGUI _startButtonText;
-        private List<LobbyPlayer> _lobbyPlayers = new();
+        /// <summary>
+        /// Key: Player ID from AuthenticationService.Instance.PlayerId
+        /// </summary>
+        private Dictionary<string, LobbyPlayer> _otherPlayers = new();
+        
+        private List<MoveAnimation> _runningAnimations = new();
         
         private const float PlayerElementSpacing = 400.0f;
         private const float FirstPlayerElementMarginLeft = 20f;
-
-        private bool _refreshing = false;
         
         private const float UpdatePlayerInterval = 1.1f;
         private float _updatePlayerTimer;
@@ -58,16 +61,18 @@ namespace Windows
             playersWindow.Enter(callback);
         }
         
+
         public override void Exit(Action onComplete = null)
         {
             LobbyManager.Instance.JoinedLobbyChanged -= RefreshUI;
             Action callback = () =>
             {
-                gameObject.SetActive(false);
-                for (int i = 0; i < playersContainer.transform.childCount; i++)
+                foreach (var otherPlayer in _otherPlayers)
                 {
-                    Destroy(playersContainer.transform.GetChild(i).gameObject);
+                    Destroy(otherPlayer.Value.gameObject);
                 }
+                _otherPlayers.Clear();
+                gameObject.SetActive(false);
                 onComplete?.Invoke();
             };
             UIManager.Instance.ToggleProfileButton();
@@ -75,21 +80,161 @@ namespace Windows
             bottomWindow.Exit();
             playersWindow.Exit(callback);
         }
-
-        public async void RefreshUI()
+        
+        public void StartGame()
         {
-            if (_refreshing) return;
-            if(LobbyManager.Instance.JoinedLobby == null) return;
-            _refreshing = true;
-            RefreshStartButton();
-            //Remove players that left the lobby
-            await RemoveAbsentPlayers();
-            //Update players
-            UpdatePlayers();
-            //Add new players
-            await AddNewPlayers();
-            _refreshing = false;
+            if(LobbyManager.Instance.IsHost)
+                LobbyManager.Instance.BeginStartingGameAsHost();
+            else
+                thisPlayerWindow.thisPlayer.ToggleReady();
         }
+
+        public void RefreshUI()
+        {
+            if(LobbyManager.Instance.JoinedLobby == null) return;
+            if(LobbyManager.Instance.ThisPlayer == null) return;
+            RefreshStartButton();
+            UpdatePlayers();
+            Dictionary<string, Rearrangement> rearrangements = GetRearrangements();
+            Rearrange(rearrangements);
+            LobbyPlayer thisPlayer = thisPlayerWindow.thisPlayer;
+            if (LobbyManager.Instance.GameStarted && thisPlayer.IsReady && !thisPlayer.InGame && !thisPlayer.IsHost)
+            {
+                LobbyManager.Instance.TryConnectToGame();
+            }
+        }
+
+        private void Rearrange(Dictionary<string, Rearrangement> rearrangements)
+        {
+            foreach (var rearrangement in rearrangements)
+            {
+                LobbyPlayer player;
+                if (rearrangement.Value.ToBeInitialized)
+                {
+                    player = Instantiate(playerPrefab, playersContainer.transform);
+                    player.SetPlayer(LobbyManager.Instance.JoinedLobby!.Players.Find(p => p.Id == rearrangement.Key));
+                    _otherPlayers[rearrangement.Key] = player;
+                }
+                else
+                    player = _otherPlayers[rearrangement.Key];
+
+                if (!rearrangement.Value.Necessary) continue;
+                MoveAnimation moveAnimation = rearrangement.Value.GetAnimation();
+                _runningAnimations.Add(moveAnimation);
+                moveAnimation.Start(player.GetComponent<RectTransform>(), () =>
+                {
+                    _runningAnimations.Remove(moveAnimation);
+                    if (rearrangement.Value.DestroyOnComplete)
+                    {
+                        Destroy(player.gameObject);
+                        _otherPlayers.Remove(rearrangement.Key);
+                    }
+                });
+            }
+        }
+
+        private Dictionary<string, Rearrangement> GetRearrangements()
+        {
+            Dictionary<string, Rearrangement> rearrangements = new();
+            //Remove players that left the lobby
+            foreach (var player in _otherPlayers)
+            {
+                bool playerLeft = LobbyManager.Instance.JoinedLobby?.Players.Any(p => p.Id == player.Key) != true;
+                if (playerLeft)
+                {
+                    Vector3 currentPosition = player.Value.transform.localPosition;
+                    var rearrangementLeftPlayer = rearrangements.TryGetValue(player.Key, out Rearrangement existingRearrangement)
+                        ? existingRearrangement : new Rearrangement(player.Key, currentPosition);
+                    rearrangementLeftPlayer.ToY = -UIManager.VerticalSlideDistance;
+                    rearrangementLeftPlayer.DestroyOnComplete = true;
+                    rearrangements[player.Key] = rearrangementLeftPlayer;
+                    //Slide other players to the left
+                    var playersToSlide = _otherPlayers.Where(p =>
+                    {
+                        bool isToTheRight = p.Value.transform.localPosition.x > currentPosition.x;
+                        return p.Key != player.Key && isToTheRight;
+                    });
+                    foreach (var otherPlayer in playersToSlide)
+                    {
+                        Vector3 position = otherPlayer.Value.transform.localPosition;
+                        var slideLeftRearrangement = rearrangements.TryGetValue(otherPlayer.Key, out Rearrangement existing)
+                            ? existing : new Rearrangement(otherPlayer.Key, position);
+                        slideLeftRearrangement.ToX -= PlayerElementSpacing;
+                        rearrangements[otherPlayer.Key] = slideLeftRearrangement;
+                    }
+                }
+            }
+            //Add new players
+            List<Player> players = LobbyManager.Instance.JoinedLobby!.Players;
+            foreach (var player in players)
+            {
+                if(player.Id == LobbyManager.Instance.ThisPlayer!.Id) continue;
+                bool playerExists = _otherPlayers.ContainsKey(player.Id);
+                if (!playerExists)
+                {
+                    var newPlayer = new Rearrangement(player.Id, new Vector3(FirstPlayerElementMarginLeft, -UIManager.VerticalSlideDistance, 0))
+                    {
+                        ToBeInitialized = true,
+                        ToY = 0,
+                        ToX = FirstPlayerElementMarginLeft
+                    };
+                    rearrangements.Add(player.Id, newPlayer);
+                    //Slide other players to the right
+                    foreach (var otherPlayer in _otherPlayers)
+                    {
+                        Vector3 position = otherPlayer.Value.transform.localPosition;
+                        var slideRightRearrangement = rearrangements.TryGetValue(otherPlayer.Key, out Rearrangement existing)
+                            ? existing : new Rearrangement(otherPlayer.Key, position);
+                        slideRightRearrangement.ToX += PlayerElementSpacing;
+                        rearrangements[otherPlayer.Key] = slideRightRearrangement;
+                    }
+                    foreach (var rearrangement in rearrangements)
+                    {
+                        if (rearrangement.Value.ToBeInitialized && rearrangement.Key != player.Id)
+                        {
+                            var adjustedRearrangement = rearrangement.Value;
+                            adjustedRearrangement.ToX += PlayerElementSpacing;
+                            rearrangements[rearrangement.Key] = adjustedRearrangement;
+                        }
+                    }
+                }
+            }
+            return rearrangements;
+        }
+
+        private struct Rearrangement
+        {
+            public string PlayerId { get; set; }
+            public float FromX { get; set; }
+            public float FromY { get; set; }
+            public float ToX { get; set; }
+            public float ToY { get; set; }
+            public bool DestroyOnComplete { get; set; }
+            public bool ToBeInitialized { get; set; }
+            
+            public bool Necessary => Math.Abs(FromX - ToX) > 0.1 || Math.Abs(FromY - ToY) > 0.1;
+            public MoveAnimation GetAnimation()
+            {
+                return new MoveAnimation
+                {
+                    Duration = UIManager.Instance.HoverBaseDuration,
+                    From = new Vector3(FromX, FromY),
+                    To = new Vector3(ToX, ToY)
+                };
+            }
+
+            public Rearrangement(string playerId, Vector3 pos)
+            {
+                PlayerId = playerId;
+                FromX = pos.x;
+                FromY = pos.y;
+                ToX = pos.x;
+                ToY = pos.y;
+                DestroyOnComplete = false;
+                ToBeInitialized = false;
+            }
+        }
+        
         
         /// <summary>
         /// Checks if there are any changes to the player data every 1.1s and sends them to the cloud
@@ -98,6 +243,7 @@ namespace Windows
         {
             Lobby lobby = LobbyManager.Instance.JoinedLobby;
             if (lobby == null) return;
+            if(LobbyManager.Instance.ThisPlayer == null) return;
         
             if (_updatePlayerTimer <= 0)
             {
@@ -139,100 +285,15 @@ namespace Windows
 
         private void UpdatePlayers()
         {
-            foreach (var lobbyPlayer in _lobbyPlayers)
+            foreach (var lobbyPlayer in _otherPlayers)
             {
-                Player player = LobbyManager.Instance.JoinedLobby?.Players.Find(p => p.Id == lobbyPlayer.Player.Id);
-                lobbyPlayer.SetPlayer(player ?? lobbyPlayer.Player);
+                Player player = LobbyManager.Instance.JoinedLobby?.Players.Find(p => p.Id == lobbyPlayer.Key);
+                if (player != null)
+                    lobbyPlayer.Value.SetPlayer(player);
             }
             var thisPlayer = LobbyManager.Instance.ThisPlayer;
-            thisPlayerWindow.thisPlayer.SetPlayer(thisPlayer);
-        }
-
-        private async Task AddNewPlayers()
-        {
-            List<Player> players = LobbyManager.Instance.JoinedLobby?.Players;
-            if (players == null) return;
-            foreach (var player in players)
-            {
-                if(player.Id == LobbyManager.Instance.ThisPlayer!.Id) continue;
-                bool playerExists = _lobbyPlayers.Find(p => p.Player.Id == player.Id) != null;
-                if (!playerExists)
-                {
-                    await AddPlayer(player);
-                }
-            }
-        }
-        
-        private async Task AddPlayer(Player player)
-        {
-            TaskCompletionSource<bool> task = new TaskCompletionSource<bool>();
-            Dictionary<LobbyPlayer, bool> animationsFinished = new();
-            LobbyPlayer lobbyPlayer = Instantiate(playerPrefab, playersContainer.transform);
-            lobbyPlayer.transform.localPosition = new Vector3(FirstPlayerElementMarginLeft, -UIManager.VerticalSlideDistance, 0);
-            lobbyPlayer.SetPlayer(player);
-            _lobbyPlayers.Add(lobbyPlayer);
-            UIManager.Instance.Animator.Slide(lobbyPlayer.gameObject, FirstPlayerElementMarginLeft, 0);
-            //Slide other players to the right
-            foreach (var otherPlayer in _lobbyPlayers)
-            {
-                if(otherPlayer == lobbyPlayer) continue;
-                Vector3 position = otherPlayer.transform.localPosition;
-                animationsFinished.Add(otherPlayer, false);
-                UIManager.Instance.Animator.Slide
-                    (otherPlayer.gameObject, position.x + PlayerElementSpacing, position.y, () =>
-                    {
-                        animationsFinished[otherPlayer] = true;
-                        bool allFinished = animationsFinished.All(pair => pair.Value == true);
-                        if(allFinished)
-                            task.SetResult(true);
-                    }, 0.5f);
-            }
-        }
-
-        private async Task RemoveAbsentPlayers()
-        {
-            foreach (var player in _lobbyPlayers)
-            {
-                if(player.Player.Id == LobbyManager.Instance.ThisPlayer!.Id) continue;
-                if (PlayerLeft(player))
-                {
-                    await RemovePlayer(player);
-                }
-            }
-        }
-
-        private async Task RemovePlayer(LobbyPlayer lobbyPlayer)
-        {
-            TaskCompletionSource<bool> task = new TaskCompletionSource<bool>();
-            UIManager.Instance.Animator.SlideOut(lobbyPlayer.gameObject, ExitingAnimation.SlideOutToBottom, () =>
-            {
-                Destroy(lobbyPlayer.gameObject);
-            });
-            //Slide other players to the left
-            Dictionary<LobbyPlayer,bool> animationsFinished = new Dictionary<LobbyPlayer,bool>();
-            _lobbyPlayers.ForEach(player =>
-            {
-                Vector3 position = player.transform.localPosition;
-                bool isToTheRight = position.x > lobbyPlayer.transform.localPosition.x;
-                if (isToTheRight)
-                {
-                    animationsFinished.Add(player,false);
-                    UIManager.Instance.Animator.Slide
-                        (player.gameObject,position.x - PlayerElementSpacing, position.y, () =>
-                        {
-                            animationsFinished[player] = true;
-                            bool allFinished = animationsFinished.All(pair => pair.Value == true);
-                            if(allFinished)
-                                task.SetResult(true);
-                        }, 0.5f);
-                }
-            });
-            await task.Task;
-        }
-
-        private bool PlayerLeft(LobbyPlayer player)
-        {
-            return LobbyManager.Instance.JoinedLobby?.Players.Find(p => p.Id == player.Player.Id) == null;
+            if(thisPlayer != null)
+                thisPlayerWindow.thisPlayer.SetPlayer(thisPlayer);
         }
 
         private void RefreshStartButton()

@@ -6,24 +6,27 @@ using Models;
 using TMPro;
 using UI;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class ProfileEditorCanvas : MonoBehaviour
 {
     public TextMeshProUGUI username;
     public TMP_InputField displayName;
-    public Button changePasswordButton;
-    public Button linkAccountButton;
-    public Button logInButton;
+    public GameObject changePassword;
+    public GameObject linkAccount;
+    public GameObject logIn;
+    public GameObject logOut;
     
     private void OnEnable()
     {
-        logInButton.gameObject.SetActive(!PlayFabManager.Instance.IsLoggedIn);
-        displayName.gameObject.SetActive(PlayFabManager.Instance.IsLoggedIn);
+        logIn.SetActive(!PlayFabManager.Instance.IsLoggedIn);
+        logOut.SetActive(PlayFabManager.Instance.IsLoggedIn);
+        displayName.transform.parent.gameObject.SetActive(PlayFabManager.Instance.IsLoggedIn);
         if (!PlayFabManager.Instance.IsLoggedIn)
         {
-            changePasswordButton.gameObject.SetActive(false);
-            linkAccountButton.gameObject.SetActive(false);
+            changePassword.gameObject.SetActive(false);
+            linkAccount.gameObject.SetActive(false);
             username.text = "Not logged in";
         }
         else
@@ -31,8 +34,8 @@ public class ProfileEditorCanvas : MonoBehaviour
             PlayFabPlayer player = PlayFabManager.Instance.Player;
             username.text = player.Username;
             displayName.text = player.DisplayName;
-            changePasswordButton.gameObject.SetActive(!player.IsGuest);
-            linkAccountButton.gameObject.SetActive(player.IsGuest);
+            changePassword.gameObject.SetActive(!player.IsGuest);
+            linkAccount.gameObject.SetActive(player.IsGuest);
         }
     }
 
@@ -43,7 +46,6 @@ public class ProfileEditorCanvas : MonoBehaviour
         {
             PlayFabManager.Instance.UpdateDisplayName(displayName.text);
         }
-        UIManager.Instance.Exit(UIManager.Instance.CurrentPanel, UIManager.Instance.DefaultExitingAnimation);
     }
 
     public void BackToLogin() => UIManager.Instance.BackToLogin();

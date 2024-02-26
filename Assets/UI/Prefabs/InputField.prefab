@@ -346,6 +346,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inputField: {fileID: 8268321271045499786}
   inputFieldText: {fileID: 7199681597553179757}
+  placeholderText: {fileID: 7340893506633157004}
   inputFieldOutline: {fileID: 3250698933207206318}
   symbolImage: {fileID: 348569705958251103}
 --- !u!114 &6415265193200633289

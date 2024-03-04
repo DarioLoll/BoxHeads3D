@@ -6,29 +6,30 @@ using UnityEngine.UI;
 
 namespace Models
 {
-    public class ImageColorRefresher : MonoBehaviour, IRefreshable
+    public class ImageColorRefresher : RefresherBase
     {
         private Image _image;
         [SerializeField] private ColorType colorType;
         [SerializeField] private float alpha = 1.0f;
         [SerializeField] private bool hasAlpha = false;
-        private bool _initialized;
 
-        private void Awake()
+        public ColorType Color
+        {
+            get => colorType;
+            set
+            {
+                colorType = value;
+                Refresh();
+            }
+        }
+
+        protected override void Start()
         {
             _image = GetComponent<Image>();
-            UIManager.Instance.ThemeChanged += _ => Refresh();
-            Refresh();
-            _initialized = true;
-        }
-        
-        void OnEnable()
-        {
-            if (!_initialized) return;
-            Refresh();
+            base.Start();
         }
 
-        public void Refresh(float animationDuration = 0f)
+        public override void Refresh(float animationDuration = 0f)
         {
             Color newColor = UIManager.Instance.GetColor(colorType);
             if(hasAlpha) newColor.a = alpha;

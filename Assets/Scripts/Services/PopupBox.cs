@@ -1,4 +1,5 @@
 using System;
+using Models;
 using PlayFab;
 using TMPro;
 using Unity.Services.Lobbies;
@@ -13,15 +14,17 @@ namespace Services
 
         [SerializeField] private TextMeshProUGUI text;
         [SerializeField] private TextMeshProUGUI tbTitle;
-        [SerializeField] private GameObject icon;
+        [SerializeField] private Image icon;
         [SerializeField] private Sprite errorIcon;
         [SerializeField] private Sprite infoIcon;
-    
-        public Color ErrorIconColor { get; set; } = Color.red;
-    
-        public Color InfoIconColor { get; set; } = Color.yellow;
+        [SerializeField] private Sprite successIcon;
+        [SerializeField] private RectTransform toTransform;
+        [SerializeField] private CanvasGroup background;
 
-        private Image _iconImage;
+        private const float YWhenHidden = 750;
+
+        private ImageColorRefresher _iconImageRefresher;
+        
         private Canvas _canvas;
 
         public string Message
@@ -47,38 +50,78 @@ namespace Services
             }
             DontDestroyOnLoad(gameObject);
             Instance = this;
-            _iconImage = icon.GetComponent<Image>();
             _canvas = GetComponent<Canvas>();
+            _iconImageRefresher = icon.GetComponent<ImageColorRefresher>();
         }
     
         public void DisplayError(string message, Action onClose = null)
         {
+            icon.sprite = errorIcon;
+            _iconImageRefresher.Color = ColorType.PrimaryBackgroundRed;
             Display(message, "Error", onClose);
-            _iconImage.sprite = errorIcon;
-            _iconImage.color = ErrorIconColor;
         }
     
         public void DisplayInfo(string message, Action onClose = null)
         {
+            icon.sprite = infoIcon;
+            _iconImageRefresher.Color = ColorType.PrimaryBackground;
             Display(message, "Info", onClose);
-            _iconImage.sprite = infoIcon;
-            _iconImage.color = InfoIconColor;
+        }
+        
+        public void DisplaySuccess(string message, Action onClose = null)
+        {
+            icon.sprite = successIcon;
+            _iconImageRefresher.Color = ColorType.PrimaryBackgroundGreen;
+            Display(message, "Success", onClose);
         }
 
         private void Display(string message, string title, Action onClose = null)
         {
-            Close();
-            Title = title;
-            Message = message;
-            _onClose = onClose;
-            _canvas.enabled = true;
+            Close(() =>
+            {
+                Title = title;
+                Message = message;
+                _onClose = onClose;
+                _canvas.enabled = true;
+                
+                FadeBackground(false);
+                Animate(YWhenHidden,0, 0.3f, _onClose);
+            });
         }
+
+        public void Close() => Close(null);
     
-        public void Close()
+        public void Close(Action callback)
         {
-            _canvas.enabled = false;
-            _onClose?.Invoke();
-            LoadingScreen.Instance.CloseLoadingScreen();
+            Action onClose = () =>
+            {
+                _canvas.enabled = false;
+                _onClose?.Invoke();
+                LoadingScreen.Instance.CloseLoadingScreen();
+                callback?.Invoke();
+            };
+            FadeBackground(true);
+            Animate(0, YWhenHidden, 0.3f, onClose);
+        }
+        
+        private void Animate(float fromY, float toY, float duration, Action callback = null)
+        {
+            LeanTween.value(toTransform.gameObject, fromY, toY, duration)
+                .setOnUpdate((float value) =>
+                {
+                    toTransform.anchoredPosition = new Vector2(toTransform.anchoredPosition.x, value);
+                }).setOnComplete(() =>
+                {
+                    callback?.Invoke();
+                });
+        }
+        
+        private void FadeBackground(bool fadeOut, Action onComplete = null)
+        {
+            LeanTween.alphaCanvas(background, fadeOut ? 0 : 0.9f, 0.3f).setOnComplete(() =>
+            {
+                onComplete?.Invoke();
+            });
         }
 
         public void DisplayPlayFabError(PlayFabError error)

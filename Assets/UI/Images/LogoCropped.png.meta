@@ -1,0 +1,839 @@
+fileFormatVersion: 2
+guid: 33dbbe1a0bac9724fa6d4a90b74fd3b2
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 601573257591403423
+    second: LogoCropped_0
+  - first:
+      213: 4523835446181746687
+    second: LogoCropped_1
+  - first:
+      213: -5784190590825986404
+    second: LogoCropped_2
+  - first:
+      213: 188260393919656759
+    second: LogoCropped_3
+  - first:
+      213: 8638269426069642964
+    second: LogoCropped_4
+  - first:
+      213: -4815954663756378298
+    second: LogoCropped_5
+  - first:
+      213: 8140593503962598450
+    second: LogoCropped_6
+  - first:
+      213: -1443094280128969452
+    second: LogoCropped_7
+  - first:
+      213: 881173528616671308
+    second: LogoCropped_8
+  - first:
+      213: 7847823063008854648
+    second: LogoCropped_9
+  - first:
+      213: -3163524585109252851
+    second: LogoCropped_10
+  - first:
+      213: -2343944524241090668
+    second: LogoCropped_11
+  - first:
+      213: 5371149474349811498
+    second: LogoCropped_12
+  - first:
+      213: -7177651995291285884
+    second: LogoCropped_13
+  - first:
+      213: 7369653270273558735
+    second: LogoCropped_14
+  - first:
+      213: 190493761871206033
+    second: LogoCropped_15
+  - first:
+      213: -7359867558980194134
+    second: LogoCropped_16
+  - first:
+      213: 2346705194154171429
+    second: LogoCropped_17
+  - first:
+      213: -34495927615019062
+    second: LogoCropped_18
+  - first:
+      213: -5835609180984252290
+    second: LogoCropped_19
+  - first:
+      213: -6885364923358194647
+    second: LogoCropped_20
+  - first:
+      213: -2371706672697301758
+    second: LogoCropped_21
+  - first:
+      213: -4653546349885404884
+    second: LogoCropped_22
+  - first:
+      213: -4216103749216626882
+    second: LogoCropped_23
+  - first:
+      213: 8888647589556789148
+    second: LogoCropped_24
+  - first:
+      213: 613371983441882793
+    second: LogoCropped_25
+  - first:
+      213: -7814690992489917199
+    second: LogoCropped_26
+  - first:
+      213: 4911814886805204365
+    second: LogoCropped_27
+  - first:
+      213: 7444770829457015130
+    second: LogoCropped_28
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: LogoCropped_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 113
+        width: 287
+        height: 476
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f933c15c0b7395800800000000000000
+      internalID: 601573257591403423
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_1
+      rect:
+        serializedVersion: 2
+        x: 282
+        y: 139
+        width: 253
+        height: 458
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff7dbf7be54e7ce30800000000000000
+      internalID: 4523835446181746687
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_2
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 44
+        width: 44
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9609a8bd4d6abfa0800000000000000
+      internalID: -5784190590825986404
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_3
+      rect:
+        serializedVersion: 2
+        x: 54
+        y: 44
+        width: 40
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7333bd0b4d5dc9200800000000000000
+      internalID: 188260393919656759
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_4
+      rect:
+        serializedVersion: 2
+        x: 98
+        y: 45
+        width: 32
+        height: 65
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4de9ff6864c41e770800000000000000
+      internalID: 8638269426069642964
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_5
+      rect:
+        serializedVersion: 2
+        x: 134
+        y: 44
+        width: 40
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 64f4a64dfba4a2db0800000000000000
+      internalID: -4815954663756378298
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_6
+      rect:
+        serializedVersion: 2
+        x: 178
+        y: 44
+        width: 41
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 23c0b8049a239f070800000000000000
+      internalID: 8140593503962598450
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_7
+      rect:
+        serializedVersion: 2
+        x: 221
+        y: 45
+        width: 36
+        height: 65
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 415c387e56919fbe0800000000000000
+      internalID: -1443094280128969452
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_8
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 45
+        width: 14
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c489ca6d7ae8a3c00800000000000000
+      internalID: 881173528616671308
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_9
+      rect:
+        serializedVersion: 2
+        x: 276
+        y: 44
+        width: 48
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 872c2ca0f7119ec60800000000000000
+      internalID: 7847823063008854648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_10
+      rect:
+        serializedVersion: 2
+        x: 326
+        y: 45
+        width: 32
+        height: 65
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d051952a627e814d0800000000000000
+      internalID: -3163524585109252851
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_11
+      rect:
+        serializedVersion: 2
+        x: 380
+        y: 44
+        width: 39
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 497436bbfd2a87fd0800000000000000
+      internalID: -2343944524241090668
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_12
+      rect:
+        serializedVersion: 2
+        x: 422
+        y: 44
+        width: 44
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a2785264df72a8a40800000000000000
+      internalID: 5371149474349811498
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_13
+      rect:
+        serializedVersion: 2
+        x: 470
+        y: 45
+        width: 41
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4860a430a8bd36c90800000000000000
+      internalID: -7177651995291285884
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_14
+      rect:
+        serializedVersion: 2
+        x: 515
+        y: 44
+        width: 44
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc8837c6a94464660800000000000000
+      internalID: 7369653270273558735
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_15
+      rect:
+        serializedVersion: 2
+        x: 145
+        y: 5
+        width: 18
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 196d2403115c4a200800000000000000
+      internalID: 190493761871206033
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_16
+      rect:
+        serializedVersion: 2
+        x: 163
+        y: 5
+        width: 18
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aa07019037f7cd990800000000000000
+      internalID: -7359867558980194134
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_17
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 4
+        width: 19
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52c9f12d0fb219020800000000000000
+      internalID: 2346705194154171429
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_18
+      rect:
+        serializedVersion: 2
+        x: 201
+        y: 0
+        width: 25
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac72f48f222758ff0800000000000000
+      internalID: -34495927615019062
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_19
+      rect:
+        serializedVersion: 2
+        x: 228
+        y: 4
+        width: 17
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e78ec674e50c30fa0800000000000000
+      internalID: -5835609180984252290
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_20
+      rect:
+        serializedVersion: 2
+        x: 248
+        y: 5
+        width: 17
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 924dc4a15154270a0800000000000000
+      internalID: -6885364923358194647
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_21
+      rect:
+        serializedVersion: 2
+        x: 267
+        y: 4
+        width: 18
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2052476d851061fd0800000000000000
+      internalID: -2371706672697301758
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_22
+      rect:
+        serializedVersion: 2
+        x: 284
+        y: 4
+        width: 14
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c29c34510484b6fb0800000000000000
+      internalID: -4653546349885404884
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_23
+      rect:
+        serializedVersion: 2
+        x: 306
+        y: 4
+        width: 19
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3710cb5af36d75c0800000000000000
+      internalID: -4216103749216626882
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_24
+      rect:
+        serializedVersion: 2
+        x: 326
+        y: 4
+        width: 18
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c9f1a2d73e1da5b70800000000000000
+      internalID: 8888647589556789148
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_25
+      rect:
+        serializedVersion: 2
+        x: 347
+        y: 5
+        width: 33
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9aeea34b192238800800000000000000
+      internalID: 613371983441882793
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_26
+      rect:
+        serializedVersion: 2
+        x: 375
+        y: 24
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f4913342f3ac8390800000000000000
+      internalID: -7814690992489917199
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_27
+      rect:
+        serializedVersion: 2
+        x: 381
+        y: 5
+        width: 19
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d8def7a9d954a2440800000000000000
+      internalID: 4911814886805204365
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: LogoCropped_28
+      rect:
+        serializedVersion: 2
+        x: 399
+        y: 4
+        width: 24
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a51c9f310a3215760800000000000000
+      internalID: 7444770829457015130
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      LogoCropped_0: 601573257591403423
+      LogoCropped_1: 4523835446181746687
+      LogoCropped_10: -3163524585109252851
+      LogoCropped_11: -2343944524241090668
+      LogoCropped_12: 5371149474349811498
+      LogoCropped_13: -7177651995291285884
+      LogoCropped_14: 7369653270273558735
+      LogoCropped_15: 190493761871206033
+      LogoCropped_16: -7359867558980194134
+      LogoCropped_17: 2346705194154171429
+      LogoCropped_18: -34495927615019062
+      LogoCropped_19: -5835609180984252290
+      LogoCropped_2: -5784190590825986404
+      LogoCropped_20: -6885364923358194647
+      LogoCropped_21: -2371706672697301758
+      LogoCropped_22: -4653546349885404884
+      LogoCropped_23: -4216103749216626882
+      LogoCropped_24: 8888647589556789148
+      LogoCropped_25: 613371983441882793
+      LogoCropped_26: -7814690992489917199
+      LogoCropped_27: 4911814886805204365
+      LogoCropped_28: 7444770829457015130
+      LogoCropped_3: 188260393919656759
+      LogoCropped_4: 8638269426069642964
+      LogoCropped_5: -4815954663756378298
+      LogoCropped_6: 8140593503962598450
+      LogoCropped_7: -1443094280128969452
+      LogoCropped_8: 881173528616671308
+      LogoCropped_9: 7847823063008854648
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

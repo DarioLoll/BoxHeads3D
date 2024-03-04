@@ -49,7 +49,7 @@ namespace ViewModels
             }
             catch (Exception e)
             {
-                PopupBox.Instance.DisplayError(NetworkError, LoadingScreen.Instance.CloseLoadingScreen);
+                PopupBox.Instance.DisplayError(NetworkError);
                 Debug.LogException(e);
             }
         }

@@ -19,7 +19,8 @@ namespace Managers
         public bool IsLoggedIn { get; private set; }
         public bool IsOffline { get; private set; }
         public PlayFabPlayer Player { get; private set; }
-
+        
+        public event Action<string> RequestFailed;
         public event Action<PlayFabPlayer> LoggedIn;
         public event Action LoggedOut;
         public event Action<PlayFabPlayer> DisplayNameUpdated;
@@ -89,6 +90,7 @@ namespace Managers
                 }
                 catch (Exception e)
                 {
+                    OnRequestFailed("Failed to connect to Unity Services.");
                     Log("Failed to initialize Unity Services: " + e.Message);
                 }
             }
@@ -128,15 +130,15 @@ namespace Managers
         
         #region Sign Up (Email Verification)
         
-            public void SignUp(string email)
+            public bool SignUp(string email)
             {
                 if (IsLoggedIn && !Player.IsGuest)
                 {
                     Log("Already logged in");
-                    return;
+                    return false;
                 }
                 _emailAddress = email.Trim();
-                if (!ValidateEmail(_emailAddress)) return;
+                if (!ValidateEmail(_emailAddress)) return false;
                 Log("Inputs are valid. Checking if email is taken...");
                 var loginRequest = new LoginWithEmailAddressRequest()
                 {
@@ -145,6 +147,7 @@ namespace Managers
                     Password = "6chars" //password that won't work
                 };
                 PlayFabClientAPI.LoginWithEmailAddress(loginRequest, _ => {}, OnEmailCheckDone);
+                return true;
             }
 
             private void OnEmailCheckDone(PlayFabError obj)
@@ -166,8 +169,8 @@ namespace Managers
                 }
                 else
                 {
+                    OnRequestFailed("Email is already taken.");
                     Log("Email is taken");
-                    PopupBox.Instance.DisplayError("Email is already taken");
                 }
             }
             
@@ -191,10 +194,10 @@ namespace Managers
         
         #region Sign Up (Adding Username, Password and Email)
         
-            public void AddAccountData(string username, string password, string confirmPassword)
+            public bool AddAccountData(string username, string password, string confirmPassword)
             {
-                if (!ValidateUsername(username)) return;
-                if (!ValidatePassword(password, confirmPassword)) return;
+                if (!ValidateUsername(username)) return false;
+                if (!ValidatePassword(password, confirmPassword)) return false;
                 Log("Inputs are valid. Adding account data...");
                 var request = new AddUsernamePasswordRequest
                 {
@@ -203,6 +206,7 @@ namespace Managers
                     Password = password.Trim()
                 };
                 PlayFabClientAPI.AddUsernamePassword(request, OnAddAccountDataSuccess, OnPlayFabError);
+                return true;
             }
             private void OnAddAccountDataSuccess(AddUsernamePasswordResult obj)
             {
@@ -218,12 +222,12 @@ namespace Managers
 
         #region Login
         
-            public void Login(string username, string password)
+            public bool Login(string username, string password)
             {
                 username = username.Trim();
                 password = password.Trim();
                 if(!ValidateUsername(username) || !ValidatePassword(password)) 
-                    return;
+                    return false;
                 Debug.Log("Inputs are valid. Logging in...");
                 var request = new LoginWithPlayFabRequest
                 {
@@ -241,6 +245,7 @@ namespace Managers
                     }
                 };
                 PlayFabClientAPI.LoginWithPlayFab(request, OnLoginSuccess, OnPlayFabError);
+                return true;
             }
             
             private void OnLoginSuccess(LoginResult obj)
@@ -295,12 +300,12 @@ namespace Managers
 
         #region Continue as Guest
 
-            public void ContinueAsGuest()
+            public bool ContinueAsGuest()
             {
                 if(IsLoggedIn)
                 {
                     Log("Already logged in");
-                    return;
+                    return false;
                 }
                 var request = new LoginWithCustomIDRequest
                 {
@@ -318,16 +323,17 @@ namespace Managers
                     };
                     OnLoggedIn(Player);
                 }, OnPlayFabError);
+                return true;
             }
 
         #endregion
 
         #region Reset Password
 
-            public void ResetPassword(string email)
+            public bool ResetPassword(string email)
             {
                 email = email.Trim();
-                if (!ValidateEmail(email)) return;
+                if (!ValidateEmail(email)) return false;
                 Debug.Log("Inputs are valid. Sending email...");
                 _emailAddress = email;
                 var request = new SendAccountRecoveryEmailRequest
@@ -340,15 +346,19 @@ namespace Managers
                     Debug.Log("Password reset email sent successfully");
                     OnPasswordResetRequested(_emailAddress);
                 }, OnPlayFabError);
-                
+                return true;
             }
 
         #endregion
         
-        public void CheckVerificationStatus(string email, Action<bool> callback)
+        public bool CheckVerificationStatus(string email, Action<bool> callback)
         {
             email = email.Trim();
-            if (!ValidateEmail(email)) return;
+            if (!ValidateEmail(email))
+            {
+                callback(false);
+                return false;
+            }
             Debug.Log("Inputs are valid. Checking verification status...");
             _emailAddress = email;
             var request = new GetPlayerProfileRequest()
@@ -371,12 +381,13 @@ namespace Managers
                 }
                 callback(false);
             }, OnPlayFabError);
+            return true;
         }
         
-        public void UpdateDisplayName(string displayName)
+        public bool UpdateDisplayName(string displayName)
         {
             displayName = displayName.Trim();
-            if (!ValidateDisplayName(displayName)) return;
+            if (!ValidateDisplayName(displayName)) return false;
             Debug.Log("Inputs are valid. Setting display name...");
             var request = new UpdateUserTitleDisplayNameRequest
             {
@@ -388,6 +399,7 @@ namespace Managers
                 Player.DisplayName = result.DisplayName;
                 OnDisplayNameUpdated(Player);
             }, OnPlayFabError);
+            return true;
         }
         
         
@@ -395,7 +407,8 @@ namespace Managers
 
             private void OnPlayFabError(PlayFabError error)
             {
-                UIManager.Instance.DisplayError(error);
+                OnRequestFailed(error.ErrorMessage);
+                //UIManager.Instance.DisplayError(error);
             }
             
             private bool ValidatePassword(string password, string confirmPassword)
@@ -476,8 +489,11 @@ namespace Managers
             
             protected virtual void OnLoadingComplete()
             {
-                SceneLoader.LoadScene(Scenes.Menu);
-                LoadingComplete?.Invoke();
+                LoadingScreen.Instance.CloseLoadingScreen(() =>
+                {
+                    SceneLoader.LoadScene(Scenes.Menu);
+                    LoadingComplete?.Invoke(); 
+                });
             }
 
             protected virtual void OnPasswordResetRequested(string email)
@@ -499,6 +515,11 @@ namespace Managers
         #endregion
 
         
+
+        protected virtual void OnRequestFailed(string obj)
+        {
+            RequestFailed?.Invoke(obj);
+        }
     }
     
 }

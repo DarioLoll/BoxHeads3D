@@ -16,6 +16,7 @@ namespace Windows
         [SerializeField] private GameObject logIn;
         [SerializeField] private GameObject logOut;
         [SerializeField] private ButtonBase profileButton;
+        [SerializeField] private LoadingButton logOutContainer;
 
         private void OnEnable()
         {
@@ -40,18 +41,59 @@ namespace Windows
 
         public void Save()
         {
+            if (IsBusy) return;
             PlayFabPlayer player = PlayFabManager.Instance.Player;
             if(player is null) return;
             if(player.DisplayName != displayName.text && PlayFabManager.Instance.IsLoggedIn)
             {
-                PlayFabManager.Instance.UpdateDisplayName(displayName.text);
+                PlayFabManager.Instance.DisplayNameUpdated += OnDisplayNameUpdated;
+                PlayFabManager.Instance.RequestFailed += OnRequestFailed;
+                bool success = PlayFabManager.Instance.UpdateDisplayName(displayName.text);
+                if (!success)
+                {
+                    PlayFabManager.Instance.DisplayNameUpdated -= OnDisplayNameUpdated;
+                    PlayFabManager.Instance.RequestFailed -= OnRequestFailed;
+                    return;
+                }
+                IsBusy = true;
             }
         }
 
-        public void BackToLogin() => UIManager.Instance.BackToLogin();
+        protected override void OnRequestProcessed()
+        {
+            PlayFabManager.Instance.RequestFailed -= OnRequestFailed;
+            base.OnRequestProcessed();
+        }
 
-        public void LogOut() => PlayFabManager.Instance.LogOut();
-        
+        private void OnDisplayNameUpdated(PlayFabPlayer player)
+        {
+            OnRequestProcessed();
+            PlayFabManager.Instance.DisplayNameUpdated -= OnDisplayNameUpdated;
+            UIManager.Instance.OnDisplayNameUpdated(player);
+        }
+
+        public void BackToLogin()
+        {
+            if (IsBusy) return;
+            UIManager.Instance.BackToLogin();
+        }
+
+        public void LogOut()
+        {
+            if (IsBusy) return;
+            PlayFabManager.Instance.LoggedOut += OnLoggedOut;
+            PlayFabManager.Instance.RequestFailed += OnRequestFailed;
+            PlayFabManager.Instance.LogOut();
+            OnRequestSent(logOutContainer);
+        }
+
+        private void OnLoggedOut()
+        {
+            OnRequestProcessed();
+            PlayFabManager.Instance.LoggedOut -= OnLoggedOut;
+            UIManager.Instance.BackToLogin();
+        }
+
         public override void Enter(Action onComplete = null)
         {
             profileButton.Disable();

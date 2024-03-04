@@ -1,3 +1,4 @@
+using Windows;
 using Managers;
 using TMPro;
 using Unity.Services.Lobbies.Models;
@@ -11,15 +12,17 @@ namespace Models
         [SerializeField] private TextMeshProUGUI lobbyPlayers;
 
         private Lobby _lobby;
+        private LobbyOptionsWindow _lobbyWindow;
         
-        public void SetLobby(Lobby lobby)
+        public void SetLobby(Lobby lobby, LobbyOptionsWindow lobbyWindow)
         {
             _lobby = lobby;
+            _lobbyWindow = lobbyWindow;
             SetLobbyName(lobby.Name);
             SetLobbyPlayers(lobby.Players.Count, lobby.MaxPlayers);
         }
 
-        public async void JoinLobby() => await LobbyManager.Instance.JoinLobby(_lobby);
+        public async void JoinLobby() => _lobbyWindow.JoinLobby(_lobby);
 
         private void SetLobbyName(string newName) => lobbyName.text = newName;
         private void SetLobbyPlayers(int players, int maxPlayer) => lobbyPlayers.text = $"{players}/{maxPlayer}";

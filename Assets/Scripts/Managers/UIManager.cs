@@ -78,6 +78,8 @@ namespace Managers
             _ => ThemeManager.GetColor(ColorType.PrimaryBackgroundHoverGreen, currentTheme)
         };
 
+        public static event Action Initialized;
+
         private void Awake()
         {
             if(Instance != null)
@@ -95,17 +97,11 @@ namespace Managers
         {
             InitializeWindowDictionary();
             PlayFabManager manager = PlayFabManager.Instance;
-            manager.LoggedIn += OnLoggedIn;
-            manager.EmailVerificationRequested += OnEmailVerificationRequested;
-            manager.PasswordResetRequested += OnPasswordResetRequested;
-            manager.LoggedOut += BackToLogin;
-            manager.DisplayNameUpdated += OnDisplayNameUpdated;
-            LobbyManager.Instance.LobbyCreated += SwitchToLobby;
             LobbyManager.Instance.LobbyJoined += SwitchToLobby;
+            LobbyManager.Instance.LobbyCreated += SwitchToLobby;
             LobbyManager.Instance.LobbyLeft += SwitchToLobbyOptions;
             LobbyManager.Instance.PlayerKicked += SwitchToLobbyOptions;
-            LobbyManager.Instance.GameStarting += SwitchToGame;
-            LobbyManager.Instance.FailedToStartGame += OnFailedToStartGame;
+            OnInitialized();
             if (manager.IsOffline)
             {
                 //Show offline message
@@ -118,6 +114,9 @@ namespace Managers
             else
                 EnterWindow(Window.LogIn);
         }
+
+        private void SwitchToLobby() => SwitchToWindow(Window.LobbyWindow);
+        private void SwitchToLobbyOptions() => SwitchToWindow(Window.LobbyOptions);
 
         public void SwitchToGame()
         {
@@ -136,7 +135,15 @@ namespace Managers
             });
         }
 
-        private void OnFailedToStartGame()
+        private void OnDestroy()
+        {
+            LobbyManager.Instance.LobbyJoined -= SwitchToLobby;
+            LobbyManager.Instance.LobbyCreated -= SwitchToLobby;
+            LobbyManager.Instance.LobbyLeft -= SwitchToLobbyOptions;
+            LobbyManager.Instance.PlayerKicked -= SwitchToLobbyOptions;
+        }
+
+        public void OnFailedToStartGame()
         {
             Animator.FadeColor(backgroundImage, backgroundImage.color, 
                 ThemeManager.GetColor(ColorType.BaseBackground, currentTheme), 1f, () =>
@@ -145,24 +152,6 @@ namespace Managers
                 EnterWindow(Window.LobbyWindow);
             });
         }
-
-        private void OnDestroy()
-        {
-            PlayFabManager manager = PlayFabManager.Instance;
-            manager.LoggedIn -= OnLoggedIn;
-            manager.EmailVerificationRequested -= OnEmailVerificationRequested;
-            manager.PasswordResetRequested -= OnPasswordResetRequested;
-            manager.LoggedOut -= BackToLogin;
-            manager.DisplayNameUpdated -= OnDisplayNameUpdated;
-            LobbyManager.Instance.LobbyCreated -= SwitchToLobby;
-            LobbyManager.Instance.LobbyJoined -= SwitchToLobby;
-            LobbyManager.Instance.LobbyLeft -= SwitchToLobbyOptions;
-            LobbyManager.Instance.PlayerKicked -= SwitchToLobbyOptions;
-            LobbyManager.Instance.GameStarting -= SwitchToGame;
-        }
-
-        private void SwitchToLobby() => SwitchToWindow(Window.LobbyWindow);
-        private void SwitchToLobbyOptions() => SwitchToWindow(Window.LobbyOptions);
         
         [ContextMenu("Change Theme")]
         public void ChangeTheme()
@@ -219,10 +208,7 @@ namespace Managers
             if(CurrentWindow == window) return;
             if (animatableWindow.isModal && IsOnMainMenu)
             {
-                ExitCurrentModalWindow(() =>
-                {
-                    EnterWindow(window);
-                });
+                ExitCurrentModalWindow(() => EnterWindow(window));
             }
             else
             {
@@ -280,7 +266,7 @@ namespace Managers
             Animator.FadeOut(mainMenuObscure.gameObject, () => mainMenuObscure.SetActive(false));
         }
 
-        private void OnDisplayNameUpdated(PlayFabPlayer obj)
+        public void OnDisplayNameUpdated(PlayFabPlayer obj)
         {
             if(!IsOnMainMenu)
                 SwitchToWindow(Window.MainMenu);
@@ -295,23 +281,23 @@ namespace Managers
             });
         }
 
-        private void OnPasswordResetRequested(string email)
+        public void OnPasswordResetRequested(string email)
         {
             SwitchToEmailVerificationWindow(EmailTypes.PasswordReset, email);
         }
 
-        private void OnEmailVerificationRequested(string email)
+        public void OnEmailVerificationRequested(string email)
         {
             SwitchToEmailVerificationWindow(EmailTypes.Verification, email);
         }
 
-        private void SwitchToEmailVerificationWindow(EmailTypes type, string email)
+        public void SwitchToEmailVerificationWindow(EmailTypes type, string email)
         {
             EmailVerificationWindow.SetEmailCanvas(type, email);
             SwitchToWindow(Window.EmailVerification);
         }
 
-        private void OnLoggedIn(PlayFabPlayer obj)
+        public void OnLoggedIn(PlayFabPlayer obj)
         {
             if (IsOnMainMenu)
                 ExitCurrentModalWindow(() =>
@@ -428,15 +414,20 @@ namespace Managers
             }
         }
         
-        public void DisplayError(PlayFabError message)
+        public void DisplayError(string message)
         {
-            PopupBox.Instance.DisplayPlayFabError(message);
+            PopupBox.Instance.DisplayError(message);
         }
 
 
         protected virtual void OnThemeChanged(Theme obj)
         {
             ThemeChanged?.Invoke(obj);
+        }
+
+        protected virtual void OnInitialized()
+        {
+            Initialized?.Invoke();
         }
         
     }

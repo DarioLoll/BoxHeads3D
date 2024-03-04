@@ -8,34 +8,38 @@ using UnityEngine.UI;
 
 namespace UI
 {
-    public class ButtonBase : MonoBehaviour, IPointerDownHandler, 
+    public class ButtonBase : RefresherBase, IPointerDownHandler, 
         IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler, IRefreshable
     {
-        protected Button _button;
-        protected TextMeshProUGUI _buttonText;
+        private Button _button;
+        private TextMeshProUGUI _buttonText;
         public ColorType backgroundColor;
         public ColorType textColor;
         public ColorType backgroundColorOnHover;
         public ColorType textColorOnHover;
         public Image icon;
-        protected bool _hasIcon;
-        protected bool _hasText = true;
+        private bool _hasIcon;
+        private bool _hasText = true;
         public float onHoverSizeMultiplier = 1.0f;
 
-        protected Color _backgroundColor;
-        protected Color _textColor;
-        protected Color _backgroundColorOnHover;
-        protected Color _textColorOnHover;
-        protected bool _initialized;
+        private Color _backgroundColor;
+        private Color _textColor;
+        private Color _backgroundColorOnHover;
+        private Color _textColorOnHover;
+
+        private bool AnimateBackground => backgroundColor != backgroundColorOnHover;
+        private bool AnimateText => textColor != textColorOnHover;
         
-        protected bool AnimateBackground => backgroundColor != backgroundColorOnHover;
-        protected bool AnimateText => textColor != textColorOnHover;
-        
-        private void Start()
+        protected override void Start()
         {
             _button = gameObject.GetComponent<Button>();
             _buttonText = gameObject.GetComponentInChildren<TextMeshProUGUI>();
             _hasText = _buttonText != null;
+            base.Start();
+        }
+
+        protected override void Initialize()
+        {
             UIManager ui = UIManager.Instance;
             _backgroundColor = ui.GetColor(backgroundColor);
             _textColor = ui.GetColor(textColor);
@@ -47,17 +51,11 @@ namespace UI
             _hasIcon = icon != null;
             if(_hasIcon)
                 icon.color = _textColor;
-            Refresh();
-            _initialized = true;
+            base.Initialize();
         }
 
-        private void OnEnable()
-        {
-            if (!_initialized) return;
-            Refresh();
-        }
 
-        public virtual void Refresh(float animationDuration = 0f)
+        public override void Refresh(float animationDuration = 0f)
         {
             UIManager ui = UIManager.Instance;
             _backgroundColor = ui.GetColor(backgroundColor);

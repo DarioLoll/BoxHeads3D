@@ -9,8 +9,8 @@ namespace UI
     {
 
         private EventSystem _eventSystem;
-        public Selectable firstSelected;
-        public Button submitButton;
+        [SerializeField] private Selectable firstSelected;
+        [SerializeField] private Button submitButton;
 
         private void Update()
         {

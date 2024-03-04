@@ -6,6 +6,7 @@ using TMPro;
 using UI;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Windows
 {
@@ -14,9 +15,9 @@ namespace Windows
         [SerializeField] private AnimatableWindow leftWindow;
         [SerializeField] private AnimatableWindow rightWindow;
         [SerializeField] private TMP_InputField lobbyCode;
-        [SerializeField] private ButtonBase _lobbyElement;
-        [SerializeField] private GameObject _lobbyElementContainer;
-        [SerializeField] private GameObject _noLobbiesFoundPrefab;
+        [SerializeField] private ButtonBase lobbyElement;
+        [SerializeField] private GameObject lobbyElementContainer;
+        [SerializeField] private GameObject noLobbiesFoundPrefab;
         
         private float _refreshTimer = RefreshInterval;
         private const float RefreshInterval = 2.0f;
@@ -57,7 +58,27 @@ namespace Windows
 
         public async void JoinLobbyByCode()
         {
+            if (IsBusy) return;
+            if (lobbyCode.text.Length != 6)
+            {
+                UIManager.Instance.DisplayError("Lobby code must be 6 characters long");
+                return;
+            }
+            IsBusy = true;
+            DisplayLoading("Searching for lobby");
             await LobbyManager.Instance.JoinLobbyByCode(lobbyCode.text);
+            CloseLoading();
+            IsBusy = false;
+        }
+        
+        public async void JoinLobby(Lobby lobby)
+        {
+            if(IsBusy) return;
+            IsBusy = true;
+            DisplayLoading("Joining lobby");
+            await LobbyManager.Instance.JoinLobby(lobby);
+            CloseLoading();
+            IsBusy = false;
         }
 
         public async void RefreshLobbyList()
@@ -66,7 +87,7 @@ namespace Windows
             DestroyAllLobbyElements();
             if (lobbies.Count == 0)
             {
-                Instantiate(_noLobbiesFoundPrefab, _lobbyElementContainer.transform);
+                Instantiate(noLobbiesFoundPrefab, lobbyElementContainer.transform);
                 return;
             }
             AddLobbyElements(lobbies);
@@ -75,9 +96,9 @@ namespace Windows
         private void DestroyAllLobbyElements()
         {
             List<GameObject> toDestroy = new List<GameObject>();
-            for (int i = 0; i < _lobbyElementContainer.transform.childCount; i++)
+            for (int i = 0; i < lobbyElementContainer.transform.childCount; i++)
             {
-                toDestroy.Add(_lobbyElementContainer.transform.GetChild(i).gameObject);
+                toDestroy.Add(lobbyElementContainer.transform.GetChild(i).gameObject);
             }
             toDestroy.ForEach(Destroy);
         }
@@ -87,8 +108,8 @@ namespace Windows
             for (int i = 0; i < lobbies.Count; i++)
             {
                 Lobby lobby = lobbies[i];
-                LobbyElement lobbyElement = Instantiate(_lobbyElement, _lobbyElementContainer.transform).GetComponent<LobbyElement>();
-                lobbyElement.SetLobby(lobby);
+                LobbyElement lobbyElement = Instantiate(this.lobbyElement, lobbyElementContainer.transform).GetComponent<LobbyElement>();
+                lobbyElement.SetLobby(lobby, this);
             }
         }
     }

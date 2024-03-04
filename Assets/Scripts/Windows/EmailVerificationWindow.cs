@@ -7,6 +7,7 @@ using PlayFab;
 using PlayFab.ClientModels;
 using Services;
 using TMPro;
+using UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,13 +15,14 @@ namespace Windows
 {
     public class EmailVerificationWindow : AnimatableWindow
     {
-        public TextMeshProUGUI title;
-        public TextMeshProUGUI subtitle;
-        public TextMeshProUGUI subtitle2;
-        public TextMeshProUGUI instruction;
-        public TextMeshProUGUI email;
-        public TextMeshProUGUI cooldown;
-        public Button resendButton;
+        [SerializeField] private TextMeshProUGUI title;
+        [SerializeField] private TextMeshProUGUI subtitle;
+        [SerializeField] private TextMeshProUGUI subtitle2;
+        [SerializeField] private TextMeshProUGUI instruction;
+        [SerializeField] private TextMeshProUGUI email;
+        [SerializeField] private TextMeshProUGUI cooldown;
+        [SerializeField] private Button resendButton;
+        [SerializeField] private LoadingButton continueButtonContainer;
 
         private EmailTypes _emailType;
         private string _email;
@@ -51,15 +53,17 @@ namespace Windows
 
         public void Continue()
         {
+            if(IsBusy) return;
             UIManager ui = UIManager.Instance;
              if(_emailType == EmailTypes.Verification)
              {
+                 OnRequestSent(continueButtonContainer);
                  PlayFabManager.Instance.CheckVerificationStatus(_email, result =>
-                 {
-                    if (result)
-                        ui.SwitchToWindow(Window.AddAccountData);
-                    else
-                        PopupBox.Instance.DisplayError("Email not verified yet");
+                 { 
+                     OnRequestProcessed();
+                     if (result) 
+                         ui.SwitchToWindow(Window.AddAccountData);
+                     else UIManager.Instance.DisplayError("Email not verified yet");
                  });
              }
              else
@@ -68,6 +72,7 @@ namespace Windows
              }
         }
 
+        /*
         public void ResendEmail()
         {
             string mail = email.text;
@@ -81,7 +86,7 @@ namespace Windows
         private void OnResendFailure(PlayFabError obj)
         {
             Debug.Log("Failed to resend email: " + obj.ErrorMessage);
-            UIManager.Instance.DisplayError(obj);
+            UIManager.Instance.DisplayError(obj.ErrorMessage);
         }
 
         private void OnResendSuccess(AddOrUpdateContactEmailResult obj)
@@ -114,6 +119,7 @@ namespace Windows
             cooldown.text = "";
             resendButton.interactable = true;
         }
+        */
     }
     
     public enum EmailTypes

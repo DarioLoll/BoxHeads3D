@@ -55,7 +55,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Enter
-  m_Speed: 2
+  m_Speed: 4
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: -7487866429990871853}
@@ -82,7 +82,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Exit
-  m_Speed: 2
+  m_Speed: 4
   m_CycleOffset: 0
   m_Transitions: []
   m_StateMachineBehaviours: []

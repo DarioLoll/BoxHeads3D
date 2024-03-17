@@ -4,7 +4,7 @@ namespace WorldGeneration
 {
     public static class TextureGenerator
     {
-        public static Texture2D GenerateTexture(Color[] colors, int width, int height)
+        public static Texture2D TextureFromColourMap(Color[] colors, int width, int height)
         {
             var texture = new Texture2D(width, height);
             texture.filterMode = FilterMode.Point;
@@ -14,7 +14,7 @@ namespace WorldGeneration
             return texture;
         }
         
-        public static Texture2D GenerateTexture(float[,] noiseMap)
+        public static Texture2D TextureFromHeightMap(float[,] noiseMap)
         {
             var width = noiseMap.GetLength(0);
             var height = noiseMap.GetLength(1);
@@ -27,7 +27,7 @@ namespace WorldGeneration
                     colors[y * width + x] = Color.Lerp(Color.black, Color.white, noiseMap[x, y]);
                 }
             }
-            return GenerateTexture(colors, width, height);
+            return TextureFromColourMap(colors, width, height);
         }
     }
 }

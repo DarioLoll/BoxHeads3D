@@ -14,57 +14,49 @@ namespace WorldGeneration
             Mesh,
             FalloffMap
         }
+    
+        public NoiseData noiseData;
+        public TerrainData terrainData;
 
         public DrawMode drawMode;
-        
-        public Noise.NormalizeMode normalizeMode;
 
-        public const int MapChunkSize = 241;
+        public const int mapChunkSize = 239;
         [Range(0, 6)] public int editorPreviewLOD;
-        public float noiseScale;
-
-        public int octaves;
-        [Range(0, 1)] public float persistence;
-        public float lacunarity;
-
-        public int seed;
-        public Vector2 offset;
-
-        public float meshHeightMultiplier;
-        public AnimationCurve meshHeightCurve;
-        
-        public bool useFalloff;
-
         public bool autoUpdate;
 
         public TerrainType[] regions;
 
-        private readonly Queue<MapThreadInfo<MapData>> _mapDataThreadInfoQueue = new();
-        private readonly Queue<MapThreadInfo<MeshData>> _meshDataThreadInfoQueue = new();
+        private float[,] falloffMap;
 
-        private float[,] _falloffMap;
+        private readonly Queue<MapThreadInfo<MapData>> mapDataThreadInfoQueue = new();
+        private readonly Queue<MapThreadInfo<MeshData>> meshDataThreadInfoQueue = new();
 
         private void Awake()
         {
-            _falloffMap = Noise.GenerateFalloffMap(MapChunkSize);            
+            falloffMap = Noise.GenerateFalloffMap(mapChunkSize + 2);
+        }
+        
+        private void OnValuesUpdated()
+        {
+            if (!Application.isPlaying) DrawMapInEditor();
         }
 
         public void DrawMapInEditor()
         {
             var mapData = GenerateMapData(Vector2.zero);
 
-            var display = FindFirstObjectByType<MapDisplay>();
+            var display = FindObjectOfType<MapDisplay>();
             if (drawMode == DrawMode.NoiseMap)
-                display.DisplayMap(TextureGenerator.GenerateTexture(mapData.heightMap));
+                display.DisplayMap(TextureGenerator.TextureFromHeightMap(mapData.heightMap));
             else if (drawMode == DrawMode.ColourMap)
-                display.DisplayMap(TextureGenerator.GenerateTexture(mapData.colourMap, MapChunkSize, MapChunkSize));
+                display.DisplayMap(TextureGenerator.TextureFromColourMap(mapData.colourMap, mapChunkSize, mapChunkSize));
             else if (drawMode == DrawMode.Mesh)
                 display.DisplayMesh(
-                    MeshGenerator.GenerateMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve,
+                    MeshGenerator.GenerateTerrainMesh(mapData.heightMap, terrainData.meshHeightMultiplier, terrainData.meshHeightCurve,
                         editorPreviewLOD),
-                    TextureGenerator.GenerateTexture(mapData.colourMap, MapChunkSize, MapChunkSize));
+                    TextureGenerator.TextureFromColourMap(mapData.colourMap, mapChunkSize, mapChunkSize));
             else if (drawMode == DrawMode.FalloffMap)
-                display.DisplayMap(TextureGenerator.GenerateTexture(Noise.GenerateFalloffMap(MapChunkSize)));
+                display.DisplayMap(TextureGenerator.TextureFromHeightMap(Noise.GenerateFalloffMap(mapChunkSize + 2)));
         }
 
         public void RequestMapData(Vector2 centre, Action<MapData> callback)
@@ -77,65 +69,61 @@ namespace WorldGeneration
         private void MapDataThread(Vector2 centre, Action<MapData> callback)
         {
             var mapData = GenerateMapData(centre);
-            lock (_mapDataThreadInfoQueue)
+            lock (mapDataThreadInfoQueue)
             {
-                _mapDataThreadInfoQueue.Enqueue(new MapThreadInfo<MapData>(callback, mapData));
+                mapDataThreadInfoQueue.Enqueue(new MapThreadInfo<MapData>(callback, mapData));
             }
         }
 
         public void RequestMeshData(MapData mapData, int lod, Action<MeshData> callback)
         {
             ThreadStart threadStart = delegate { MeshDataThread(mapData, lod, callback); };
+
             new Thread(threadStart).Start();
         }
 
         private void MeshDataThread(MapData mapData, int lod, Action<MeshData> callback)
         {
-            var meshData = MeshGenerator.GenerateMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, lod);
-            lock (_meshDataThreadInfoQueue)
+            var meshData = MeshGenerator.GenerateTerrainMesh(mapData.heightMap, terrainData.meshHeightMultiplier, terrainData.meshHeightCurve, lod);
+            lock (meshDataThreadInfoQueue)
             {
-                _meshDataThreadInfoQueue.Enqueue(new MapThreadInfo<MeshData>(callback, meshData));
+                meshDataThreadInfoQueue.Enqueue(new MapThreadInfo<MeshData>(callback, meshData));
             }
         }
 
         private void Update()
         {
-            if (_mapDataThreadInfoQueue.Count > 0)
-                for (var i = 0; i < _mapDataThreadInfoQueue.Count; i++)
+            if (mapDataThreadInfoQueue.Count > 0)
+                for (var i = 0; i < mapDataThreadInfoQueue.Count; i++)
                 {
-                    var threadInfo = _mapDataThreadInfoQueue.Dequeue();
+                    var threadInfo = mapDataThreadInfoQueue.Dequeue();
                     threadInfo.callback(threadInfo.parameter);
                 }
 
-            if (_meshDataThreadInfoQueue.Count > 0)
-                for (var i = 0; i < _meshDataThreadInfoQueue.Count; i++)
+            if (meshDataThreadInfoQueue.Count > 0)
+                for (var i = 0; i < meshDataThreadInfoQueue.Count; i++)
                 {
-                    var threadInfo = _meshDataThreadInfoQueue.Dequeue();
+                    var threadInfo = meshDataThreadInfoQueue.Dequeue();
                     threadInfo.callback(threadInfo.parameter);
                 }
         }
 
         private MapData GenerateMapData(Vector2 centre)
         {
-            var noiseMap = Noise.GenerateNoiseMap(MapChunkSize, MapChunkSize, seed, noiseScale, octaves, persistence,
-                lacunarity, centre + offset, normalizeMode);
+            var noiseMap = Noise.GenerateNoiseMap(mapChunkSize + 2, mapChunkSize + 2, noiseData.seed, 
+                noiseData.noiseScale, noiseData.octaves, noiseData.persistence, noiseData.lacunarity, centre + noiseData.offset, noiseData.normalizeMode);
 
-            var colourMap = new Color[MapChunkSize * MapChunkSize];
-            for (var y = 0; y < MapChunkSize; y++)
-            for (var x = 0; x < MapChunkSize; x++)
+            var colourMap = new Color[mapChunkSize * mapChunkSize];
+            for (var y = 0; y < mapChunkSize; y++)
+            for (var x = 0; x < mapChunkSize; x++)
             {
-                if (useFalloff) 
-                    noiseMap[x, y] = Mathf.Clamp01(noiseMap[x, y] - _falloffMap[x, y]);
+                if (terrainData.useFalloff) noiseMap[x, y] = Mathf.Clamp01(noiseMap[x, y] - falloffMap[x, y]);
                 var currentHeight = noiseMap[x, y];
                 for (var i = 0; i < regions.Length; i++)
                     if (currentHeight >= regions[i].height)
-                    {
-                        colourMap[y * MapChunkSize + x] = regions[i].colour;
-                    }
+                        colourMap[y * mapChunkSize + x] = regions[i].colour;
                     else
-                    {
                         break;
-                    }
             }
 
 
@@ -144,10 +132,18 @@ namespace WorldGeneration
 
         private void OnValidate()
         {
-            if (lacunarity < 1) lacunarity = 1;
-            if (octaves < 0) octaves = 0;
+            falloffMap = Noise.GenerateFalloffMap(mapChunkSize + 2);
             
-            _falloffMap = Noise.GenerateFalloffMap(MapChunkSize);
+            if (terrainData != null)
+            {
+                terrainData.OnValuesUpdated -= OnValuesUpdated;
+                terrainData.OnValuesUpdated += OnValuesUpdated;
+            }
+            if (noiseData != null)
+            {
+                noiseData.OnValuesUpdated -= OnValuesUpdated;
+                noiseData.OnValuesUpdated += OnValuesUpdated;
+            }
         }
 
         private struct MapThreadInfo<T>

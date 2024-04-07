@@ -18,6 +18,7 @@ namespace WorldGeneration
         {
             meshFilter.sharedMesh = meshData.CreateMesh();
             meshRenderer.sharedMaterial.mainTexture = texture;
+            meshFilter.transform.localScale = Vector3.one * FindFirstObjectByType<MapGenerator>().terrainData.uniformScale;
         }
     }
 }

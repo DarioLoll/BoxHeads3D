@@ -30,11 +30,6 @@ namespace WorldGeneration
 
         private readonly Queue<MapThreadInfo<MapData>> mapDataThreadInfoQueue = new();
         private readonly Queue<MapThreadInfo<MeshData>> meshDataThreadInfoQueue = new();
-
-        private void Awake()
-        {
-            falloffMap = Noise.GenerateFalloffMap(mapChunkSize + 2);
-        }
         
         private void OnValuesUpdated()
         {
@@ -113,9 +108,11 @@ namespace WorldGeneration
             var noiseMap = Noise.GenerateNoiseMap(mapChunkSize + 2, mapChunkSize + 2, noiseData.seed, 
                 noiseData.noiseScale, noiseData.octaves, noiseData.persistence, noiseData.lacunarity, centre + noiseData.offset, noiseData.normalizeMode);
 
-            var colourMap = new Color[mapChunkSize * mapChunkSize];
-            for (var y = 0; y < mapChunkSize; y++)
-            for (var x = 0; x < mapChunkSize; x++)
+            if (terrainData.useFalloff) falloffMap = Noise.GenerateFalloffMap(mapChunkSize + 2);
+            
+            var colourMap = new Color[(mapChunkSize+2) * (mapChunkSize+2)];
+            for (var y = 0; y < mapChunkSize+2; y++)
+            for (var x = 0; x < mapChunkSize+2; x++)
             {
                 if (terrainData.useFalloff) noiseMap[x, y] = Mathf.Clamp01(noiseMap[x, y] - falloffMap[x, y]);
                 var currentHeight = noiseMap[x, y];
@@ -132,7 +129,6 @@ namespace WorldGeneration
 
         private void OnValidate()
         {
-            falloffMap = Noise.GenerateFalloffMap(mapChunkSize + 2);
             
             if (terrainData != null)
             {

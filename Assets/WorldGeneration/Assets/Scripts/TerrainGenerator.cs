@@ -36,7 +36,20 @@ public class TerrainGenerator : MonoBehaviour {
 		meshWorldSize = meshSettings.meshWorldSize;
 		chunksVisibleInViewDst = Mathf.RoundToInt(maxViewDst / meshWorldSize);
 
+		MultiplayerTest.Instance.OnThisPlayerSpawned += OnPlayerSpawned;
 		UpdateVisibleChunks ();
+	}
+
+	private void OnPlayerSpawned(Transform obj)
+	{
+		viewer = obj;
+		viewerPosition = new Vector2 (viewer.position.x, viewer.position.z);
+		viewerPositionOld = viewerPosition;
+		foreach (var chunk in terrainChunkDictionary.Values)
+		{
+			chunk.SetViewer(viewer);
+		}
+		UpdateVisibleChunks();
 	}
 
 	void Update() {

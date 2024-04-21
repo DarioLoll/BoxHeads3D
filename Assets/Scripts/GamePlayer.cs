@@ -36,7 +36,12 @@ public class GamePlayer : NetworkBehaviour
             OnColorChanged(default ,ColorInHex.Value);
         if(Nickname.Value != default)
             OnNicknameChanged(default, Nickname.Value);
-        LoadingScreen.Instance.CloseLoadingScreen();
+        if (MultiplayerTest.Instance != null && IsOwner)
+        {
+            MultiplayerTest.Instance.RegisterThisPlayer(transform);
+            var pos = transform.position;
+            transform.position = new Vector3(pos.x, 10, pos.z);
+        }
     }
 
     private void OnColorChanged(FixedString32Bytes previousValue, FixedString32Bytes newValue)

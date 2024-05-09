@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 
 public class TerrainGenerator : MonoBehaviour {
 
@@ -15,14 +16,15 @@ public class TerrainGenerator : MonoBehaviour {
 	public HeightMapSettings heightMapSettings;
 	public TextureData textureSettings;
 
-	public Transform viewer;
+	private Transform _viewer;
+	private bool _hasSetViewer;
 	public Material mapMaterial;
 
-	Vector2 viewerPosition;
-	Vector2 viewerPositionOld;
+	Vector2 _viewerPosition;
+	Vector2 _viewerPositionOld;
 
-	float meshWorldSize;
-	int chunksVisibleInViewDst;
+	float _meshWorldSize;
+	int _chunksVisibleInViewDst;
 
 	Dictionary<Vector2, TerrainChunk> terrainChunkDictionary = new Dictionary<Vector2, TerrainChunk>();
 	List<TerrainChunk> visibleTerrainChunks = new List<TerrainChunk>();
@@ -33,31 +35,33 @@ public class TerrainGenerator : MonoBehaviour {
 		textureSettings.UpdateMeshHeights (mapMaterial, heightMapSettings.minHeight, heightMapSettings.maxHeight);
 
 		float maxViewDst = detailLevels [detailLevels.Length - 1].visibleDstThreshold;
-		meshWorldSize = meshSettings.meshWorldSize;
-		chunksVisibleInViewDst = Mathf.RoundToInt(maxViewDst / meshWorldSize);
+		_meshWorldSize = meshSettings.meshWorldSize;
+		_chunksVisibleInViewDst = Mathf.RoundToInt(maxViewDst / _meshWorldSize);
 
 		MultiplayerTest.Instance.OnThisPlayerSpawned += OnPlayerSpawned;
-		UpdateVisibleChunks ();
+		//UpdateVisibleChunks ();
 	}
 
 	private void OnPlayerSpawned(Transform obj)
 	{
-		viewer = obj;
-		viewerPosition = new Vector2 (viewer.position.x, viewer.position.z);
-		viewerPositionOld = viewerPosition;
+		_viewer = obj;
+		_hasSetViewer = true;
+		_viewerPosition = new Vector2 (_viewer.position.x, _viewer.position.z);
+		_viewerPositionOld = _viewerPosition;
 		foreach (var chunk in terrainChunkDictionary.Values)
 		{
-			chunk.SetViewer(viewer);
+			chunk.SetViewer(_viewer);
 		}
 		UpdateVisibleChunks();
 	}
 
 	void Update() {
-		viewerPosition = new Vector2 (viewer.position.x, viewer.position.z);
+		if(!_hasSetViewer) return;
+		_viewerPosition = new Vector2 (_viewer.position.x, _viewer.position.z);
 		visibleTerrainChunks.ForEach (chunk => chunk.UpdateGrass());
 
-		if ((viewerPositionOld - viewerPosition).sqrMagnitude > sqrViewerMoveThresholdForChunkUpdate) {
-			viewerPositionOld = viewerPosition;
+		if ((_viewerPositionOld - _viewerPosition).sqrMagnitude > sqrViewerMoveThresholdForChunkUpdate) {
+			_viewerPositionOld = _viewerPosition;
 			UpdateVisibleChunks ();
 		}
 	}
@@ -69,17 +73,17 @@ public class TerrainGenerator : MonoBehaviour {
 			visibleTerrainChunks [i].UpdateTerrainChunk ();
 		}
 			
-		int currentChunkCoordX = Mathf.RoundToInt (viewerPosition.x / meshWorldSize);
-		int currentChunkCoordY = Mathf.RoundToInt (viewerPosition.y / meshWorldSize);
+		int currentChunkCoordX = Mathf.RoundToInt (_viewerPosition.x / _meshWorldSize);
+		int currentChunkCoordY = Mathf.RoundToInt (_viewerPosition.y / _meshWorldSize);
 
-		for (int yOffset = -chunksVisibleInViewDst; yOffset <= chunksVisibleInViewDst; yOffset++) {
-			for (int xOffset = -chunksVisibleInViewDst; xOffset <= chunksVisibleInViewDst; xOffset++) {
+		for (int yOffset = -_chunksVisibleInViewDst; yOffset <= _chunksVisibleInViewDst; yOffset++) {
+			for (int xOffset = -_chunksVisibleInViewDst; xOffset <= _chunksVisibleInViewDst; xOffset++) {
 				Vector2 viewedChunkCoord = new Vector2 (currentChunkCoordX + xOffset, currentChunkCoordY + yOffset);
 				if (!alreadyUpdatedChunkCoords.Contains (viewedChunkCoord)) {
 					if (terrainChunkDictionary.ContainsKey (viewedChunkCoord)) {
 						terrainChunkDictionary [viewedChunkCoord].UpdateTerrainChunk ();
 					} else {
-						TerrainChunk newChunk = new TerrainChunk (viewedChunkCoord,heightMapSettings,meshSettings, detailLevels, colliderLODIndex, transform, viewer, mapMaterial);
+						TerrainChunk newChunk = new TerrainChunk (viewedChunkCoord,heightMapSettings,meshSettings, detailLevels, colliderLODIndex, transform, _viewer, mapMaterial);
 						terrainChunkDictionary.Add (viewedChunkCoord, newChunk);
 						newChunk.onVisibilityChanged += OnTerrainChunkVisibilityChanged;
 						newChunk.Load ();

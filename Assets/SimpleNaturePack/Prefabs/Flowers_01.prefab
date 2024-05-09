@@ -117,6 +117,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5186735023777053022}
   - component: {fileID: 5777168012237853380}
+  - component: {fileID: -7840066160998440391}
   m_Layer: 0
   m_Name: Flowers_01
   m_TagString: Untagged
@@ -164,6 +165,26 @@ LODGroup:
     renderers:
     - renderer: {fileID: 3144868257754437983}
   m_Enabled: 1
+--- !u!114 &-7840066160998440391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5186735023776687486}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!1 &5440194995934546347
 GameObject:
   m_ObjectHideFlags: 0

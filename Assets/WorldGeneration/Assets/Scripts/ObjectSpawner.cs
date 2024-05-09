@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -8,7 +9,7 @@ using Random = UnityEngine.Random;
 
 namespace WorldGeneration.Assets.Scripts
 {
-    public class ObjectSpawner : MonoBehaviour
+    public class ObjectSpawner : NetworkBehaviour
     {
         public static ObjectSpawner Instance { get; private set; }
 
@@ -21,6 +22,7 @@ namespace WorldGeneration.Assets.Scripts
             }
 
             Instance = this;
+            _populatedChunkCoords = new NetworkList<Vector2>();
         }
         
         [SerializeField] private SpawnableObject[] objects;
@@ -33,22 +35,19 @@ namespace WorldGeneration.Assets.Scripts
 
         [SerializeField] private Vector3 maxScale;
         
-
-        [ContextMenu("Generate")]
-        public void GenerateOnChunk(Bounds chunkBounds, Transform chunk, float waitTime = 0)
+        private NetworkList<Vector2> _populatedChunkCoords;
+        
+        public void GenerateOnChunk(Vector3 chunkBoundsMin, Vector3 chunkBoundsMax, Vector2 chunkCoord)
         {
-            StartCoroutine(GenerateOnChunkCoroutine(chunkBounds, chunk, waitTime));
-        }
-
-        private IEnumerator GenerateOnChunkCoroutine(Bounds chunkBounds, Transform chunk, float waitTime)
-        {
-            yield return new WaitForSeconds(waitTime);
-            foreach (var spawnableObject in objects)
+            if (_populatedChunkCoords.Contains(chunkCoord)) return;
+            OnChunkPopulatedServerRpc(chunkCoord);
+            for (var i = 0; i < objects.Length; i++)
             {
-                for (var i = 0; i < spawnableObject.density; i++)
+                var spawnableObject = objects[i];
+                for (var j = 0; j < spawnableObject.density; j++)
                 {
-                    var sampleX = Random.Range(chunkBounds.min.x, chunkBounds.max.x);
-                    var sampleY = Random.Range(chunkBounds.min.z, chunkBounds.max.z);
+                    var sampleX = Random.Range(chunkBoundsMin.x, chunkBoundsMax.x);
+                    var sampleY = Random.Range(chunkBoundsMin.z, chunkBoundsMax.z);
                     var rayStart = new Vector3(sampleX, spawnableObject.maxHeight, sampleY);
 
                     if (!Physics.Raycast(rayStart, Vector3.down, out var hit, Mathf.Infinity))
@@ -57,26 +56,37 @@ namespace WorldGeneration.Assets.Scripts
                     if (hit.point.y < spawnableObject.minHeight)
                         continue;
 
-                    var instantiatedPrefab = Instantiate(spawnableObject.prefabs[Random.Range(0, spawnableObject.prefabs.Length)], chunk);
-                    instantiatedPrefab.transform.position = hit.point;
-                    instantiatedPrefab.transform.Rotate(Vector3.up, Random.Range(rotationRange.x, rotationRange.y),
-                        Space.Self);
-                    instantiatedPrefab.transform.rotation = Quaternion.Lerp(transform.rotation,
-                        transform.rotation * Quaternion.FromToRotation(instantiatedPrefab.transform.up, hit.normal),
-                        rotateTowardsNormal);
-                    instantiatedPrefab.transform.localScale = new Vector3(
+                    var position = hit.point;
+                    var scale = new Vector3(
                         Random.Range(minScale.x, maxScale.x),
                         Random.Range(minScale.y, maxScale.y),
                         Random.Range(minScale.z, maxScale.z));
+                    var prefab = Random.Range(0, spawnableObject.prefabs.Length);
+                    SpawnObjectServerRpc(i, prefab, position, scale, hit.normal);
                 }
             }
-            
         }
-
-        public void Clear()
+        
+        [ServerRpc(RequireOwnership = false)]
+        private void OnChunkPopulatedServerRpc(Vector2 chunkCoord)
         {
-            while (transform.childCount != 0) DestroyImmediate(transform.GetChild(0).gameObject);
+            _populatedChunkCoords.Add(chunkCoord);
         }
+        
+        [ServerRpc(RequireOwnership = false)]
+        private void SpawnObjectServerRpc(int objectIndex, int prefabIndex, Vector3 worldPosition, Vector3 localScale, Vector3 normal)
+        {
+            var obj = objects[objectIndex].prefabs[prefabIndex];
+            var instantiatedPrefab = Instantiate(obj);
+            instantiatedPrefab.transform.position = worldPosition;
+            instantiatedPrefab.transform.Rotate(Vector3.up, Random.Range(rotationRange.x, rotationRange.y),
+                Space.Self);
+            instantiatedPrefab.transform.rotation = Quaternion.Lerp(transform.rotation,
+                transform.rotation * Quaternion.FromToRotation(instantiatedPrefab.transform.up, normal), rotateTowardsNormal);
+            instantiatedPrefab.transform.localScale = localScale;
+            instantiatedPrefab.GetComponent<NetworkObject>().Spawn(true);
+        }
+        
     }
 }
 

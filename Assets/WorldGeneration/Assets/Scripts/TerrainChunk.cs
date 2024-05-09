@@ -87,11 +87,7 @@ public class TerrainChunk {
 		UpdateTerrainChunk ();
 	}
 
-	Vector2 viewerPosition {
-		get {
-			return new Vector2 (viewer.position.x, viewer.position.z);
-		}
-	}
+	Vector2 viewerPosition => new(viewer.position.x, viewer.position.z);
 
 
 	public void UpdateTerrainChunk() {
@@ -162,7 +158,7 @@ public class TerrainChunk {
 			if (lodMeshes [colliderLODIndex].hasMesh) {
 				meshCollider.sharedMesh = lodMeshes [colliderLODIndex].mesh;
 				hasSetCollider = true;
-				ObjectSpawner.Instance.GenerateOnChunk(meshCollider.bounds, meshObject.transform, 0);
+				ObjectSpawner.Instance.GenerateOnChunk(meshCollider.bounds.min, meshCollider.bounds.max, coord);
 				GenerateGrass();
 			}
 		}

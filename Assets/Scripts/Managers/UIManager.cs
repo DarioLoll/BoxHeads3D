@@ -120,19 +120,7 @@ namespace Managers
 
         public void SwitchToGame()
         {
-            ExitWindow(Window.LobbyWindow, () =>
-            {
-                ExitWindow(Window.MainMenu);
-                Animator.FadeColor(backgroundImage, backgroundImage.color, Color.black, 1f,() =>
-                {
-                    if(LobbyManager.Instance.JoinedLobby != null && LobbyManager.Instance.IsHost)
-                        SceneLoader.LoadSceneOnNetwork(Scenes.Game);
-                    else if (LobbyManager.Instance.JoinedLobby != null)
-                        NetworkManager.Singleton.StartClient();
-                    else
-                        LobbyManager.Instance.StartSinglePlayerGame();
-                });
-            });
+            Windows[CurrentWindow].DisplayLoading("Starting game");
         }
 
         private void OnDestroy()

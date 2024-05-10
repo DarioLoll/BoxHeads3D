@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 055d74034f04805418da906e8f76e36e, type: 3}
+  m_Name: Default Texture Data
+  m_EditorClassIdentifier: 
+  autoUpdate: 0
+  layers:
+  - texture: {fileID: 2800000, guid: 616ca5df121559f49929f6a7c950cc08, type: 3}
+    tint: {r: 0.0047169924, g: 0.5571174, b: 1, a: 0}
+    tintStrength: 0.264
+    startHeight: 0
+    blendStrength: 0.333
+    textureScale: 5
+  - texture: {fileID: 2800000, guid: 5cc10a54fba753f41a71f9dc9b9c440d, type: 3}
+    tint: {r: 0.84118706, g: 0.8490566, b: 0.7008722, a: 0}
+    tintStrength: 0.247
+    startHeight: 0.2
+    blendStrength: 0.289
+    textureScale: 5

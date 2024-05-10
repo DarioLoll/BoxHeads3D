@@ -21,6 +21,8 @@ namespace Managers
         [SerializeField] private Image overlay;
         public Vector3 spawnPoint;
 
+        public bool testing;
+
         private NetworkList<PlayerId> _connectedPlayers;
 
         private void Awake()

@@ -439,7 +439,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce03d2c32c36cd148b7fc545730aad98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colorType: 6
+  colorType: 1
   alpha: 1
   hasAlpha: 0
 --- !u!114 &498665842
@@ -1357,8 +1357,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 887.995, y: 0}
+  m_SizeDelta: {x: 336.01, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5465090244155236879
 CanvasRenderer:

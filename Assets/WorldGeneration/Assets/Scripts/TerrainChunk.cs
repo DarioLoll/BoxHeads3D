@@ -1,7 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 using WorldGeneration.Assets.Scripts;
+using Random = UnityEngine.Random;
 
 public class TerrainChunk {
 	
@@ -22,15 +25,17 @@ public class TerrainChunk {
 	int colliderLODIndex;
 
 	HeightMap heightMap;
-	bool heightMapReceived;
-	int previousLODIndex = -1;
-	bool hasSetCollider;
+	public bool HeightMapReceived { get; private set; }
+	public int PreviousLODIndex { get; private set; }= -1;
+	public bool HasSetCollider { get; private set; }
 	float maxViewDst;
 
 	HeightMapSettings heightMapSettings;
 	MeshSettings meshSettings;
 	Transform viewer;
 	public List<List<Matrix4x4>> grassMatrices = new();
+
+	[CanBeNull] public event Action GeneratedCollider;
 
 
 	public TerrainChunk(Vector2 coord, HeightMapSettings heightMapSettings, MeshSettings meshSettings, LODInfo[] detailLevels, int colliderLODIndex, Transform parent, Transform viewer, Material material) {
@@ -83,7 +88,7 @@ public class TerrainChunk {
 
 	void OnHeightMapReceived(object heightMapObject) {
 		this.heightMap = (HeightMap)heightMapObject;
-		heightMapReceived = true;
+		HeightMapReceived = true;
 		UpdateTerrainChunk ();
 	}
 
@@ -91,7 +96,7 @@ public class TerrainChunk {
 
 
 	public void UpdateTerrainChunk() {
-		if (heightMapReceived) {
+		if (HeightMapReceived) {
 			float viewerDstFromNearestEdge = Mathf.Sqrt (bounds.SqrDistance (viewerPosition));
 
 			bool wasVisible = IsVisible ();
@@ -108,10 +113,10 @@ public class TerrainChunk {
 					}
 				}
 
-				if (lodIndex != previousLODIndex) {
+				if (lodIndex != PreviousLODIndex) {
 					LODMesh lodMesh = lodMeshes [lodIndex];
 					if (lodMesh.hasMesh) {
-						previousLODIndex = lodIndex;
+						PreviousLODIndex = lodIndex;
 						meshFilter.mesh = lodMesh.mesh;
 					} else if (!lodMesh.hasRequestedMesh) {
 						lodMesh.RequestMesh (heightMap, meshSettings);
@@ -134,8 +139,9 @@ public class TerrainChunk {
 
 	public void UpdateGrass()
 	{
+		return;
 		if(!IsVisible()) return;
-		if (hasSetCollider)
+		if (HasSetCollider)
 		{
 			for (int i = 0; i < grassMatrices.Count; i++)
 			{
@@ -146,7 +152,7 @@ public class TerrainChunk {
 	}
 
 	public void UpdateCollisionMesh() {
-		if (!hasSetCollider) {
+		if (!HasSetCollider) {
 			float sqrDstFromViewerToEdge = bounds.SqrDistance (viewerPosition);
 
 			if (sqrDstFromViewerToEdge < detailLevels [colliderLODIndex].sqrVisibleDstThreshold) {
@@ -157,15 +163,17 @@ public class TerrainChunk {
 
 			if (lodMeshes [colliderLODIndex].hasMesh) {
 				meshCollider.sharedMesh = lodMeshes [colliderLODIndex].mesh;
-				hasSetCollider = true;
+				HasSetCollider = true;
 				ObjectSpawner.Instance.GenerateOnChunk(meshCollider.bounds.min, meshCollider.bounds.max, coord);
 				GenerateGrass();
 			}
+			GeneratedCollider?.Invoke();
 		}
 	}
 	
 	public void GenerateGrass()
 	{
+		return;
 		int currentMatrixListIndex = 0;
 		grassMatrices.Add(new List<Matrix4x4>());
 		for (var i = 0; i < GrassSpawner.Instance.grass.density; i++)

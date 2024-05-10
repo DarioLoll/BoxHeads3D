@@ -1,6 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using JetBrains.Annotations;
 using Unity.Netcode;
 
 public class TerrainGenerator : MonoBehaviour {
@@ -8,6 +11,7 @@ public class TerrainGenerator : MonoBehaviour {
 	const float viewerMoveThresholdForChunkUpdate = 25f;
 	const float sqrViewerMoveThresholdForChunkUpdate = viewerMoveThresholdForChunkUpdate * viewerMoveThresholdForChunkUpdate;
 
+	public static TerrainGenerator Instance { get; private set; }
 
 	public int colliderLODIndex;
 	public LODInfo[] detailLevels;
@@ -16,7 +20,7 @@ public class TerrainGenerator : MonoBehaviour {
 	public HeightMapSettings heightMapSettings;
 	public TextureData textureSettings;
 
-	private Transform _viewer;
+	[SerializeField] private Transform viewer;
 	private bool _hasSetViewer;
 	public Material mapMaterial;
 
@@ -28,8 +32,22 @@ public class TerrainGenerator : MonoBehaviour {
 
 	Dictionary<Vector2, TerrainChunk> terrainChunkDictionary = new Dictionary<Vector2, TerrainChunk>();
 	List<TerrainChunk> visibleTerrainChunks = new List<TerrainChunk>();
+	
+	[CanBeNull] public event Action SpawnGenerated;
+	
+	public bool IsSpawnGenerated { get; private set; }
 
-	void Start() {
+	private void Awake()
+	{
+		if (Instance != null)
+		{
+			Destroy(gameObject);
+			return;
+		}
+		Instance = this;
+	}
+
+	public void GenerateSpawn() {
 
 		textureSettings.ApplyToMaterial (mapMaterial);
 		textureSettings.UpdateMeshHeights (mapMaterial, heightMapSettings.minHeight, heightMapSettings.maxHeight);
@@ -39,25 +57,25 @@ public class TerrainGenerator : MonoBehaviour {
 		_chunksVisibleInViewDst = Mathf.RoundToInt(maxViewDst / _meshWorldSize);
 
 		MultiplayerTest.Instance.OnThisPlayerSpawned += OnPlayerSpawned;
-		//UpdateVisibleChunks ();
+		UpdateVisibleChunks ();
 	}
 
 	private void OnPlayerSpawned(Transform obj)
 	{
-		_viewer = obj;
+		viewer = obj;
 		_hasSetViewer = true;
-		_viewerPosition = new Vector2 (_viewer.position.x, _viewer.position.z);
+		_viewerPosition = new Vector2 (viewer.position.x, viewer.position.z);
 		_viewerPositionOld = _viewerPosition;
 		foreach (var chunk in terrainChunkDictionary.Values)
 		{
-			chunk.SetViewer(_viewer);
+			chunk.SetViewer(viewer);
 		}
 		UpdateVisibleChunks();
 	}
 
 	void Update() {
 		if(!_hasSetViewer) return;
-		_viewerPosition = new Vector2 (_viewer.position.x, _viewer.position.z);
+		_viewerPosition = new Vector2 (viewer.position.x, viewer.position.z);
 		visibleTerrainChunks.ForEach (chunk => chunk.UpdateGrass());
 
 		if ((_viewerPositionOld - _viewerPosition).sqrMagnitude > sqrViewerMoveThresholdForChunkUpdate) {
@@ -83,14 +101,28 @@ public class TerrainGenerator : MonoBehaviour {
 					if (terrainChunkDictionary.ContainsKey (viewedChunkCoord)) {
 						terrainChunkDictionary [viewedChunkCoord].UpdateTerrainChunk ();
 					} else {
-						TerrainChunk newChunk = new TerrainChunk (viewedChunkCoord,heightMapSettings,meshSettings, detailLevels, colliderLODIndex, transform, _viewer, mapMaterial);
+						TerrainChunk newChunk = new TerrainChunk (viewedChunkCoord,heightMapSettings,meshSettings, detailLevels, colliderLODIndex, transform, viewer, mapMaterial);
 						terrainChunkDictionary.Add (viewedChunkCoord, newChunk);
 						newChunk.onVisibilityChanged += OnTerrainChunkVisibilityChanged;
+						if (!IsSpawnGenerated)
+						{
+							newChunk.GeneratedCollider += OnChunkGeneratedCollider;
+						}
 						newChunk.Load ();
 					}
 				}
 
 			}
+		}
+	}
+
+	private void OnChunkGeneratedCollider()
+	{
+		if(terrainChunkDictionary.Values
+		   .Where(chunk => chunk.PreviousLODIndex == colliderLODIndex)
+		   .All(chunk => chunk.HasSetCollider))
+		{
+			OnSpawnGenerated();
 		}
 	}
 
@@ -102,6 +134,13 @@ public class TerrainGenerator : MonoBehaviour {
 		}
 	}
 
+	protected virtual void OnSpawnGenerated()
+	{
+		if(IsSpawnGenerated) return;
+		IsSpawnGenerated = true;
+		SpawnGenerated?.Invoke();
+		MultiplayerTest.Instance.OnClientConnectedServerRpc(NetworkManager.Singleton.LocalClientId);
+	}
 }
 
 [System.Serializable]

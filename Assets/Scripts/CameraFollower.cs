@@ -20,7 +20,7 @@ public class CameraFollower : MonoBehaviour
         }
     }
     
-    public Vector3 offset = new Vector3(0, 0.5f, 0);
+    public Vector3 offset = new Vector3(0, 4f, 0);
 
     private void Awake()
     {
@@ -30,7 +30,7 @@ public class CameraFollower : MonoBehaviour
 
     private void LateUpdate()
     {
-        transform.position = FollowObject.position + offset;
+        transform.position = FollowObject.position + offset + FollowObject.forward * 0.5f;
     }
     
 }

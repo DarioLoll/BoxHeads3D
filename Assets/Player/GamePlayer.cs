@@ -1,0 +1,63 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Services;
+using TMPro;
+using Unity.Collections;
+using Unity.Netcode;
+using Unity.Services.Lobbies.Models;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
+
+public class GamePlayer : NetworkBehaviour
+{
+    [SerializeField] private TextMeshProUGUI playerNickname;
+    private PlayerController _playerController;
+    [SerializeField] private Material playerMaterial;
+
+    public NetworkVariable<FixedString32Bytes> Nickname { get; } = new NetworkVariable<FixedString32Bytes>();
+    public NetworkVariable<FixedString32Bytes> ColorInHex { get; } = new NetworkVariable<FixedString32Bytes>();
+    
+    
+    public override void OnNetworkSpawn()
+    {
+        Nickname.OnValueChanged += OnNicknameChanged;
+        ColorInHex.OnValueChanged += OnColorChanged;
+        if(ColorInHex.Value != default)
+            OnColorChanged(default ,ColorInHex.Value);
+        if(Nickname.Value != default)
+            OnNicknameChanged(default, Nickname.Value);
+        if (MultiplayerTest.Instance != null && IsOwner)
+        {
+            MultiplayerTest.Instance.RegisterThisPlayer(transform);
+        }
+    }
+
+    private void OnColorChanged(FixedString32Bytes previousValue, FixedString32Bytes newValue)
+    {
+        playerMaterial.color = ColorUtility.TryParseHtmlString(newValue.Value, out var color) ? color : Color.white;
+        
+    }
+
+    private void OnNicknameChanged(FixedString32Bytes previousValue, FixedString32Bytes newValue)
+    {
+        playerNickname.text = newValue.Value;
+        playerNickname.gameObject.SetActive(!IsOwner);
+    }
+
+
+    [ServerRpc(RequireOwnership = false)]
+    public void AssignNickAndColorOnNetworkServerRpc(string nick, string colorInHex)
+    {
+        Nickname.Value = nick;
+        ColorInHex.Value =colorInHex;
+    }
+
+    public override void OnDestroy()
+    {
+        base.OnDestroy();
+        Nickname.OnValueChanged -= OnNicknameChanged;
+        ColorInHex.OnValueChanged -= OnColorChanged;
+    }
+}

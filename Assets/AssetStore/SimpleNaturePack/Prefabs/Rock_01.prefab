@@ -14,7 +14,8 @@ GameObject:
   - component: {fileID: 7007591236292485129}
   - component: {fileID: 3360519436261677699}
   - component: {fileID: 6600638160310631933}
-  m_Layer: 0
+  - component: {fileID: -4719506653029957912}
+  m_Layer: 3
   m_Name: Rock_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -141,7 +142,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 0
+  GlobalObjectIdHash: 1906187511
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -149,3 +150,17 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &-4719506653029957912
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7405846476849542632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9198d174c2cb5ed40bd4d4a456ed4bb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  durability: 20
+  itemDropCount: 1

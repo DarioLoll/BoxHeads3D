@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Collectables;
+using Managers;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -13,11 +15,15 @@ public class PlayerController : NetworkBehaviour
     /// The character controller component attached to the player
     /// </summary>
     private CharacterController _characterController;
+    
 
     /// <summary>
     /// <inheritdoc cref="PlayerRotator"/>
     /// </summary>
     private PlayerRotator _playerRotator;
+    
+    private GamePlayer _gamePlayer;
+    
 
     [SerializeField] private Animator animator;
 
@@ -34,14 +40,26 @@ public class PlayerController : NetworkBehaviour
     private float sprintingSpeed = 10f;
 
     private static readonly int SpeedPercentage = Animator.StringToHash("SpeedPercentage");
+    
+    private static readonly int SwingTrigger = Animator.StringToHash("Swing");
+    
+    private const float SwingDuration = 0.5f;
+    private float _swingTimer = SwingDuration;
 
+    public bool IsWalking { get; private set; }
     public bool IsSprinting => _inputActions.OnFoot.Sprint.IsPressed();
+
+    public event Action Drink;
 
     public float Speed
     {
         get
         {
             if (!IsSprinting) 
+                return walkingSpeed;
+            float thirstLevel = _gamePlayer.ThirstLevel;
+            float hungerLevel = _gamePlayer.HungerLevel;
+            if (thirstLevel >= GamePlayer.NoSprintingOnLevel || hungerLevel >= GamePlayer.NoSprintingOnLevel)
                 return walkingSpeed;
             return sprintingSpeed;
         }
@@ -60,10 +78,17 @@ public class PlayerController : NetworkBehaviour
         _inputActions = new InputActions();
         _inputActions.OnFoot.Enable();
         _playerRotator = GetComponent<PlayerRotator>();
+        _gamePlayer = GetComponent<GamePlayer>();
         _characterController = GetComponent<CharacterController>();
         _playerRotator.Camera = Camera.main;
         CameraFollower cameraFollower = Camera.main!.GetComponent<CameraFollower>();
         cameraFollower.FollowObject = transform;
+    }
+
+    private void OnCollectableReached(ICollectable collectable)
+    {
+        var handItem = _gamePlayer.Inventory.HandSlot.Item;
+        collectable.OnHit(handItem != null ? handItem.Value.Name : "empty");
     }
 
 
@@ -71,8 +96,53 @@ public class PlayerController : NetworkBehaviour
     void Update()
     {
         if(!IsOwner) return;
+        _swingTimer -= Time.deltaTime;
+        if(_swingTimer < 0) _swingTimer = 0;
+        if(_gamePlayer.IsInventoryOpen) return;
         Move(_inputActions.OnFoot.Movement.ReadValue<Vector2>());
+        CheckForCollectable();
         _playerRotator.Look(_inputActions.OnFoot.Look.ReadValue<Vector2>());
+        CheckForInteractable();
+        Swing();
+    }
+    
+    private void CheckForInteractable()
+    {
+        if (Physics.Raycast(_playerRotator.Camera.transform.position, _playerRotator.Camera.transform.forward,
+                out var hit, 3f)
+            && hit.transform.gameObject.name == "Terrain Chunk"
+            && hit.point.y <= TerrainGenerator.WaterHeight)
+        {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                OnDrink();
+            }
+            HudManager.Instance.ShowInteractable("Drink", HudManager.Instance.WaterIcon);
+        }
+        else
+        {
+            HudManager.Instance.HideInteractable();
+        }
+    }
+
+    private void Swing()
+    {
+        if(_swingTimer > 0) return;
+        if (Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            animator.SetTrigger(SwingTrigger);
+            if(!Physics.Raycast(_playerRotator.Camera.transform.position, _playerRotator.Camera.transform.forward, 
+                   out var hit, 2f)) return;
+            ICollectable collectable;
+            if (hit.transform.parent == null)
+            {
+                if(!hit.transform.TryGetComponent(out collectable)) 
+                    return;
+            }
+            else if (!hit.transform.parent.TryGetComponent(out collectable)) return;
+            OnCollectableReached(collectable);
+            _swingTimer = SwingDuration;
+        }
     }
 
     /// <summary>
@@ -81,6 +151,7 @@ public class PlayerController : NetworkBehaviour
     /// <param name="input">A normalized vector (both x and y must be between -1 and 1)</param>
     private void Move(Vector2 input)
     {
+        IsWalking = input.sqrMagnitude > 0.001f;
         //The player is only able to sprint in the forward direction
         if (input.y < 0)
             input.y *= walkingSpeed;
@@ -106,4 +177,17 @@ public class PlayerController : NetworkBehaviour
         _characterController.Move(transform.TransformDirection(motion));
     }
     
+    private void CheckForCollectable()
+    {
+        if (Physics.CapsuleCast(transform.position, transform.position + Vector3.up, 1.5f, transform.forward, out var hit, 2f))
+        {
+            if(hit.transform.TryGetComponent(typeof(ItemVm), out var itemVm))
+                _gamePlayer.OnItemPickedUpServerRpc(hit.transform.GetComponent<NetworkObject>());
+        }
+    }
+
+    protected virtual void OnDrink()
+    {
+        Drink?.Invoke();
+    }
 }

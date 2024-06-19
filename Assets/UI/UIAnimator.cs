@@ -15,7 +15,7 @@ namespace UI
 
         public bool IsBeingAnimated(GameObject gameObject)
         {
-            return _animatedObjects.Contains(gameObject);
+            return gameObject != null && _animatedObjects.Contains(gameObject);
         }
         public UIAnimator(UIManager ui)
         {

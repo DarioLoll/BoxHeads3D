@@ -20,7 +20,6 @@ namespace Models
         public Color Color { get; private set; } 
         public bool IsReady { get; private set; }
 
-        public bool InGame { get; set; } = false;
 
         public bool IsHost { get; private set; }
         

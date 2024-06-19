@@ -54,7 +54,6 @@ namespace ViewModels
         private Color _thisPlayerColor;
         private bool _thisPlayerReady;
 
-        private bool _inGame;
         
         private Color ThisPlayerColor
         {
@@ -113,7 +112,6 @@ namespace ViewModels
             LobbyManager.Instance.LobbyLeft += OnLobbyLeft;
             LobbyManager.Instance.Busy += OnLobbyManagerBusy;
             LobbyManager.Instance.NoLongerBusy += OnLobbyManagerNoLongerBusy;
-            LobbyManager.Instance.GameStarting += OnGameStarting;
         }
 
         
@@ -126,7 +124,6 @@ namespace ViewModels
             LobbyManager.Instance.LobbyLeft -= OnLobbyLeft;
             LobbyManager.Instance.Busy -= OnLobbyManagerBusy;
             LobbyManager.Instance.NoLongerBusy -= OnLobbyManagerNoLongerBusy;
-            LobbyManager.Instance.GameStarting -= OnGameStarting;
         }
 
         #region Event Handlers
@@ -145,10 +142,6 @@ namespace ViewModels
             _buttonLeave.enabled = false;
         }
         
-        private void OnGameStarting()
-        {
-            LoadingScreen.Instance.DisplayLoadingScreen("Game starting...");
-        }
 
         private void OnLobbyLeft() => SceneLoader.LoadScene(Scenes.MainMenu);
 
@@ -274,10 +267,9 @@ namespace ViewModels
             //Only the host can start the game
             btnStartGame.SetActive(LobbyManager.Instance.IsHost);
             UpdatePlayers();
-            if ((LobbyManager.Instance.State is LobbyState.Started or LobbyState.Starting) && _thisPlayerReady && !_inGame)
+            if ((LobbyManager.Instance.State is LobbyState.Started or LobbyState.Starting) && _thisPlayerReady)
             {
                 LobbyManager.Instance.TryConnectToGame();
-                _inGame = true;
             }
         }
 

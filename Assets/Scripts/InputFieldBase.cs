@@ -34,6 +34,7 @@ public class InputFieldBase : MonoBehaviour, IRefreshable
     public void Refresh(float animationDuration = 0f)
     {
         UIManager ui = UIManager.Instance;
+        if (ui == null) return;
         Color newTextColor = ui.GetColor(ColorType.BaseForeground);
         Color newOutlineColor = ui.GetColor(ColorType.Transparent);
         Color newBackgroundColor = ui.GetColor(ColorType.HighlightedBackground);

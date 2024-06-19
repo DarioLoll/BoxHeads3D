@@ -98,7 +98,7 @@ namespace Windows
             Dictionary<string, Rearrangement> rearrangements = GetRearrangements();
             Rearrange(rearrangements);
             LobbyPlayer thisPlayer = thisPlayerWindow.thisPlayer;
-            if (LobbyManager.Instance.GameStarted && thisPlayer.IsReady && !thisPlayer.InGame && !thisPlayer.IsHost)
+            if (LobbyManager.Instance.GameStarted && thisPlayer.IsReady && !thisPlayer.IsHost)
             {
                 LobbyManager.Instance.TryConnectToGame();
             }

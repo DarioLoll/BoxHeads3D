@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1257895545969857279}
   - component: {fileID: 2780692680659617398}
   - component: {fileID: 3461422629048897427}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Tree_04_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96,7 +96,8 @@ GameObject:
   - component: {fileID: 2807449429036539767}
   - component: {fileID: 5942433330446073732}
   - component: {fileID: 4244479386159843456}
-  m_Layer: 0
+  - component: {fileID: -8337169644356992536}
+  m_Layer: 3
   m_Name: Tree_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -155,7 +156,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 0
+  GlobalObjectIdHash: 2206867227
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -163,6 +164,20 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &-8337169644356992536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2807449429036958551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f89686958cb4f3c4e86a77f5def00a18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  durability: 100
+  itemDropCount: 7
 --- !u!1 &7897144593525785336
 GameObject:
   m_ObjectHideFlags: 0
@@ -175,7 +190,7 @@ GameObject:
   - component: {fileID: 2850665022625380679}
   - component: {fileID: 3478584790040504408}
   - component: {fileID: 2168348169181257211}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Tree_04_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

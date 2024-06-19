@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 108507113624698413}
   - component: {fileID: 3153294727251981205}
   - component: {fileID: -3546420172756593533}
-  m_Layer: 0
+  - component: {fileID: -5808369211559257625}
+  m_Layer: 3
   m_Name: Stump_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -70,7 +71,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 0
+  GlobalObjectIdHash: 3417848349
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -78,6 +79,20 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &-5808369211559257625
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 108507113624723981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f89686958cb4f3c4e86a77f5def00a18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  durability: 30
+  itemDropCount: 2
 --- !u!1 &6690580599928000713
 GameObject:
   m_ObjectHideFlags: 0
@@ -89,7 +104,7 @@ GameObject:
   - component: {fileID: 5968582415777641174}
   - component: {fileID: 3759092166302592149}
   - component: {fileID: 8011157136868685097}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Stump_01_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -175,7 +190,7 @@ GameObject:
   - component: {fileID: 6476173587137124530}
   - component: {fileID: 8313632506172493172}
   - component: {fileID: 3017253793611418416}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Stump_01_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

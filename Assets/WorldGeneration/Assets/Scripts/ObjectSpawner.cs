@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Managers;
 using Unity.Netcode;
 using UnityEditor;
 using UnityEngine;
@@ -15,16 +16,11 @@ namespace WorldGeneration.Assets.Scripts
 
         private void Awake()
         {
-            if (Instance != null)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
             Instance = this;
             _populatedChunkCoords = new NetworkList<Vector2>();
         }
         
+
         [SerializeField] private SpawnableObject[] objects;
 
         [Header("Prefab Variation Settings")] [SerializeField] [Range(0, 1)]

@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -55,6 +56,15 @@ namespace Services
         }
     
         public void DisplayLoadingScreen(string loadingText, Action callback = null)
+        {
+            DisplayLoadingScreen(loadingText, () =>
+            {
+                callback?.Invoke();
+                return Task.CompletedTask;
+            });
+        }
+        
+        public void DisplayLoadingScreen(string loadingText, Func<Task> callback)
         {
             if (gameObject.activeSelf) return;
             _isDisplaying = true;

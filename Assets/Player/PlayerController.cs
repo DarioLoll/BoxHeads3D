@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Collectables;
+using Managers;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -45,13 +46,20 @@ public class PlayerController : NetworkBehaviour
     private const float SwingDuration = 0.5f;
     private float _swingTimer = SwingDuration;
 
+    public bool IsWalking { get; private set; }
     public bool IsSprinting => _inputActions.OnFoot.Sprint.IsPressed();
+
+    public event Action Drink;
 
     public float Speed
     {
         get
         {
             if (!IsSprinting) 
+                return walkingSpeed;
+            float thirstLevel = _gamePlayer.ThirstLevel;
+            float hungerLevel = _gamePlayer.HungerLevel;
+            if (thirstLevel >= GamePlayer.NoSprintingOnLevel || hungerLevel >= GamePlayer.NoSprintingOnLevel)
                 return walkingSpeed;
             return sprintingSpeed;
         }
@@ -94,7 +102,27 @@ public class PlayerController : NetworkBehaviour
         Move(_inputActions.OnFoot.Movement.ReadValue<Vector2>());
         CheckForCollectable();
         _playerRotator.Look(_inputActions.OnFoot.Look.ReadValue<Vector2>());
+        CheckForInteractable();
         Swing();
+    }
+    
+    private void CheckForInteractable()
+    {
+        if (Physics.Raycast(_playerRotator.Camera.transform.position, _playerRotator.Camera.transform.forward,
+                out var hit, 3f)
+            && hit.transform.gameObject.name == "Terrain Chunk"
+            && hit.point.y <= TerrainGenerator.WaterHeight)
+        {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                OnDrink();
+            }
+            HudManager.Instance.ShowInteractable("Drink", HudManager.Instance.WaterIcon);
+        }
+        else
+        {
+            HudManager.Instance.HideInteractable();
+        }
     }
 
     private void Swing()
@@ -123,6 +151,7 @@ public class PlayerController : NetworkBehaviour
     /// <param name="input">A normalized vector (both x and y must be between -1 and 1)</param>
     private void Move(Vector2 input)
     {
+        IsWalking = input.sqrMagnitude > 0.001f;
         //The player is only able to sprint in the forward direction
         if (input.y < 0)
             input.y *= walkingSpeed;
@@ -156,5 +185,9 @@ public class PlayerController : NetworkBehaviour
                 _gamePlayer.OnItemPickedUpServerRpc(hit.transform.GetComponent<NetworkObject>());
         }
     }
-    
+
+    protected virtual void OnDrink()
+    {
+        Drink?.Invoke();
+    }
 }

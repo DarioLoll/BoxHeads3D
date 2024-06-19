@@ -67,8 +67,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 11a8dc9ea9de2de48b2e656c79bb5e1d, type: 2}
+  m_sharedMaterial: {fileID: 5181575008526997037, guid: 11a8dc9ea9de2de48b2e656c79bb5e1d, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -296,7 +296,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerNickname: {fileID: 208753156170270221}
   playerMaterial: {fileID: 2100000, guid: adc8a892651df934a900ef57d5838c18, type: 2}
+  _playerRenderer: {fileID: 6242203033780491937}
   holdingPosition: {fileID: 3911530450839259379}
+  healthPreview: 0
+  _hungerPoints: 0
+  _thirstPoints: 0
 --- !u!95 &8616668539056954159
 Animator:
   serializedVersion: 7
@@ -2413,6 +2417,11 @@ PrefabInstance:
 --- !u!4 &694148721926533544 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 205117969753839938, guid: 4f2e058a94bca0742939d136d2b88baf, type: 3}
+  m_PrefabInstance: {fileID: 827155044263717098}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &6242203033780491937 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 6762831828137606731, guid: 4f2e058a94bca0742939d136d2b88baf, type: 3}
   m_PrefabInstance: {fileID: 827155044263717098}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &8659794686703836216 stripped

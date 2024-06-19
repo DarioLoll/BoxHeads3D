@@ -22,7 +22,7 @@ namespace Models
             SetLobbyPlayers(lobby.Players.Count, lobby.MaxPlayers);
         }
 
-        public async void JoinLobby() => _lobbyWindow.JoinLobby(_lobby);
+        public void JoinLobby() => _lobbyWindow.JoinLobby(_lobby);
 
         private void SetLobbyName(string newName) => lobbyName.text = newName;
         private void SetLobbyPlayers(int players, int maxPlayer) => lobbyPlayers.text = $"{players}/{maxPlayer}";

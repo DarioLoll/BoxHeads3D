@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Windows;
 using Models;
 using PlayFab;
@@ -101,6 +102,7 @@ namespace Managers
             LobbyManager.Instance.LobbyCreated += SwitchToLobby;
             LobbyManager.Instance.LobbyLeft += SwitchToLobbyOptions;
             LobbyManager.Instance.PlayerKicked += SwitchToLobbyOptions;
+            LobbyManager.Instance.GameStarting += StartClient;  
             OnInitialized();
             if (manager.IsOffline)
             {
@@ -115,13 +117,40 @@ namespace Managers
                 EnterWindow(Window.LogIn);
         }
 
+        private void StartClient()
+        {
+            if (!LobbyManager.Instance.IsHost)
+            {
+                NetworkManager.Singleton.StartClient();
+                Debug.Log("Starting client");
+            }
+
+            StartGame();
+        }
+
+        private void StartGame()
+        {
+            Debug.Log("Starting game");
+            Windows[CurrentWindow].DisplayLoading("Starting game", () =>
+            {
+                if (!NetworkManager.Singleton.IsHost) return Task.CompletedTask;
+                SceneLoader.LoadSceneOnNetwork(Scenes.Game);
+                NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += LobbyManager.Instance.OnGameStarted;
+                return Task.CompletedTask;
+            });
+        }
+
+
         private void SwitchToLobby() => SwitchToWindow(Window.LobbyWindow);
         private void SwitchToLobbyOptions() => SwitchToWindow(Window.LobbyOptions);
 
         public void SwitchToGame()
         {
-            Windows[CurrentWindow].DisplayLoading("Starting game");
+            NetworkManager.Singleton.StartHost();
+            Debug.Log("Starting host");
+            StartGame();
         }
+        
 
         private void OnDestroy()
         {

@@ -468,7 +468,6 @@ namespace Managers
                 
                 await UpdateLobbyState(LobbyState.Starting);
                 OnGameStarting();
-                NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnGameStarted;
             }
             catch (Exception e)
             {
@@ -478,7 +477,7 @@ namespace Managers
         }
     
 
-        private async void OnGameStarted(string scenename, LoadSceneMode loadscenemode, 
+        public async void OnGameStarted(string scenename, LoadSceneMode loadscenemode, 
             List<ulong> clientscompleted, List<ulong> clientstimedout)
         {
             await UpdateLobbyState(LobbyState.Started);

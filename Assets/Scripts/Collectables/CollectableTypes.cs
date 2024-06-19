@@ -9,7 +9,7 @@ namespace Collectables
         public static readonly Dictionary<CollectableType, CollectableStats> Stats = new()
         {
             {CollectableType.Tree, new CollectableStats(Items.AxeName, 10, Items.WoodName)},
-            {CollectableType.Rock, new CollectableStats(Items.PickaxeName, 5, Items.StoneName)}
+            {CollectableType.Rock, new CollectableStats(Items.PickaxeName, 15, Items.StoneName)}
         };
     }
     

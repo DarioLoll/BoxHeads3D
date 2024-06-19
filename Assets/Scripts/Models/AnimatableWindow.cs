@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Managers;
 using Services;
@@ -56,8 +57,8 @@ namespace Models
             else if(exitingAnimation == ExitingAnimation.RotateOut)
                 Animator.Rotate(gameObject, false, callbackAction);
         }
-
-        public virtual void DisplayLoading(string loadingText = "Loading", Action callback = null)
+        
+        public virtual void DisplayLoading(string loadingText = "Loading", Func<Task> callback = null)
         {
             LoadingScreen.Instance.DisplayLoadingScreen(loadingText, callback);
             _closeLoading = () => LoadingScreen.Instance.CloseLoadingScreen();

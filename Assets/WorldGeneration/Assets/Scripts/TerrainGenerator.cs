@@ -4,6 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Managers;
+using Services;
 using Unity.Netcode;
 
 public class TerrainGenerator : MonoBehaviour {
@@ -12,6 +14,8 @@ public class TerrainGenerator : MonoBehaviour {
 	const float sqrViewerMoveThresholdForChunkUpdate = viewerMoveThresholdForChunkUpdate * viewerMoveThresholdForChunkUpdate;
 
 	public static TerrainGenerator Instance { get; private set; }
+	
+	public const float WaterHeight = 0.6f;
 
 	public int colliderLODIndex;
 	public LODInfo[] detailLevels;
@@ -56,7 +60,7 @@ public class TerrainGenerator : MonoBehaviour {
 		_meshWorldSize = meshSettings.meshWorldSize;
 		_chunksVisibleInViewDst = Mathf.RoundToInt(maxViewDst / _meshWorldSize);
 
-		MultiplayerTest.Instance.OnThisPlayerSpawned += OnPlayerSpawned;
+		GameManager.Instance.ThisPlayerSpawned += OnPlayerSpawned;
 		UpdateVisibleChunks ();
 	}
 
@@ -70,6 +74,10 @@ public class TerrainGenerator : MonoBehaviour {
 		{
 			chunk.SetViewer(viewer);
 		}
+		LoadingScreen.Instance.CloseLoadingScreen(() =>
+		{
+			GameManager.Instance.Fade(false);
+		});
 		UpdateVisibleChunks();
 	}
 
@@ -139,7 +147,6 @@ public class TerrainGenerator : MonoBehaviour {
 		if(IsSpawnGenerated) return;
 		IsSpawnGenerated = true;
 		SpawnGenerated?.Invoke();
-		MultiplayerTest.Instance.OnClientConnectedServerRpc(NetworkManager.Singleton.LocalClientId);
 	}
 }
 

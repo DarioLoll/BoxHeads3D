@@ -1,3 +1,4 @@
+using Managers;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -34,6 +35,7 @@ namespace Collectables
             else
                 damage = Stats.BaseDamagePerHit;
             Durability -= damage;
+            HudManager.Instance.DisplayHit(-damage);
             Debug.Log($"Type {Type} took {damage} damage. Durability: {Durability}");
             if (Durability <= 0)
             {
@@ -44,7 +46,7 @@ namespace Collectables
         public virtual void OnCollect()
         {
             Debug.Log($"Type {Type} collected");
-            MultiplayerTest.Instance.OnObjectDestroyedServerRpc(GetComponent<NetworkObject>());
+            GameManager.Instance.OnObjectDestroyedServerRpc(GetComponent<NetworkObject>());
         }
     }
 }
